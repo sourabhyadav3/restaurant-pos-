@@ -2,51 +2,71 @@
 
 @theme {
   --color-primary: #6366F1;
+  --color-primary-dark: #4F46E5;
+  --color-primary-light: #EEF2FF;
   --color-background: #F8FAFC;
   --color-surface: #FFFFFF;
   --color-border: #E2E8F0;
   --color-text-primary: #0F172A;
   --color-text-secondary: #64748B;
-  --color-success: #22C55E;
-  --color-danger: #EF4444;
+  --color-success: #10B981;
+  --color-danger: #F43F5E;
+  --color-warning: #F59E0B;
+  
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-premium-hover: 0 20px 25px -5px rgba(99, 102, 241, 0.1), 0 10px 10px -5px rgba(99, 102, 241, 0.04);
   
   --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
 }
 
 @layer base {
+  * {
+    @apply border-border;
+  }
   body {
     @apply bg-background text-text-primary font-['Inter',_sans-serif] antialiased;
+    overflow-x: hidden;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-white/80 backdrop-blur-md border border-white/20;
+    @apply bg-white/70 backdrop-blur-xl border border-white/40;
   }
   
   .card {
-    @apply bg-surface border border-border rounded-2xl p-6 shadow-sm transition-all duration-300;
+    @apply bg-surface border border-border rounded-2xl p-6 shadow-premium transition-all duration-300;
   }
 
-  .card-hover {
-    @apply hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10;
+  .card-interactive {
+    @apply hover:shadow-premium-hover hover:-translate-y-1 active:scale-[0.99];
   }
 
   .btn-primary {
-    @apply bg-primary text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 active:scale-95 hover:shadow-lg hover:shadow-primary/20 disabled:opacity-50;
+    @apply bg-primary text-white px-6 py-2.5 rounded-xl font-bold transition-all duration-200 active:scale-95 hover:bg-primary-dark shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center justify-center gap-2;
   }
 
   .btn-secondary {
-    @apply bg-slate-50 text-text-primary border border-border px-4 py-2 rounded-xl font-medium transition-all duration-200 active:scale-95 hover:bg-slate-100 disabled:opacity-50;
+    @apply bg-white text-text-primary border border-border px-6 py-2.5 rounded-xl font-bold transition-all duration-200 active:scale-95 hover:bg-slate-50 shadow-sm disabled:opacity-50 flex items-center justify-center gap-2;
   }
 
   .badge {
-    @apply px-2 py-0.5 rounded-full text-xs font-medium uppercase tracking-wider;
+    @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.05em] flex items-center gap-1.5 w-fit;
   }
 }
 
 @layer components {
   .input-field {
-    @apply w-full px-4 py-2 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all;
+    @apply w-full px-4 py-3 rounded-xl border border-border bg-white focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all placeholder:text-slate-400 font-medium;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

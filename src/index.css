@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #6366F1;
+  --color-background: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-border: #E2E8F0;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #64748B;
+  --color-success: #22C55E;
+  --color-danger: #EF4444;
+  
+  --radius-2xl: 1rem;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-text-primary font-['Inter',_sans-serif] antialiased;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20;
+  }
+  
+  .card {
+    @apply bg-surface border border-border rounded-2xl p-6 shadow-sm transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 active:scale-95 hover:shadow-lg hover:shadow-primary/20 disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply bg-slate-50 text-text-primary border border-border px-4 py-2 rounded-xl font-medium transition-all duration-200 active:scale-95 hover:bg-slate-100 disabled:opacity-50;
+  }
+
+  .badge {
+    @apply px-2 py-0.5 rounded-full text-xs font-medium uppercase tracking-wider;
+  }
+}
+
+@layer components {
+  .input-field {
+    @apply w-full px-4 py-2 rounded-lg border border-border focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all;
+  }
+}

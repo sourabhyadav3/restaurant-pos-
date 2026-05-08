@@ -117,7 +117,7 @@ const Tasks = () => {
                 <p className="text-xs font-black uppercase tracking-widest">No active duties found</p>
              </div>
            ) : (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
                 {filteredTasks.map((task) => (
                   <div 
                     key={task.id}

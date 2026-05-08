@@ -215,58 +215,57 @@ const GuestFolio = () => {
 
         {/* Folios List */}
         <div className="flex-1 overflow-hidden lg:card bg-transparent lg:bg-white border-none lg:shadow-xl lg:shadow-slate-100/50 lg:rounded-[2.5rem]">
-           <div className="h-full overflow-y-auto scrollbar-hide">
-              {/* Desktop Table View */}
-              <table className="w-full border-collapse hidden lg:table">
-                 <thead>
-                    <tr className="text-left bg-slate-50/50 border-b border-slate-100">
-                       <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Guest / Room</th>
-                       <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Items</th>
-                       <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Balance</th>
-                       <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
-                       <th className="px-8 py-5"></th>
-                    </tr>
-                 </thead>
-                 <tbody className="divide-y divide-slate-50">
-                    {filteredFolios.map((folio) => (
-                      <tr key={folio.id} className="hover:bg-slate-50/80 transition-colors group cursor-pointer" onClick={() => setSelectedFolio(folio)}>
-                         <td className="px-8 py-5">
-                            <div className="flex items-center gap-3">
-                               <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-text-primary">
-                                  <Bed className="w-5 h-5" />
-                               </div>
-                               <div>
-                                  <p className="text-sm font-black text-text-primary uppercase tracking-tight">{folio.guestName}</p>
-                                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Room {folio.roomName} • {folio.id}</p>
-                               </div>
-                            </div>
-                         </td>
-                         <td className="px-8 py-5 text-sm font-black text-text-primary">
-                            {folio.items.length} Charges
-                         </td>
-                         <td className="px-8 py-5">
-                            <span className="text-lg font-black text-primary tracking-tighter">₹{folio.total}</span>
-                         </td>
-                         <td className="px-8 py-5">
-                            <span className={cn(
-                              "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border",
-                              folio.status === 'Open' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                            )}>
-                               {folio.status} Account
-                            </span>
-                         </td>
-                         <td className="px-8 py-5 text-right">
-                            <button 
-                              className="p-2.5 bg-white border border-slate-100 rounded-xl text-slate-300 hover:text-primary hover:border-primary transition-all shadow-sm"
-                            >
-                               <ChevronRight className="w-4 h-4" />
-                            </button>
-                         </td>
+           <div className="h-full overflow-auto scrollbar-hide">
+              <div className="min-w-[800px]">
+                {/* Desktop Table View */}
+                <table className="w-full border-collapse hidden lg:table">
+                   <thead>
+                      <tr className="text-left bg-slate-50/50 border-b border-slate-100">
+                         <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Guest / Room</th>
+                         <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Items</th>
+                         <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Balance</th>
+                         <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
+                         <th className="px-8 py-5"></th>
                       </tr>
-                    ))}
-                 </tbody>
-              </table>
-
+                   </thead>
+                   <tbody className="divide-y divide-slate-50">
+                      {filteredFolios.map((folio) => (
+                        <tr key={folio.id} className="hover:bg-slate-50/80 transition-colors group cursor-pointer" onClick={() => setSelectedFolio(folio)}>
+                           <td className="px-8 py-5">
+                              <div className="flex items-center gap-3">
+                                 <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-text-primary">
+                                    <Bed className="w-5 h-5" />
+                                 </div>
+                                 <div className="min-w-0">
+                                    <p className="text-sm font-black text-text-primary uppercase tracking-tight truncate">{folio.guestName}</p>
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 truncate">Room {folio.roomName} • {folio.id}</p>
+                                 </div>
+                              </div>
+                           </td>
+                           <td className="px-8 py-5 text-sm font-black text-text-primary">
+                              {folio.items.length} Charges
+                           </td>
+                           <td className="px-8 py-5">
+                              <span className="text-lg font-black text-primary tracking-tighter">₹{folio.total}</span>
+                           </td>
+                           <td className="px-8 py-5">
+                              <span className={cn(
+                                "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border",
+                                folio.status === 'Open' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                              )}>
+                                 {folio.status} Account
+                              </span>
+                           </td>
+                           <td className="px-8 py-5 text-right">
+                              <button className="p-2 text-slate-300 hover:text-primary transition-all">
+                                 <ChevronRight className="w-5 h-5" />
+                              </button>
+                           </td>
+                        </tr>
+                      ))}
+                   </tbody>
+                </table>
+              </div>
               {/* Mobile Card View */}
               <div className="lg:hidden space-y-4 pb-20">
                 {filteredFolios.map((folio) => (

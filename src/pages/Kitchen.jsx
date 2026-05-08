@@ -173,7 +173,7 @@ const Kitchen = () => {
 
       {/* Tickets Scrollable Area */}
       <div className="flex-1 overflow-y-auto pr-1 lg:pr-2 scrollbar-hide">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-5 pb-20 lg:pb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-5 pb-20 lg:pb-10">
           {filteredOrders.length > 0 ? (
             filteredOrders.map((order) => {
               const config = getStatusConfig(order.status);
@@ -332,7 +332,7 @@ const Kitchen = () => {
               );
             })
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-20 min-w-[600px]">
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-8 lg:p-20 w-full">
                <div className="w-40 h-40 bg-slate-50 rounded-[3rem] shadow-inner flex items-center justify-center mb-10 relative">
                   <Sparkles className="w-20 h-20 text-slate-200" />
                   <ChefHat className="absolute w-10 h-10 text-primary opacity-20 -top-2 -right-2 rotate-12" />

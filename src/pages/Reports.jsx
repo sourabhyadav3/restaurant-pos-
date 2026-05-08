@@ -142,7 +142,7 @@ const Reports = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto pb-20 lg:pb-8 pr-1 lg:pr-2 scrollbar-hide space-y-6">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
           {stats.map((stat) => (
             <div 
               onClick={() => setSelectedMetric(stat)}

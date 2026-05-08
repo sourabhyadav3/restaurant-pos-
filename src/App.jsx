@@ -22,7 +22,6 @@ import CustomerHome from './pages/CustomerHome';
 import CustomerOrderNow from './pages/CustomerOrderNow';
 import CustomerOrders from './pages/CustomerOrders';
 import CustomerFavorites from './pages/CustomerFavorites';
-import CustomerRewards from './pages/CustomerRewards';
 import CustomerProfile from './pages/CustomerProfile';
 import CustomerSupport from './pages/CustomerSupport';
 import Rooms from './pages/Rooms';
@@ -245,11 +244,6 @@ function App() {
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/customer/rewards" element={
-                        <ProtectedRoute allowedRoles={[roles.CUSTOMER]}>
-                          <MainLayout><CustomerRewards /></MainLayout>
-                        </ProtectedRoute>
-                      } />
 
                       <Route path="/customer/profile" element={
                         <ProtectedRoute allowedRoles={[roles.CUSTOMER]}>

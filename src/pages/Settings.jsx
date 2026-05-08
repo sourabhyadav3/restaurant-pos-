@@ -352,27 +352,27 @@ const Settings = () => {
                                   <div className="p-2 lg:p-3 bg-white rounded-lg lg:rounded-xl text-primary font-black text-[8px] lg:text-[10px] uppercase shadow-sm shrink-0">{day.slice(0,3)}</div>
                                   <span className={cn("text-xs lg:text-sm font-black uppercase tracking-tight", schedule.active ? "text-text-primary" : "text-slate-400")}>{day}</span>
                                 </div>
-                               <div className="flex items-center justify-between sm:justify-end gap-3 lg:gap-4">
-                                  <div className="flex items-center gap-2">
-                                     <span className="text-[7px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest">Open</span>
-                                     <input 
-                                       type="time" 
-                                       value={schedule.open} 
-                                       onChange={(e) => handleTimeChange(day, 'open', e.target.value)}
-                                       disabled={!schedule.active}
-                                       className="bg-white border-none rounded-lg px-2 lg:px-3 py-1.5 text-[10px] lg:text-xs font-bold outline-none disabled:cursor-not-allowed shrink-0" 
-                                     />
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                     <span className="text-[7px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest">Close</span>
-                                     <input 
-                                       type="time" 
-                                       value={schedule.close} 
-                                       onChange={(e) => handleTimeChange(day, 'close', e.target.value)}
-                                       disabled={!schedule.active}
-                                       className="bg-white border-none rounded-lg px-2 lg:px-3 py-1.5 text-[10px] lg:text-xs font-bold outline-none disabled:cursor-not-allowed shrink-0" 
-                                     />
-                                  </div>
+                                <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 lg:gap-6 w-full sm:w-auto">
+                                   <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm shrink-0">
+                                      <span className="text-[7px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest">Open</span>
+                                      <input 
+                                        type="time" 
+                                        value={schedule.open} 
+                                        onChange={(e) => handleTimeChange(day, 'open', e.target.value)}
+                                        disabled={!schedule.active}
+                                        className="bg-transparent border-none rounded-lg text-[10px] lg:text-xs font-black outline-none disabled:cursor-not-allowed shrink-0" 
+                                      />
+                                   </div>
+                                   <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm shrink-0">
+                                      <span className="text-[7px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest">Close</span>
+                                      <input 
+                                        type="time" 
+                                        value={schedule.close} 
+                                        onChange={(e) => handleTimeChange(day, 'close', e.target.value)}
+                                        disabled={!schedule.active}
+                                        className="bg-transparent border-none rounded-lg text-[10px] lg:text-xs font-black outline-none disabled:cursor-not-allowed shrink-0" 
+                                      />
+                                   </div>
                                   <div 
                                     onClick={() => toggleDay(day)}
                                     className={cn(

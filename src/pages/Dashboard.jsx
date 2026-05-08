@@ -153,22 +153,22 @@ const Dashboard = () => {
       {/* Primary KPI Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => (
-          <div key={stat.id} className="card p-5 bg-white border-none shadow-xl shadow-slate-100/50 group hover:shadow-2xl hover:shadow-slate-200 transition-all cursor-pointer overflow-hidden relative">
-             <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-all duration-700" />
+          <div key={stat.id} className="card p-5 bg-white border-none shadow-xl shadow-slate-100/50 group hover:shadow-2xl hover:shadow-slate-200 cursor-pointer overflow-hidden relative">
+             <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 duration-700" />
              <div className="flex justify-between items-start mb-6">
-                <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner", stat.color)}>
-                   <stat.icon className={cn("w-6 h-6 stroke-[2]", stat.id === 'cooking' && "animate-spin-slow")} />
+                <div className={cn("w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center shadow-inner", stat.color)}>
+                   <stat.icon className={cn("w-5 h-5 lg:w-6 lg:h-6 stroke-[2]", stat.id === 'cooking' && "animate-spin-slow")} />
                 </div>
                 <div className={cn(
-                  "px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest",
+                  "px-2 py-1 rounded-lg text-[8px] lg:text-[9px] font-black uppercase tracking-widest truncate max-w-[80px] lg:max-w-none",
                   stat.isUp ? "text-emerald-500 bg-emerald-50" : "text-rose-500 bg-rose-50"
                 )}>
                    {stat.change}
                 </div>
              </div>
-             <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.name}</p>
-                <h3 className="text-2xl font-black text-text-primary tracking-tighter mt-1">{stat.value}</h3>
+             <div className="min-w-0">
+                <p className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">{stat.name}</p>
+                <h3 className="text-xl lg:text-2xl font-black text-text-primary tracking-tighter mt-1 truncate">{stat.value}</h3>
              </div>
           </div>
         ))}
@@ -178,7 +178,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left Column: Live Status Section */}
         <div className="xl:col-span-2 space-y-6">
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Rooms & Tables Status Grid */}
               <div className="card p-6 bg-white border-none shadow-xl shadow-slate-100/50">
                  <div className="flex justify-between items-center mb-6">

@@ -19,34 +19,47 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '#about' },
-    { name: 'Menu', href: '#menu' },
+    { name: 'Menu', href: '/menu' },
     { name: 'Services', href: '#services' },
+    { name: 'Book Table', href: '#reservation' },
     { name: 'Contact', href: '#contact' },
   ];
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-dark/80 backdrop-blur-md py-4 shadow-xl' : 'bg-transparent py-6'
-        }`}
+      className={`fixed w-full z-50 transition-all duration-300 ${
+        scrolled ? 'bg-dark/80 backdrop-blur-md py-2.5 md:py-4 shadow-xl' : 'bg-transparent py-4 md:py-6'
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold font-display tracking-tight text-white">
-              RESTA<span className="text-landing-primary">URANT</span>
+          <Link to="/" className="flex items-center gap-1 md:gap-3">
+            <img src="/1000464407-removebg-preview.png" alt="Gila House Logo" className="h-7 md:h-12 w-auto object-contain" />
+            <span className="text-[14px] md:text-2xl font-black font-display tracking-tighter md:tracking-tight text-white uppercase italic">
+              Gila<span className="text-landing-primary">House</span>
             </span>
           </Link>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-sm font-medium text-gray-300 hover:text-landing-primary transition-colors duration-300"
-              >
-                {link.name}
-              </a>
+              link.href.startsWith('/') ? (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className="text-sm font-medium text-gray-300 hover:text-landing-primary transition-colors duration-300"
+                >
+                  {link.name}
+                </Link>
+              ) : (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-sm font-medium text-gray-300 hover:text-landing-primary transition-colors duration-300"
+                >
+                  {link.name}
+                </a>
+              )
             ))}
             <Link
               to="/login"
@@ -83,14 +96,25 @@ const Navbar = () => {
           >
             <div className="px-4 pt-2 pb-6 space-y-2">
               {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="block px-3 py-4 text-base font-medium text-gray-300 hover:bg-white/5 rounded-lg"
-                >
-                  {link.name}
-                </a>
+                link.href.startsWith('/') ? (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className="block px-3 py-4 text-base font-medium text-gray-300 hover:bg-white/5 rounded-lg"
+                  >
+                    {link.name}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className="block px-3 py-4 text-base font-medium text-gray-300 hover:bg-white/5 rounded-lg"
+                  >
+                    {link.name}
+                  </a>
+                )
               ))}
               <Link
                 to="/login"

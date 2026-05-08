@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import EcosystemGrid from './components/EcosystemGrid';
 import Stats from './components/Stats';
 import FeaturedFood from './components/FeaturedFood';
+import HospitalityService from './components/HospitalityService';
 import About from './components/About';
 import Services from './components/Services';
+import Reservation from './components/Reservation';
 import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
@@ -28,10 +31,13 @@ const LandingPage = () => {
       <Navbar />
       <main>
         <Hero />
+        <EcosystemGrid />
         <Stats />
         <FeaturedFood />
+        <HospitalityService />
         <About />
         <Services />
+        <Reservation />
         <Testimonials />
         <Contact />
       </main>

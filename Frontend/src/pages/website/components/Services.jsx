@@ -1,56 +1,84 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Utensils, Truck, Clock, ShieldCheck } from 'lucide-react';
+import { Utensils, Truck, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
 
-const services = [
+const ecosystem = [
   {
-    title: 'Quality Food',
-    desc: 'We provide the best quality food in town with fresh ingredients.',
-    icon: Utensils,
-    color: 'bg-blue-500/10 text-blue-500'
+    title: 'Instant QR Ordering',
+    desc: 'Zero wait time. Guests scan, browse, and order directly from their table.',
+    img: '/Immagine 2026-04-16 042531.png',
+    tag: 'Revolutionary',
+    fit: 'object-contain',
+    bgColor: 'bg-white'
   },
   {
+<<<<<<< HEAD
     title: 'Fast Order',
     desc: 'Experience lightning-fast service with our optimized order delivery system.',
     icon: Truck,
     color: 'bg-landing-primary/10 text-landing-primary'
+=======
+    title: 'Smart Payments',
+    desc: 'Seamless UPI and Card integrations for lightning-fast checkouts.',
+    img: '/Immagine 2026-04-16 042508.png',
+    tag: 'Secure',
+    fit: 'object-contain',
+    bgColor: 'bg-white'
+>>>>>>> 72e0472723fa663ac06ad33cce1f06777cb39915
   },
   {
-    title: '24/7 Service',
-    desc: 'Our kitchen is open day and night for your hunger cravings.',
-    icon: Clock,
-    color: 'bg-landing-secondary/10 text-landing-secondary'
-  },
-  {
-    title: 'Safe & Clean',
-    desc: 'We follow strict safety protocols and hygiene standards.',
-    icon: ShieldCheck,
-    color: 'bg-emerald-500/10 text-emerald-500'
+    title: 'Ultra Fast Wifi',
+    desc: 'Keep your guests connected with our managed high-speed network.',
+    img: '/Modern Black and White Wifi Poster (2).jpg',
+    tag: 'Connected',
+    fit: 'object-contain',
+    bgColor: 'bg-[#f4d5a8]' // Matching the cream background of the poster
   }
 ];
 
 const Services = () => {
   return (
-    <section className="py-24" id="services">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <span className="text-landing-primary font-bold uppercase tracking-widest text-sm">Our Services</span>
-        <h2 className="text-4xl md:text-5xl font-bold font-display mt-2 mb-16 text-white">Why Choose Us?</h2>
+    <section className="py-32 relative overflow-hidden" id="services">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-landing-primary/5 rounded-full blur-[100px] -mr-48 -mt-48" />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <motion.span 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          className="text-landing-primary font-black uppercase tracking-[0.3em] text-xs"
+        >
+          Technology at Heart
+        </motion.span>
+        <h2 className="text-4xl md:text-6xl font-black font-display mt-4 mb-20 text-white uppercase tracking-tighter">
+          The <span className="text-landing-primary italic">Smart</span> Ecosystem
+        </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {services.map((service, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
+          {ecosystem.map((item, i) => (
             <motion.div
-              key={service.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
+              key={item.title}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.2 }}
               viewport={{ once: true }}
-              className="glass-card p-10 hover:translate-y-[-10px] transition-all duration-300 group"
+              className="glass-card group p-0 overflow-hidden hover:border-landing-primary/50 transition-all duration-700 shadow-2xl flex flex-col h-full"
             >
-              <div className={`w-16 h-16 ${service.color} rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform`}>
-                <service.icon size={32} />
+              <div className={`relative h-96 overflow-hidden ${item.bgColor} flex items-center justify-center p-6 shadow-inner`}>
+                 <img src={item.img} alt={item.title} className={`w-full h-full transition-transform duration-[2s] group-hover:scale-105 ${item.fit}`} />
+                 <div className="absolute inset-0 bg-dark/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                 <div className="absolute top-6 left-6 bg-landing-primary text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-xl z-20">
+                    {item.tag}
+                 </div>
               </div>
-              <h3 className="text-xl font-bold mb-4 text-white">{service.title}</h3>
-              <p className="text-gray-400 leading-relaxed text-sm">{service.desc}</p>
+              <div className="p-10 text-left bg-dark-lighter/50 backdrop-blur-sm border-t border-white/5 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-2xl font-black mb-4 text-white uppercase tracking-tight group-hover:text-landing-primary transition-colors">{item.title}</h3>
+                  <p className="text-gray-400 leading-relaxed text-sm font-medium mb-8">{item.desc}</p>
+                </div>
+                <div className="flex items-center gap-4 text-[11px] font-black text-landing-primary uppercase tracking-[0.3em] mt-auto">
+                   Get Started <ArrowRight size={16} className="group-hover:translate-x-3 transition-transform" />
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>

@@ -5,7 +5,7 @@ import heroBg from '../../../assets/landing/hero-bg.png'; // Reusing as a placeh
 
 const About = () => {
   return (
-    <section className="py-24" id="about">
+    <section className="py-12 md:py-24" id="about">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <motion.div
@@ -14,12 +14,12 @@ const About = () => {
             viewport={{ once: true }}
             className="relative"
           >
-            <div className="rounded-3xl overflow-hidden shadow-2xl border-8 border-white/5">
-              <img src={heroBg} alt="Chef" className="w-full h-[500px] object-cover" />
+            <div className="rounded-3xl overflow-hidden shadow-2xl border-8 border-white/5 group">
+              <img src="/1000464401.jpg" alt="Atmosphere" className="w-full h-[500px] object-cover group-hover:scale-110 transition-transform duration-[5s]" />
             </div>
-            <div className="absolute -bottom-10 -right-10 glass-card p-8 hidden md:block max-w-[250px]">
-              <h4 className="text-4xl font-bold text-landing-primary mb-1">25+</h4>
-              <p className="text-sm font-semibold uppercase tracking-wider text-gray-400">Years of Culinary Experience</p>
+            <div className="absolute -bottom-10 -right-10 glass-card p-8 hidden md:block max-w-[250px] border-landing-primary/30">
+              <h4 className="text-4xl font-black text-landing-primary mb-1">SMART</h4>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Integrated Hospitality Solutions</p>
             </div>
           </motion.div>
 

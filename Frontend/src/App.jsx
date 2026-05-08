@@ -11,6 +11,17 @@ import MainLayout from './layouts/MainLayout';
 
 // Website
 import LandingPage from './pages/website/LandingPage';
+import DigitalMenu from './pages/website/DigitalMenu';
+import Excursions from './pages/website/Excursions';
+import Transport from './pages/website/Transport';
+import BookTable from './pages/website/BookTable';
+import OrderingEntry from './pages/website/OrderingEntry';
+import GuestCheckIn from './pages/website/GuestCheckIn';
+import GuestDashboard from './pages/website/GuestDashboard';
+import GuestMenu from './pages/website/GuestMenu';
+import MyBill from './pages/website/MyBill';
+import RequestChat from './pages/website/RequestChat';
+import ChatReception from './pages/website/ChatReception';
 
 // Auth
 import Login from './pages/auth/Login';
@@ -126,6 +137,17 @@ function App() {
                     <Routes>
                       {/* Landing Page */}
                       <Route path="/" element={<LandingPage />} />
+                      <Route path="/menu" element={<DigitalMenu />} />
+                      <Route path="/excursions" element={<Excursions />} />
+                      <Route path="/transport" element={<Transport />} />
+                      <Route path="/book" element={<BookTable />} />
+                      <Route path="/order" element={<OrderingEntry />} />
+                      <Route path="/checkin" element={<GuestCheckIn />} />
+                      <Route path="/guest-app" element={<GuestDashboard />} />
+                      <Route path="/guest-menu" element={<GuestMenu />} />
+                      <Route path="/my-bill" element={<MyBill />} />
+                      <Route path="/request-chat" element={<RequestChat />} />
+                      <Route path="/chat" element={<ChatReception />} />
                       
                       {/* Auth */}
                       <Route path="/login" element={<Login />} />
@@ -197,7 +219,11 @@ function App() {
                         </ProtectedRoute>
                       } />
 
+<<<<<<< HEAD
                       <Route path="/:role/menu" element={
+=======
+                      <Route path="/admin-menu" element={
+>>>>>>> 72e0472723fa663ac06ad33cce1f06777cb39915
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER]}>
                           <MainLayout><Menu /></MainLayout>
                         </ProtectedRoute>

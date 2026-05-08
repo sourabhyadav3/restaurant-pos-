@@ -15,12 +15,14 @@ import {
   AlertCircle,
   CheckCircle2,
   MapPin,
-  Users
+  Users,
+  Printer
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
 import { useCustomer } from "../../../context/CustomerContext";
 import { useNavigate } from 'react-router-dom';
+import printContent from '../../../utils/printUtil';
 
 const CustomerReservations = () => {
   const { reservations, addReservation } = useHospitality();
@@ -28,6 +30,7 @@ const CustomerReservations = () => {
   const navigate = useNavigate();
   const [showAddRes, setShowAddRes] = useState(false);
   const [activeTab, setActiveTab] = useState('All');
+  const [selectedResForPrint, setSelectedResForPrint] = useState(null);
 
   const [newResData, setNewResData] = useState({
     type: 'Table',
@@ -143,6 +146,14 @@ const CustomerReservations = () => {
                 key={res.id}
                 className="card bg-white border-none shadow-xl shadow-slate-100/50 p-6 rounded-[2.5rem] group hover:bg-slate-50 transition-all relative overflow-hidden"
               >
+                <div className="absolute top-0 right-0 p-4 z-20">
+                   <button 
+                     onClick={() => { setSelectedResForPrint(res); setTimeout(() => printContent('printable-area'), 200); }}
+                     className="p-2.5 bg-white/80 backdrop-blur-md rounded-xl text-slate-400 hover:text-primary transition-all shadow-sm opacity-0 group-hover:opacity-100 no-print"
+                   >
+                      <Printer className="w-4 h-4" />
+                   </button>
+                </div>
                 <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 group-hover:scale-110 transition-transform" />
                 
                 <div className="flex justify-between items-start mb-6">
@@ -273,6 +284,62 @@ const CustomerReservations = () => {
                 Send Booking Request
               </button>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Hidden Printable Reservation */}
+      {selectedResForPrint && (
+        <div id="printable-area" className="hidden print:block printable-area receipt-print">
+          <div className="text-center border-b-2 border-slate-900 pb-4 mb-4">
+            <h1 className="text-xl font-black uppercase tracking-tighter">THE LUXE GRANDE</h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest mt-1">Booking Confirmation</p>
+          </div>
+          
+          <div className="space-y-4">
+             <div className="flex justify-between items-start">
+                <div>
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Booking For</p>
+                   <p className="text-sm font-black uppercase">{profile.name}</p>
+                </div>
+                <div className="text-right">
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Booking ID</p>
+                   <p className="text-sm font-black">#{selectedResForPrint.id}</p>
+                </div>
+             </div>
+
+             <div className="py-4 border-y border-slate-900 grid grid-cols-2 gap-4">
+                <div>
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Type</p>
+                   <p className="text-xs font-black uppercase">{selectedResForPrint.type} • {selectedResForPrint.targetId || 'Pending'}</p>
+                </div>
+                <div className="text-right">
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Guests</p>
+                   <p className="text-xs font-black uppercase">{selectedResForPrint.guests} Person(s)</p>
+                </div>
+             </div>
+
+             <div className="flex justify-between items-center py-2">
+                <div>
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Date</p>
+                   <p className="text-xs font-black uppercase">{selectedResForPrint.date}</p>
+                </div>
+                <div className="text-right">
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Time</p>
+                   <p className="text-xs font-black uppercase">{selectedResForPrint.time}</p>
+                </div>
+             </div>
+
+             {selectedResForPrint.notes && (
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Notes</p>
+                   <p className="text-[10px] font-bold italic">"{selectedResForPrint.notes}"</p>
+                </div>
+             )}
+          </div>
+
+          <div className="text-center pt-8 border-t border-slate-200">
+            <p className="text-[9px] font-black uppercase tracking-widest">Confirmation Slip</p>
+            <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase">Please present this at arrival</p>
           </div>
         </div>
       )}

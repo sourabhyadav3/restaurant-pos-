@@ -22,7 +22,44 @@ export const CustomerProvider = ({ children }) => {
       phone: '+91 98765 43210',
       email: 'guest@example.com',
       tableId: '05',
-      diningType: 'Dine-in'
+      diningType: 'Dine-in',
+      language: 'English'
+    };
+  });
+
+  const [paymentMethods, setPaymentMethods] = useState(() => {
+    const saved = localStorage.getItem('resto-customer-payments');
+    return saved ? JSON.parse(saved) : [
+      { id: 1, type: 'Visa', last4: '4242', expiry: '12/25', isDefault: true },
+      { id: 2, type: 'Mastercard', last4: '8888', expiry: '08/24', isDefault: false }
+    ];
+  });
+
+  const [addresses, setAddresses] = useState(() => {
+    const saved = localStorage.getItem('resto-customer-addresses');
+    return saved ? JSON.parse(saved) : [
+      { id: 1, label: 'Home', address: '123 Luxury Avenue, Penthouse 4, Mumbai', isDefault: true },
+      { id: 2, label: 'Office', address: 'Business Center Tower B, 15th Floor, BKC', isDefault: false }
+    ];
+  });
+
+  const [notificationPrefs, setNotificationPrefs] = useState(() => {
+    const saved = localStorage.getItem('resto-customer-notifs');
+    return saved ? JSON.parse(saved) : {
+      orders: true,
+      reservations: true,
+      roomService: true,
+      offers: false
+    };
+  });
+
+  const [systemSettings, setSystemSettings] = useState(() => {
+    const saved = localStorage.getItem('resto-customer-settings');
+    return saved ? JSON.parse(saved) : {
+      language: 'English',
+      theme: 'Indigo',
+      currency: 'INR',
+      timeFormat: '12h'
     };
   });
 
@@ -47,6 +84,22 @@ export const CustomerProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('resto-customer-support', JSON.stringify(supportRequests));
   }, [supportRequests]);
+
+  useEffect(() => {
+    localStorage.setItem('resto-customer-payments', JSON.stringify(paymentMethods));
+  }, [paymentMethods]);
+
+  useEffect(() => {
+    localStorage.setItem('resto-customer-addresses', JSON.stringify(addresses));
+  }, [addresses]);
+
+  useEffect(() => {
+    localStorage.setItem('resto-customer-notifs', JSON.stringify(notificationPrefs));
+  }, [notificationPrefs]);
+
+  useEffect(() => {
+    localStorage.setItem('resto-customer-settings', JSON.stringify(systemSettings));
+  }, [systemSettings]);
 
   const addToCart = (item, size, quantity, notes) => {
     setCartItems(prev => {
@@ -94,14 +147,13 @@ export const CustomerProvider = ({ children }) => {
     setProfile(prev => ({ ...prev, ...data }));
   };
 
-  const createSupportRequest = (type, message = '') => {
+  const createSupportRequest = (details) => {
     const newReq = {
-      id: Date.now(),
-      type,
-      message,
+      id: `SR-${Math.floor(1000 + Math.random() * 9000)}`,
       status: 'Open',
       createdAt: new Date().toISOString(),
-      tableId: profile.tableId
+      tableId: profile.tableId,
+      ...details
     };
     setSupportRequests(prev => [newReq, ...prev]);
     return newReq;
@@ -112,6 +164,10 @@ export const CustomerProvider = ({ children }) => {
       cartItems, addToCart, removeFromCart, updateCartQuantity, clearCart,
       favorites, toggleFavorite,
       profile, updateProfile,
+      paymentMethods, setPaymentMethods,
+      addresses, setAddresses,
+      notificationPrefs, setNotificationPrefs,
+      systemSettings, setSystemSettings,
       appliedCoupon, setAppliedCoupon,
       supportRequests, createSupportRequest
     }}>

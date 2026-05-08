@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
+import printContent from "../../../utils/printUtil";
 
 const QRManager = () => {
   const { rooms, tables } = useHospitality();
@@ -46,7 +47,7 @@ const QRManager = () => {
   };
 
   const handlePrint = () => {
-    window.print();
+    printContent('premium-print-template');
   };
 
   const handleShare = async (item) => {
@@ -71,60 +72,31 @@ const QRManager = () => {
 
   return (
     <div className="h-full flex flex-col gap-6">
-      <style>{`
-        @media print {
-          @page {
-            margin: 0;
-            size: portrait;
-          }
-          body * {
-            visibility: hidden !important;
-          }
-          #premium-print-template, #premium-print-template * {
-            visibility: visible !important;
-          }
-          #premium-print-template {
-            position: fixed !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            background: white !important;
-            z-index: 999999 !important;
-          }
-          .no-print {
-            display: none !important;
-          }
-        }
-      `}</style>
 
       {/* Premium Print Template (Hidden from UI, visible only in Print) */}
       <div id="premium-print-template" className="hidden">
-         <div className="w-[105mm] h-[148mm] bg-white border-[12px] border-slate-900 p-12 flex flex-col items-center justify-between text-center relative overflow-hidden">
-            {/* Design Elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-slate-900 rotate-45 translate-x-16 -translate-y-16" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-slate-900 rotate-45 -translate-x-16 translate-y-16" />
-            
-            <div className="space-y-3 z-10">
+         <div className="qr-label-print">
+            <div className="space-y-3">
                <div className="w-16 h-1 bg-slate-900 mx-auto" />
                <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">THE LUXE GRANDE</h1>
                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Smart Concierge</p>
             </div>
 
-            <div className="flex flex-col items-center gap-8 z-10">
-               <div className="p-6 border-4 border-slate-900 rounded-[3rem] bg-white shadow-2xl">
-                  <QrCode className="w-48 h-48 text-slate-900" />
+            <div className="flex flex-col items-center gap-8">
+               <div className="qr-image-container">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getQRUrl(selectedItem || {name: 'DEFAULT'}))}`} 
+                    alt="QR Code" 
+                    className="qr-image" 
+                  />
                </div>
                <div className="space-y-2">
-                  <span className="px-4 py-1 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full">Scan Me</span>
+                  <div className="scan-badge">Scan Me</div>
                   <h2 className="text-6xl font-black text-slate-900 uppercase tracking-tighter">{selectedItem?.name}</h2>
                </div>
             </div>
 
-            <div className="space-y-6 z-10 w-full">
+            <div className="space-y-6 w-full">
                <p className="text-[14px] font-bold leading-relaxed text-slate-600 px-4">
                   Access our digital services, room service, <br/> 
                   and instant messaging directly from your device.
@@ -222,8 +194,12 @@ const QRManager = () => {
                      </p>
                   </div>
 
-                  <div className="relative aspect-square bg-slate-50 rounded-2xl flex flex-col items-center justify-center gap-3 group-hover:bg-slate-100 transition-all border border-slate-100/50">
-                     <QrCode className="w-16 h-16 text-slate-300 group-hover:text-primary transition-all duration-500" />
+                  <div className="relative aspect-square bg-slate-50 rounded-2xl flex flex-col items-center justify-center gap-3 group-hover:bg-slate-100 transition-all border border-slate-100/50 overflow-hidden">
+                     <img 
+                       src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(getQRUrl(item))}`} 
+                       alt="QR Code" 
+                       className="w-16 h-16 group-hover:scale-110 transition-all duration-500" 
+                     />
                      <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400">Scan for Guest Experience</p>
                   </div>
 
@@ -263,14 +239,18 @@ const QRManager = () => {
             </div>
             
             <div className="p-6 lg:p-10 flex flex-col items-center gap-6 lg:gap-8 text-center overflow-y-auto scrollbar-hide">
-              <div className="p-4 lg:p-6 bg-white border-2 border-slate-50 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl shadow-slate-200/50 group relative shrink-0">
-                 <div className="absolute inset-0 bg-primary/5 rounded-[2rem] lg:rounded-[2.5rem] scale-105 blur-2xl opacity-0 group-hover:opacity-100 transition-all no-print" />
-                 <QrCode className="w-32 lg:w-48 h-32 lg:h-48 text-text-primary relative z-10" />
-                 <div className="mt-4 lg:mt-6 flex items-center justify-center gap-3 text-primary relative z-10">
-                    <Sparkles className="w-4 h-4 animate-pulse no-print" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Dynamic Smart QR</span>
-                 </div>
-              </div>
+               <div className="p-4 lg:p-6 bg-white border-2 border-slate-50 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl shadow-slate-200/50 group relative shrink-0">
+                  <div className="absolute inset-0 bg-primary/5 rounded-[2rem] lg:rounded-[2.5rem] scale-105 blur-2xl opacity-0 group-hover:opacity-100 transition-all no-print" />
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getQRUrl(selectedItem))}`} 
+                    alt="QR Code" 
+                    className="w-32 lg:w-48 h-32 lg:h-48 relative z-10 mx-auto" 
+                  />
+                  <div className="mt-4 lg:mt-6 flex items-center justify-center gap-3 text-primary relative z-10">
+                     <Sparkles className="w-4 h-4 animate-pulse no-print" />
+                     <span className="text-[10px] font-black uppercase tracking-widest">Dynamic Smart QR</span>
+                  </div>
+               </div>
 
               <div className="w-full space-y-4">
                  <div className="p-4 lg:p-5 bg-slate-50 rounded-2xl text-left relative group overflow-hidden">

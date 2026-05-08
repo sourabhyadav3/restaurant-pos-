@@ -28,6 +28,7 @@ import {
   Star
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
+import printContent from "../../../utils/printUtil";
 
 const Reports = () => {
   const [timeRange, setTimeRange] = useState('This Month');
@@ -38,7 +39,7 @@ const Reports = () => {
   const [selectedMetric, setSelectedMetric] = useState(null);
   const [showDateModal, setShowDateModal] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
-  const [showConfig, setShowConfig] = useState(false);
+
   const [toast, setToast] = useState(null);
 
   // Mock Data Logic
@@ -68,7 +69,7 @@ const Reports = () => {
   };
 
   const handlePrint = () => {
-    window.print();
+    printContent('printable-area');
     showToast('Print command sent');
   };
 
@@ -106,35 +107,37 @@ const Reports = () => {
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 shrink-0 print:hidden">
-        <div>
-          <h2 className="text-xl lg:text-2xl font-black text-text-primary uppercase tracking-tight leading-none">Intelligence</h2>
-          <p className="text-text-secondary mt-1.5 text-[10px] lg:text-sm font-medium flex items-center gap-2">
-            Analytics • <span className="text-primary font-bold">Updated {lastUpdated}</span>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 shrink-0 print:hidden px-1">
+        <div className="space-y-1">
+          <h2 className="text-2xl lg:text-3xl font-black text-text-primary uppercase tracking-tight leading-none">Intelligence</h2>
+          <p className="text-text-secondary text-[9px] lg:text-sm font-medium flex items-center gap-2">
+            Analytics Node • <span className="text-primary font-black uppercase tracking-widest text-[8px] lg:text-[10px]">Active {lastUpdated}</span>
           </p>
         </div>
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 scrollbar-hide">
-          <button 
-            onClick={handleRefresh}
-            className="p-2.5 bg-white border border-border rounded-xl hover:bg-slate-50 shadow-sm shrink-0"
-          >
-            <RefreshCw className={cn("w-4 h-4 text-text-secondary", isRefreshing && "animate-spin")} />
-          </button>
-          <button 
-            onClick={handlePrint}
-            className="p-2.5 bg-white border border-border rounded-xl hover:bg-slate-50 shadow-sm shrink-0"
-          >
-            <Printer className="w-4 h-4 text-text-secondary" />
-          </button>
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide -mx-1 px-1">
+          <div className="flex bg-white p-1 rounded-2xl border border-slate-100 shadow-sm shrink-0">
+            <button 
+              onClick={handleRefresh}
+              className="p-2.5 hover:bg-slate-50 rounded-xl transition-all active:scale-90"
+            >
+              <RefreshCw className={cn("w-4 h-4 text-text-secondary", isRefreshing && "animate-spin")} />
+            </button>
+            <button 
+              onClick={handlePrint}
+              className="p-2.5 hover:bg-slate-50 rounded-xl transition-all active:scale-90"
+            >
+              <Printer className="w-4 h-4 text-text-secondary" />
+            </button>
+          </div>
           <button 
             onClick={() => setShowDateModal(true)}
-            className="flex items-center gap-2 px-3 lg:px-4 py-2.5 bg-white border border-border rounded-xl text-[8px] lg:text-[9px] font-black uppercase tracking-widest hover:bg-slate-50 shadow-sm shrink-0"
+            className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-100 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-50 shadow-sm shrink-0 transition-all active:scale-95"
           >
-            <Calendar className="w-4 h-4 text-text-secondary" /> {timeRange}
+            <Calendar className="w-4 h-4 text-primary" /> {timeRange}
           </button>
           <button 
             onClick={handleExport}
-            className="btn-primary flex items-center gap-2 py-2.5 px-4 lg:px-5 shadow-xl shadow-primary/20 text-[8px] lg:text-[10px] uppercase tracking-widest font-black shrink-0"
+            className="btn-primary flex items-center gap-2 py-3 px-6 shadow-xl shadow-primary/20 text-[9px] font-black uppercase tracking-widest shrink-0"
           >
             <Download className="w-4 h-4" /> Export
           </button>
@@ -278,39 +281,40 @@ const Reports = () => {
                  />
               </div>
            </div>
-           <div className="overflow-x-auto scrollbar-hide pb-2">
+           
+           <div className="hidden lg:block overflow-x-auto scrollbar-hide">
               <table className="w-full min-w-[700px]">
                 <thead>
-                  <tr className="text-left text-slate-400 text-[8px] lg:text-[9px] font-black uppercase tracking-[0.2em] bg-slate-50/50">
-                    <th className="px-6 lg:px-10 py-4 lg:py-5">Domain</th>
-                    <th className="px-6 lg:px-10 py-4 lg:py-5">Role</th>
-                    <th className="px-6 lg:px-10 py-4 lg:py-5">Units</th>
-                    <th className="px-6 lg:px-10 py-4 lg:py-5">Yield</th>
-                    <th className="px-6 lg:px-10 py-4 lg:py-5 text-right">Service</th>
+                  <tr className="text-left text-slate-400 text-[9px] font-black uppercase tracking-[0.2em] bg-slate-50/50">
+                    <th className="px-10 py-5">Domain</th>
+                    <th className="px-10 py-5">Role</th>
+                    <th className="px-10 py-5">Units</th>
+                    <th className="px-10 py-5">Yield</th>
+                    <th className="px-10 py-5 text-right">Service</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {filteredPerformance.length > 0 ? filteredPerformance.map((row, idx) => (
                     <tr 
                       key={idx} 
-                      className="text-[10px] lg:text-xs font-bold hover:bg-slate-50/50 group cursor-pointer active:bg-slate-50"
+                      className="text-xs font-bold hover:bg-slate-50/50 group cursor-pointer active:bg-slate-50 transition-colors"
                     >
-                      <td className="px-6 lg:px-10 py-4 lg:py-5">
-                         <div className="flex items-center gap-3 lg:gap-4">
-                            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-primary text-white rounded-lg lg:rounded-xl flex items-center justify-center text-[10px] lg:text-xs font-black shadow-lg shadow-primary/20 shrink-0">
+                      <td className="px-10 py-5">
+                         <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center text-xs font-black shadow-lg shadow-primary/20 shrink-0">
                                {row.name.split(' ').map(n => n[0]).join('')}
                             </div>
-                            <span className="text-text-primary text-xs lg:text-sm font-black tracking-tight truncate max-w-[120px]">{row.name}</span>
+                            <span className="text-text-primary text-sm font-black tracking-tight truncate max-w-[150px]">{row.name}</span>
                          </div>
                       </td>
-                      <td className="px-6 lg:px-10 py-4 lg:py-5">
-                         <span className="badge bg-indigo-50 text-primary border-none text-[7px] lg:text-[8px] uppercase tracking-widest">{row.role}</span>
+                      <td className="px-10 py-5">
+                         <span className="badge bg-indigo-50 text-primary border-none text-[8px] uppercase tracking-widest">{row.role}</span>
                       </td>
-                      <td className="px-6 lg:px-10 py-4 lg:py-5 text-text-primary font-black">{row.orders}</td>
-                      <td className="px-6 lg:px-10 py-4 lg:py-5 text-primary font-black">{row.revenue}</td>
-                      <td className="px-6 lg:px-10 py-4 lg:py-5 text-right">
-                         <div className="flex items-center justify-end gap-1 text-yellow-600">
-                            <Star className="w-3 h-3 lg:w-3.5 lg:h-3.5 fill-current" /> {row.rating}
+                      <td className="px-10 py-5 text-text-primary font-black">{row.orders}</td>
+                      <td className="px-10 py-5 text-primary font-black">{row.revenue}</td>
+                      <td className="px-10 py-5 text-right">
+                         <div className="flex items-center justify-end gap-1 text-yellow-600 font-black">
+                            <Star className="w-3.5 h-3.5 fill-current" /> {row.rating}
                          </div>
                       </td>
                     </tr>
@@ -320,12 +324,6 @@ const Reports = () => {
                          <div className="flex flex-col items-center">
                             <AlertCircle className="w-10 h-10 text-slate-200 mb-4" />
                             <h5 className="text-lg font-black text-text-primary uppercase">No records found</h5>
-                            <button 
-                              onClick={() => setSearchQuery('')}
-                              className="mt-4 text-[9px] font-black text-primary uppercase tracking-widest hover:underline"
-                            >
-                              Reset Feed
-                            </button>
                          </div>
                       </td>
                     </tr>
@@ -333,30 +331,59 @@ const Reports = () => {
                 </tbody>
               </table>
            </div>
+
+           {/* Mobile Log View */}
+           <div className="lg:hidden p-4 space-y-3">
+              {filteredPerformance.length > 0 ? filteredPerformance.map((row, idx) => (
+                <div key={idx} className="p-4 bg-slate-50 rounded-2xl flex items-center justify-between group active:scale-[0.98] transition-all">
+                   <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[10px] font-black text-primary shadow-sm border border-slate-100">
+                         {row.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div>
+                         <p className="text-xs font-black text-text-primary uppercase tracking-tight">{row.name}</p>
+                         <p className="text-[8px] font-black text-primary uppercase tracking-widest mt-0.5">{row.role}</p>
+                      </div>
+                   </div>
+                   <div className="text-right">
+                      <p className="text-xs font-black text-text-primary">{row.revenue}</p>
+                      <div className="flex items-center justify-end gap-1 text-yellow-600 text-[9px] font-black mt-0.5">
+                         <Star className="w-2.5 h-2.5 fill-current" /> {row.rating}
+                      </div>
+                   </div>
+                </div>
+              )) : (
+                 <div className="py-12 text-center">
+                   <AlertCircle className="w-8 h-8 text-slate-200 mx-auto mb-3" />
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No intelligence records</p>
+                 </div>
+              )}
+           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 pb-10">
-           <div className="card bg-primary text-white p-6 lg:p-10 overflow-hidden relative group rounded-[2rem] lg:rounded-[3rem] shadow-2xl shadow-primary/20 active:scale-[0.98] transition-all">
-              <h5 className="text-lg lg:text-xl font-black mb-1 uppercase tracking-tight">Revenue Pulse</h5>
-              <p className="text-white/40 text-[7px] lg:text-[9px] font-black uppercase tracking-widest mb-6 lg:mb-10 leading-none">Target: ₹15.0L</p>
-              <div className="flex items-end justify-between mb-4">
-                 <div className="flex flex-col">
-                    <span className="text-[7px] lg:text-[9px] font-black text-white/40 uppercase tracking-widest mb-1 leading-none">Velocity</span>
-                    <span className="text-3xl lg:text-5xl font-black text-white tracking-tighter leading-none">82<span className="text-sm lg:text-lg ml-0.5">%</span></span>
-                 </div>
-                 <div className="flex flex-col items-end">
-                    <span className="text-[7px] lg:text-[9px] font-black text-white/40 uppercase tracking-widest mb-1 leading-none">Gap</span>
-                    <span className="text-base lg:text-xl font-black text-white/60 leading-none">₹2.7L</span>
-                 </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 pb-10">
+           <div className="card !bg-primary text-white p-6 lg:p-10 overflow-hidden relative group rounded-[2rem] lg:rounded-[3rem] shadow-2xl shadow-primary/20 active:scale-[0.98] transition-all border-none">
+              <div className="relative z-10">
+                <h5 className="text-lg lg:text-xl font-black mb-1 uppercase tracking-tight">Revenue Pulse</h5>
+                <p className="text-white/60 text-[7px] lg:text-[9px] font-black uppercase tracking-widest mb-6 lg:mb-10 leading-none">Target: ₹15.0L</p>
+                <div className="flex items-end justify-between mb-4">
+                   <div className="flex flex-col">
+                      <span className="text-[7px] lg:text-[9px] font-black text-white/60 uppercase tracking-widest mb-1 leading-none">Velocity</span>
+                      <span className="text-3xl lg:text-5xl font-black text-white tracking-tighter leading-none">82<span className="text-sm lg:text-lg ml-0.5">%</span></span>
+                   </div>
+                   <div className="flex flex-col items-end">
+                      <span className="text-[7px] lg:text-[9px] font-black text-white/60 uppercase tracking-widest mb-1.5 leading-none">Gap</span>
+                      <span className="text-base lg:text-xl font-black text-white/80 leading-none">₹2.7L</span>
+                   </div>
+                </div>
+                <div className="h-3 lg:h-4 bg-white/20 rounded-full overflow-hidden mb-2 shadow-inner">
+                   <div 
+                     style={{ width: '82%' }}
+                     className="h-full bg-white shadow-[0_0_20px_rgba(255,255,255,0.5)] transition-all duration-1000"
+                   />
+                </div>
               </div>
-              <div className="h-3 lg:h-4 bg-white/10 rounded-full overflow-hidden mb-2 shadow-inner">
-                 <div 
-                   style={{ width: '82%' }}
-                   className="h-full bg-white shadow-[0_0_25px_rgba(255,255,255,0.6)] relative"
-                 >
-                 </div>
-              </div>
-              <Target className="absolute -bottom-8 lg:-bottom-10 -right-8 lg:-right-10 w-32 lg:w-44 h-32 lg:h-44 text-white opacity-5" />
+              <Target className="absolute -bottom-8 lg:-bottom-10 -right-8 lg:-right-10 w-32 lg:w-44 h-32 lg:h-44 text-white opacity-10" />
            </div>
 
            <div 
@@ -375,15 +402,7 @@ const Reports = () => {
               </button>
            </div>
 
-           <div 
-             onClick={() => setShowConfig(true)}
-             className="card p-6 lg:p-10 border-dashed border-2 lg:border-4 border-slate-100 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-primary/20 hover:bg-slate-50 rounded-[2rem] lg:rounded-[3rem] bg-white active:scale-[0.98] transition-all"
-           >
-              <div className="w-12 h-12 lg:w-16 lg:h-16 bg-slate-50 rounded-full flex items-center justify-center mb-3 lg:mb-4 group-hover:bg-white group-hover:shadow-2xl transition-all">
-                 <Plus className="w-6 h-6 lg:w-8 lg:h-8 text-slate-300 group-hover:text-primary" />
-              </div>
-              <p className="text-[8px] lg:text-[10px] font-black text-text-secondary uppercase tracking-widest leading-none">Configure Feed</p>
-           </div>
+
         </div>
       </div>
 
@@ -495,7 +514,7 @@ const Reports = () => {
       )}
 
       {/* Heatmap Modal */}
-    {showHeatmap && (
+      {showHeatmap && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 lg:p-6">
            <div onClick={() => setShowHeatmap(false)} className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" />
            <div 
@@ -516,57 +535,64 @@ const Reports = () => {
                  </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-8 scrollbar-hide">
-                 <div className="grid grid-cols-24 gap-1 mb-8">
-                    {/* Hours markers */}
-                    <div className="col-span-24 flex justify-between mb-4 px-2">
-                       {['12 AM', '6 AM', '12 PM', '6 PM', '11 PM'].map(h => (
-                         <span key={h} className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{h}</span>
-                       ))}
+              <div className="flex-1 overflow-y-auto p-6 lg:p-10 scrollbar-hide">
+                 <div className="mb-10 overflow-x-auto pb-4 scrollbar-hide">
+                    <div className="min-w-[800px]">
+                       <div className="grid grid-cols-[repeat(24,1fr)] gap-1 mb-8">
+                          {/* Hours markers */}
+                          <div className="grid grid-cols-[repeat(24,1fr)] gap-1 mb-4 px-2">
+                             <div className="col-span-[6] flex justify-start"><span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">12 AM</span></div>
+                             <div className="col-span-[6] flex justify-start"><span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">6 AM</span></div>
+                             <div className="col-span-[6] flex justify-start"><span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">12 PM</span></div>
+                             <div className="col-span-[5] flex justify-start"><span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">6 PM</span></div>
+                             <div className="col-span-[1] flex justify-end"><span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">11 PM</span></div>
+                          </div>
+                          
+                          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+                            <React.Fragment key={day}>
+                               <div className="col-span-[2] flex items-center">
+                                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{day}</span>
+                               </div>
+                               <div className="col-span-[22] grid grid-cols-[repeat(24,1fr)] gap-1 h-8 sm:h-10">
+                                  {Array.from({ length: 24 }).map((_, i) => {
+                                     // Mock logic for heat intensity
+                                     const isWeekend = day === 'Sat' || day === 'Sun';
+                                     const isLunch = i >= 12 && i <= 14;
+                                     const isDinner = i >= 19 && i <= 21;
+                                     let intensity = "bg-slate-50";
+                                     if ((isLunch || isDinner) && isWeekend) intensity = "bg-primary";
+                                     else if (isLunch || isDinner) intensity = "bg-indigo-300";
+                                     else if (i >= 9 && i <= 22) intensity = "bg-indigo-100";
+                                     
+                                     return (
+                                       <div 
+                                         key={i} 
+                                         className={cn("rounded-md transition-all hover:scale-110 cursor-pointer", intensity)} 
+                                         title={`${day} ${i}:00`}
+                                       />
+                                     );
+                                  })}
+                               </div>
+                            </React.Fragment>
+                          ))}
+                       </div>
                     </div>
-                    
-                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                      <React.Fragment key={day}>
-                         <div className="col-span-2 flex items-center">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{day}</span>
-                         </div>
-                         <div className="col-span-22 grid grid-cols-24 gap-1 h-8">
-                            {Array.from({ length: 24 }).map((_, i) => {
-                               // Mock logic for heat intensity
-                               const isWeekend = day === 'Sat' || day === 'Sun';
-                               const isLunch = i >= 12 && i <= 14;
-                               const isDinner = i >= 19 && i <= 21;
-                               let intensity = "bg-slate-50";
-                               if ((isLunch || isDinner) && isWeekend) intensity = "bg-primary";
-                               else if (isLunch || isDinner) intensity = "bg-indigo-300";
-                               else if (i >= 9 && i <= 22) intensity = "bg-indigo-100";
-                               
-                               return (
-                                 <div 
-                                   key={i} 
-                                   className={cn("rounded-sm", intensity)} 
-                                 />
-                               );
-                            })}
-                         </div>
-                      </React.Fragment>
-                    ))}
                  </div>
 
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="p-6 bg-slate-50 rounded-2xl">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100/50">
                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Busiest Day</p>
-                       <h5 className="text-lg font-black text-primary uppercase">Saturday</h5>
+                       <h5 className="text-xl font-black text-primary uppercase tracking-tight">Saturday</h5>
                        <p className="text-[10px] font-medium text-text-secondary mt-1">Average 240+ covers</p>
                     </div>
-                    <div className="p-6 bg-slate-50 rounded-2xl">
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100/50">
                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Wait Time Avg</p>
-                       <h5 className="text-lg font-black text-orange-500 uppercase">12 Minutes</h5>
+                       <h5 className="text-xl font-black text-orange-500 uppercase tracking-tight">12 Minutes</h5>
                        <p className="text-[10px] font-medium text-text-secondary mt-1">During peak dinner hours</p>
                     </div>
-                    <div className="p-6 bg-slate-50 rounded-2xl">
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100/50 sm:col-span-2 lg:col-span-1">
                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Optimal Staffing</p>
-                       <h5 className="text-lg font-black text-emerald-500 uppercase">Level 4</h5>
+                       <h5 className="text-xl font-black text-emerald-500 uppercase tracking-tight">Level 4</h5>
                        <p className="text-[10px] font-medium text-text-secondary mt-1">All stations fully active</p>
                     </div>
                  </div>
@@ -579,57 +605,62 @@ const Reports = () => {
         </div>
       )}
 
-      {/* Config Modal */}
-      {showConfig && (
-        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 lg:p-6">
-           <div onClick={() => setShowConfig(false)} className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" />
-           <div 
-             className="relative w-full max-w-md bg-white rounded-t-[2.5rem] lg:rounded-[3rem] shadow-2xl overflow-hidden self-end lg:self-center"
-           >
-              <div className="p-6 lg:p-8 text-center border-b border-slate-50 bg-slate-50/30 shrink-0">
-                 <div className="w-14 h-14 lg:w-16 lg:h-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shrink-0">
-                    <Filter className="w-7 lg:w-8 h-7 lg:h-8" />
-                 </div>
-                 <h3 className="text-lg lg:text-xl font-black uppercase tracking-tight leading-none">Settings</h3>
-                 <p className="text-[8px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5 leading-none">Customize your visibility stream</p>
-              </div>
 
-              <div className="p-6 lg:p-8 space-y-5 lg:space-y-6 max-h-[50vh] overflow-y-auto scrollbar-hide">
-                 {[
-                   { name: 'Revenue Pulse', desc: 'Financial velocity', icon: DollarSign },
-                   { name: 'Peak Activity', desc: 'Heatmap logs', icon: TrendingUp },
-                   { name: 'Staff Intel', desc: 'Performance metrics', icon: Users },
-                   { name: 'Category Split', desc: 'Menu segments', icon: PieChart }
-                 ].map(widget => (
-                    <div key={widget.name} className="flex items-center justify-between group">
-                       <div className="flex items-center gap-3 lg:gap-4">
-                          <div className="w-9 h-9 lg:w-10 lg:h-10 bg-slate-50 rounded-lg lg:rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary shrink-0">
-                             <widget.icon className="w-4.5 lg:w-5 h-4.5 lg:h-5" />
-                          </div>
-                          <div>
-                             <p className="text-[10px] lg:text-[11px] font-black text-text-primary uppercase tracking-tight leading-none">{widget.name}</p>
-                             <p className="text-[8px] lg:text-[9px] font-bold text-slate-400 mt-1 leading-none">{widget.desc}</p>
-                          </div>
-                       </div>
-                       <div className="w-10 h-5 lg:w-12 lg:h-6 bg-primary rounded-full relative p-1 cursor-pointer shrink-0">
-                          <div className="absolute right-1 top-1 bottom-1 w-3 lg:w-4 bg-white rounded-full shadow-sm" />
-                       </div>
-                    </div>
-                 ))}
-              </div>
 
-              <div className="p-6 lg:p-8 pt-0 flex flex-col gap-2 lg:gap-3 shrink-0">
-                 <button 
-                   onClick={() => { setShowConfig(false); showToast('Dashboard configuration saved'); }}
-                   className="w-full py-4 bg-primary text-white rounded-xl lg:rounded-2xl font-black text-[9px] lg:text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20"
-                 >
-                   Save
-                 </button>
-                 <button onClick={() => setShowConfig(false)} className="w-full py-3 text-[8px] lg:text-[9px] font-black text-slate-300 uppercase tracking-widest hover:text-rose-500">Discard</button>
-              </div>
-           </div>
+      {/* Hidden Printable Report */}
+      <div id="printable-area" className="hidden print:block printable-area">
+        <div className="text-center border-b-2 border-slate-900 pb-6 mb-8">
+          <h1 className="text-3xl font-black uppercase tracking-tighter">Business Intelligence Report</h1>
+          <p className="text-sm font-bold uppercase tracking-[0.3em] text-slate-500 mt-2">The Luxe Grande • {timeRange}</p>
         </div>
-      )}
+
+        <div className="grid grid-cols-2 gap-8 mb-12">
+          {stats.map(stat => (
+            <div key={stat.id} className="p-6 border border-slate-200 rounded-2xl">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{stat.label}</p>
+              <h2 className="text-2xl font-black text-slate-900">{stat.value}</h2>
+              <p className="text-[9px] font-bold text-slate-500 mt-1 uppercase">Trend: {stat.trend}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mb-12">
+          <h3 className="text-sm font-black uppercase tracking-widest mb-6 border-b border-slate-200 pb-2">Yield Performance Logs</h3>
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-slate-900">
+                <th className="py-4 uppercase font-black">Domain</th>
+                <th className="py-4 uppercase font-black">Role</th>
+                <th className="py-4 uppercase font-black">Units</th>
+                <th className="py-4 uppercase font-black">Yield</th>
+                <th className="py-4 uppercase font-black text-right">Service</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {performanceData.map((row, i) => (
+                <tr key={i}>
+                  <td className="py-4 font-black uppercase">{row.name}</td>
+                  <td className="py-4 font-bold uppercase text-slate-500">{row.role}</td>
+                  <td className="py-4 font-black">{row.orders}</td>
+                  <td className="py-4 font-black text-primary">{row.revenue}</td>
+                  <td className="py-4 text-right font-black">{row.rating} ★</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-20 flex justify-between items-center pt-8 border-t border-slate-200">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Report Generated</p>
+            <p className="text-xs font-bold text-slate-900 uppercase">{new Date().toLocaleString()}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">System Signature</p>
+            <p className="text-xs font-bold text-slate-900 uppercase italic">RestoOS Analytics Hub</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

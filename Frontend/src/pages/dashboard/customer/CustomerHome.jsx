@@ -48,8 +48,8 @@ const CustomerHome = () => {
 
   const recommendedItems = items.filter(item => item.id <= 4);
   const todaysOffers = [
-    { title: 'Flat 50% Off', desc: 'On all orders above ₹999', color: 'from-orange-500 to-rose-500', icon: '🔥', action: () => navigate('/customer/rewards') },
-    { title: 'Free Dessert', desc: 'On your first order today', color: 'from-indigo-500 to-primary', icon: '🍰', action: () => navigate('/customer/order') }
+    { title: 'Free Dessert', desc: 'On your first order today', color: 'from-indigo-500 to-primary', icon: '🍰', action: () => navigate('/customer/order-now') },
+    { title: 'Happy Hours', desc: '20% off on all mocktails', color: 'from-emerald-500 to-teal-500', icon: '🍹', action: () => navigate('/customer/order-now?category=Drinks') }
   ];
 
   // Get most recent active order for this customer/table
@@ -77,15 +77,6 @@ const CustomerHome = () => {
             <Bell className="w-5 h-5" />
             <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-white shadow-sm" />
           </button>
-          <div className="flex items-center gap-3 p-2 bg-white rounded-2xl shadow-sm border border-slate-100">
-             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-black">
-                R
-             </div>
-             <div className="pr-2">
-                <p className="text-[10px] font-black uppercase tracking-tight text-text-primary leading-none">1250</p>
-                <p className="text-[8px] font-bold text-slate-400 uppercase mt-1 leading-none">Points</p>
-             </div>
-          </div>
         </div>
       </div>
 
@@ -117,7 +108,7 @@ const CustomerHome = () => {
                </p>
                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
                   <button 
-                    onClick={() => navigate('/customer/order')}
+                    onClick={() => navigate('/customer/order-now')}
                     className="btn-primary px-8 py-3.5 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
                   >
                     Order Now
@@ -150,13 +141,13 @@ const CustomerHome = () => {
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
            <h3 className="text-lg font-black uppercase tracking-tight">Categories</h3>
-           <button onClick={() => navigate('/customer/order')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">View All</button>
+           <button onClick={() => navigate('/customer/order-now')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">View All</button>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-1 px-1">
           {categoriesList.filter(c => c !== 'All').map((cat) => (
             <button 
               key={cat}
-              onClick={() => navigate(`/customer/order?category=${cat}`)}
+              onClick={() => navigate(`/customer/order-now?category=${cat}`)}
               className="flex flex-col items-center gap-3 shrink-0 group"
             >
               <div className="w-16 h-16 lg:w-20 lg:h-20 bg-white rounded-3xl shadow-lg border border-slate-50 flex items-center justify-center text-3xl group-hover:bg-primary group-hover:border-primary transition-all active:scale-95">
@@ -192,13 +183,13 @@ const CustomerHome = () => {
       <div className="space-y-4">
         <div className="flex justify-between items-center px-1">
            <h3 className="text-lg font-black uppercase tracking-tight">Chef's Recommendations</h3>
-           <button onClick={() => navigate('/customer/order')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Full Menu</button>
+           <button onClick={() => navigate('/customer/order-now')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Full Menu</button>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {recommendedItems.map((item) => (
             <div 
               key={item.id} 
-              onClick={() => navigate('/customer/order')}
+              onClick={() => navigate('/customer/order-now')}
               className="card group cursor-pointer border-none shadow-xl shadow-slate-100/50 p-4 bg-white hover:bg-slate-50 transition-all active:scale-95 flex flex-col h-full"
             >
                <div className="h-32 lg:h-40 bg-slate-50 rounded-2xl flex items-center justify-center text-5xl mb-4 shadow-inner relative overflow-hidden">

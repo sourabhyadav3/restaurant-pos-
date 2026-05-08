@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
+import printContent from '../../../utils/printUtil';
 
 const GuestBills = () => {
   const { folios, settleFolio, addToFolio } = useHospitality();
@@ -43,7 +44,7 @@ const GuestBills = () => {
   ];
 
   const handlePrintBatch = () => {
-    window.print();
+    printContent('print-section');
   };
 
   return (
@@ -326,7 +327,7 @@ const GuestBills = () => {
               </div>
               <div className="flex items-center gap-2 lg:gap-3">
                  <button 
-                  onClick={() => window.print()}
+                  onClick={() => printContent('print-section')}
                   className="p-2 lg:p-3 hover:bg-white rounded-2xl transition-all text-slate-400 hover:text-primary"
                  >
                     <Printer className="w-5 h-5" />

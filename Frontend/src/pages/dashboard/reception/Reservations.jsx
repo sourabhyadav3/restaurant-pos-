@@ -23,10 +23,12 @@ import {
   XCircle,
   LogIn,
   ClipboardList,
-  Sparkles
+  Sparkles,
+  Printer
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
+import printContent from '../../../utils/printUtil';
 
 const Reservations = () => {
   const { 
@@ -44,6 +46,14 @@ const Reservations = () => {
   const [showAddRes, setShowAddRes] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('All');
+  const [orderForPrint, setOrderForPrint] = useState(null);
+
+  const handlePrint = (res) => {
+    setOrderForPrint(res);
+    setTimeout(() => {
+      printContent('single-reservation-print');
+    }, 100);
+  };
 
   const resStatuses = ['Pending', 'Confirmed', 'Checked In', 'Completed', 'Cancelled'];
 
@@ -106,6 +116,18 @@ const Reservations = () => {
               className="w-full pl-11 pr-5 py-3 bg-white border border-slate-100 rounded-2xl outline-none shadow-sm text-sm font-bold focus:ring-4 focus:ring-primary/5 transition-all"
             />
           </div>
+          <button 
+             onClick={() => {
+               if (filteredReservations.length === 0) {
+                 alert('No reservations to print in the current filter (' + activeTab + ')');
+                 return;
+               }
+               printContent('batch-print-reservations');
+             }}
+            className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-all shadow-sm"
+          >
+            <Printer className="w-5 h-5" />
+          </button>
           <button 
              onClick={() => setShowAddRes(true)}
             className="btn-primary h-[48px] px-6 rounded-2xl flex items-center gap-3 font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
@@ -493,6 +515,86 @@ const Reservations = () => {
           </div>
         </div>
       )}
+      {/* Hidden Printable Reservation */}
+      {orderForPrint && (
+        <div id="single-reservation-print" className="hidden print:block printable-area receipt-print">
+          <div className="text-center border-b-2 border-slate-900 pb-4 mb-4">
+            <h1 className="text-xl font-black uppercase tracking-tighter">RESERVATION CONFIRMATION</h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest mt-1">The Luxe Grande Hospitality</p>
+          </div>
+          
+          <div className="space-y-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Guest Name</p>
+                <p className="text-lg font-black uppercase">{orderForPrint.guestName}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Booking ID</p>
+                <p className="text-sm font-black">{orderForPrint.id}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8 py-6 border-y border-slate-900">
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Date & Time</p>
+                <p className="text-sm font-black uppercase">{orderForPrint.date} • {orderForPrint.time}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Unit Assignment</p>
+                <p className="text-sm font-black uppercase">{orderForPrint.type}: {orderForPrint.targetId}</p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Number of Guests</p>
+              <p className="text-sm font-black uppercase">{orderForPrint.guests} Person(s)</p>
+            </div>
+
+            {orderForPrint.notes && (
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Special Instructions</p>
+                <p className="text-[10px] font-bold italic">"{orderForPrint.notes}"</p>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-12 pt-8 border-t border-slate-200 text-center">
+            <p className="text-[9px] font-black uppercase tracking-widest">Please present this slip at the reception desk</p>
+            <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase">Thank you for choosing The Luxe Grande</p>
+          </div>
+        </div>
+      )}
+
+      {/* Batch Print Area (All Reservations) */}
+      <div id="batch-print-reservations" className="hidden print:block printable-area">
+        <div className="text-center border-b-2 border-slate-900 pb-4 mb-8">
+           <h1 className="text-2xl font-black uppercase tracking-tighter">Reservation Manifest</h1>
+           <p className="text-[10px] font-bold uppercase tracking-widest mt-1">Generated: {new Date().toLocaleString()}</p>
+        </div>
+        <table className="w-full text-left text-[10px]">
+           <thead>
+             <tr className="border-b border-slate-900">
+               <th className="py-2 uppercase font-black">Guest</th>
+               <th className="py-2 uppercase font-black">Type</th>
+               <th className="py-2 uppercase font-black">Unit</th>
+               <th className="py-2 uppercase font-black">Schedule</th>
+               <th className="py-2 uppercase font-black">Status</th>
+             </tr>
+           </thead>
+           <tbody className="divide-y divide-slate-100">
+             {filteredReservations.map(res => (
+               <tr key={res.id}>
+                 <td className="py-2 font-black uppercase">{res.guestName}</td>
+                 <td className="py-2 uppercase">{res.type}</td>
+                 <td className="py-2 font-black">{res.targetId}</td>
+                 <td className="py-2">{res.date} • {res.time}</td>
+                 <td className="py-2 font-bold uppercase">{res.status}</td>
+               </tr>
+             ))}
+           </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, 
   ShoppingBag, 
@@ -52,6 +53,27 @@ const Dashboard = () => {
   const [newItemCategory, setNewItemCategory] = useState('');
   const [toast, setToast] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [revenueViewMode, setRevenueViewMode] = useState('Weekly');
+
+  const weeklyData = [
+    { label: 'Mon', value: 4500 },
+    { label: 'Tue', value: 6500 },
+    { label: 'Wed', value: 3500 },
+    { label: 'Thu', value: 8500 },
+    { label: 'Fri', value: 4500 },
+    { label: 'Sat', value: 9500 },
+    { label: 'Sun', value: 7500 },
+  ];
+
+  const monthlyData = [
+    { label: 'Week 1', value: 32000 },
+    { label: 'Week 2', value: 45000 },
+    { label: 'Week 3', value: 28000 },
+    { label: 'Week 4', value: 54000 },
+  ];
+
+  const currentRevenueData = revenueViewMode === 'Weekly' ? weeklyData : monthlyData;
+  const maxRevenue = Math.max(...currentRevenueData.map(d => d.value), 1);
 
   const isChef = user?.role === roles.CHEF;
 
@@ -247,29 +269,61 @@ const Dashboard = () => {
                     <h3 className="text-lg font-black uppercase tracking-tight">Revenue Trends</h3>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Daily Hospitality Income Breakdown</p>
                  </div>
-                 <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-primary text-white rounded-lg text-[9px] font-black uppercase tracking-widest">Weekly</button>
-                    <button className="px-4 py-2 bg-slate-50 text-slate-400 rounded-lg text-[9px] font-black uppercase tracking-widest">Monthly</button>
-                 </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setRevenueViewMode('Weekly')}
+                      className={cn(
+                        "px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                        revenueViewMode === 'Weekly' ? "bg-primary text-white shadow-lg shadow-primary/20" : "bg-slate-50 text-slate-400 hover:bg-slate-100"
+                      )}
+                    >
+                      Weekly
+                    </button>
+                    <button 
+                      onClick={() => setRevenueViewMode('Monthly')}
+                      className={cn(
+                        "px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                        revenueViewMode === 'Monthly' ? "bg-primary text-white shadow-lg shadow-primary/20" : "bg-slate-50 text-slate-400 hover:bg-slate-100"
+                      )}
+                    >
+                      Monthly
+                    </button>
+                  </div>
               </div>
               <div className="h-48 flex items-end gap-3 lg:gap-6 px-2 lg:px-4 overflow-x-auto scrollbar-hide">
-                 {[45, 65, 35, 85, 45, 95, 75].map((h, i) => (
-                   <div key={i} className="min-w-[32px] flex-1 flex flex-col items-center gap-3 group">
-                      <div className="w-full relative h-full flex items-end">
-                         <div 
-                           style={{ height: `${h}%` }}
-                           className="w-full bg-slate-100 rounded-xl group-hover:bg-primary transition-all duration-500 relative min-h-[4px]"
-                         >
-                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[8px] font-black py-1.5 px-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-20">
-                               ₹{(h * 500).toLocaleString()}
-                            </div>
-                         </div>
+                <AnimatePresence mode="wait">
+                  <motion.div 
+                    key={revenueViewMode}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex-1 flex items-end gap-3 lg:gap-6 h-full"
+                  >
+                    {currentRevenueData.map((data, i) => (
+                      <div key={i} className="min-w-[32px] flex-1 flex flex-col items-center gap-3 group h-full">
+                          <div className="w-full relative h-full flex items-end">
+                            <motion.div 
+                              initial={{ height: 0 }}
+                              animate={{ height: `${(data.value / maxRevenue) * 100}%` }}
+                              className="w-full bg-primary rounded-xl relative min-h-[4px]"
+                            >
+                                <div className="absolute -top-7 left-1/2 -translate-x-1/2 text-primary text-[8px] font-black whitespace-nowrap">
+                                  ₹{data.value.toLocaleString()}
+                                </div>
+                            </motion.div>
+                          </div>
+                          <motion.span 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 + (i * 0.05) }}
+                            className="text-[8px] font-black text-slate-300 uppercase tracking-widest whitespace-nowrap"
+                          >
+                            {data.label}
+                          </motion.span>
                       </div>
-                      <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">
-                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]}
-                      </span>
-                   </div>
-                 ))}
+                    ))}
+                  </motion.div>
+                </AnimatePresence>
               </div>
            </div>
 

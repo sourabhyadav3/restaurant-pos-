@@ -50,7 +50,7 @@ const CustomerMessages = () => {
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <button 
-            onClick={() => navigate('/customer')}
+            onClick={() => navigate('/customer/home')}
             className="lg:hidden p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-slate-400 hover:text-primary transition-all mr-1"
           >
             <ChevronLeft className="w-5 h-5" />

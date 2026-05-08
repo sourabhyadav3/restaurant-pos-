@@ -22,6 +22,7 @@ import {
 import { createPortal } from 'react-dom';
 import { cn } from "../../../utils/cn";
 import { useOrders } from "../../../context/OrdersContext";
+import printContent from '../../../utils/printUtil';
 
 const Orders = () => {
   const { orders, updateOrderStatus, deleteOrder } = useOrders();
@@ -33,12 +34,11 @@ const Orders = () => {
   const [isPrinting, setIsPrinting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const handlePrint = () => {
-    setIsPrinting(true);
+  const handlePrint = (order) => {
+    setSelectedOrder(order);
     setTimeout(() => {
-      setIsPrinting(false);
-      alert('Receipt sent to printer!');
-    }, 1500);
+      printContent('printable-area');
+    }, 100);
   };
 
   const handleFullAudit = () => {
@@ -430,14 +430,11 @@ const Orders = () => {
 
                   <div className="px-6 py-6 border-t border-slate-50 flex flex-col sm:flex-row gap-4 bg-white shrink-0 relative z-20 mb-0">
                     <button 
-                      onClick={handlePrint}
-                      disabled={isPrinting}
-                      className="flex-1 py-4 border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 shadow-sm disabled:opacity-50"
+                      onClick={() => handlePrint(selectedOrder)}
+                      className="flex-1 py-4 border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 shadow-sm no-print"
                     >
-                      {isPrinting ? (
-                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
-                      ) : <Printer className="w-5 h-5 text-slate-400" />}
-                      {isPrinting ? 'Processing...' : 'Print Receipt'}
+                      <Printer className="w-5 h-5 text-slate-400" />
+                      Print Receipt
                     </button>
                     <button 
                       onClick={handleFullAudit}
@@ -451,6 +448,57 @@ const Orders = () => {
           )}
         </>,
         document.body
+      )}
+      {/* Hidden Printable Receipt */}
+      {selectedOrder && (
+        <div id="printable-area" className="hidden print:block printable-area receipt-print">
+          <div className="text-center border-b-2 border-slate-900 pb-4 mb-4">
+            <h1 className="text-xl font-black uppercase tracking-tighter">The Luxe Grande</h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest mt-1">Official Order Receipt</p>
+          </div>
+          
+          <div className="flex justify-between text-[10px] font-bold mb-4">
+            <div>
+              <p>ORDER: {selectedOrder.id}</p>
+              <p>TABLE: {selectedOrder.table}</p>
+              <p>DATE: {new Date().toLocaleDateString()}</p>
+            </div>
+            <div className="text-right">
+              <p>TIME: {new Date().toLocaleTimeString()}</p>
+              <p>STATUS: {selectedOrder.status}</p>
+            </div>
+          </div>
+
+          <table className="w-full text-[10px] mb-4">
+            <thead>
+              <tr className="border-b border-slate-300">
+                <th className="text-left py-2">ITEM</th>
+                <th className="text-center py-2">QTY</th>
+                <th className="text-right py-2">PRICE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedOrder.itemsList?.map((item, i) => (
+                <tr key={i} className="border-b border-slate-100">
+                  <td className="py-2 uppercase font-medium">{item.name}</td>
+                  <td className="py-2 text-center">{item.quantity}</td>
+                  <td className="py-2 text-right">₹{item.price.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan="2" className="py-4 font-black uppercase text-right pr-4">Total Amount</td>
+                <td className="py-4 text-right font-black text-sm">{selectedOrder.amount}</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div className="text-center pt-4 border-t border-slate-200">
+            <p className="text-[9px] font-black uppercase tracking-widest">Thank you for dining with us!</p>
+            <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Visit again soon • RestoOS Systems</p>
+          </div>
+        </div>
       )}
     </div>
   );

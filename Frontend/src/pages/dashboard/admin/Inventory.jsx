@@ -2,25 +2,15 @@ import React, { useState } from 'react';
 import { 
   Package, 
   Search, 
-  Filter, 
   Plus, 
-  MoreVertical, 
-  ArrowUpRight, 
-  ArrowDownRight, 
-  AlertTriangle, 
-  CheckCircle2, 
   X, 
-  ChevronRight,
   TrendingUp,
-  Activity,
-  History,
   Trash2,
-  Edit2,
-  ShoppingCart,
-  Zap
+  Printer
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
+import printContent from "../../../utils/printUtil";
 
 const Inventory = () => {
   const { inventory, addInventoryItem, updateStock, deleteInventoryItem } = useHospitality();
@@ -72,6 +62,12 @@ const Inventory = () => {
               className="w-full pl-11 pr-5 py-3 bg-white border border-slate-100 rounded-2xl outline-none shadow-sm text-sm font-bold focus:ring-4 focus:ring-primary/5 transition-all"
             />
           </div>
+          <button 
+             onClick={() => printContent('printable-area')}
+            className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-all shadow-sm"
+          >
+            <Printer className="w-5 h-5" />
+          </button>
           <button 
             onClick={() => setShowAddModal(true)}
             className="btn-primary h-[48px] px-6 rounded-2xl flex items-center gap-3 font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
@@ -231,6 +227,44 @@ const Inventory = () => {
            </div>
         </div>
       )}
+
+      {/* Hidden Printable Inventory */}
+      <div id="printable-area" className="hidden print:block printable-area">
+        <div className="text-center border-b-2 border-slate-900 pb-4 mb-8">
+           <h1 className="text-2xl font-black uppercase tracking-tighter">Stock Inventory Report</h1>
+           <p className="text-[10px] font-bold uppercase tracking-widest mt-1">Generated: {new Date().toLocaleString()}</p>
+        </div>
+        <table className="w-full text-left text-[10px]">
+           <thead>
+             <tr className="border-b border-slate-900">
+               <th className="py-2 uppercase font-black">Item ID</th>
+               <th className="py-2 uppercase font-black">Product Name</th>
+               <th className="py-2 uppercase font-black">Category</th>
+               <th className="py-2 uppercase font-black">Stock</th>
+               <th className="py-2 uppercase font-black">Unit</th>
+               <th className="py-2 uppercase font-black text-right">Valuation</th>
+             </tr>
+           </thead>
+           <tbody className="divide-y divide-slate-100">
+             {filteredInventory.map(item => (
+               <tr key={item.id}>
+                 <td className="py-2 font-bold uppercase">{item.id}</td>
+                 <td className="py-2 font-black uppercase">{item.name}</td>
+                 <td className="py-2 uppercase text-slate-500">{item.category}</td>
+                 <td className="py-2 font-black">{item.stock}</td>
+                 <td className="py-2 uppercase">{item.unit}</td>
+                 <td className="py-2 text-right font-black">₹{item.price.toLocaleString()}</td>
+               </tr>
+             ))}
+           </tbody>
+           <tfoot>
+              <tr className="border-t border-slate-900">
+                 <td colSpan="5" className="py-4 font-black uppercase text-right pr-4">Total Inventory Value</td>
+                 <td className="py-4 text-right font-black text-sm">₹{filteredInventory.reduce((acc, curr) => acc + (curr.price * curr.stock), 0).toLocaleString()}</td>
+              </tr>
+           </tfoot>
+        </table>
+      </div>
     </div>
   );
 };

@@ -24,24 +24,6 @@ const Hero = () => {
             transition={{ duration: 0.8 }}
             className="text-center lg:text-left"
           >
-<<<<<<< HEAD
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="inline-block bg-landing-primary/10 text-landing-primary px-4 py-2 rounded-full text-sm font-bold mb-6 border border-landing-primary/20"
-            >
-              🚀 Fast Order & Best Quality
-            </motion.span>
-            <h1 className="text-5xl md:text-7xl font-bold font-display leading-tight mb-6 text-white">
-              Delicious Food <br />
-              <span className="text-transparent bg-clip-text bg-gradient-premium">
-                Delivered Fast
-              </span>
-            </h1>
-            <p className="text-lg text-gray-400 mb-8 max-w-lg leading-relaxed">
-              Experience the finest gourmet cuisine with our lightning-fast order system. Fresh ingredients, expert chefs, and premium service.
-=======
             <h1 className="text-4xl sm:text-5xl md:text-8xl font-black font-display leading-[0.9] mb-6 md:mb-8 text-white uppercase tracking-tighter">
               The Smart <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-landing-primary to-landing-secondary italic">
@@ -50,7 +32,6 @@ const Hero = () => {
             </h1>
             <p className="text-sm md:text-xl text-gray-400 mb-8 md:mb-10 max-w-lg leading-relaxed font-medium mx-auto lg:mx-0">
               Transform your restaurant with our ultra-fast, QR-driven management suite. Premium UI, seamless ordering, and real-time analytics.
->>>>>>> 72e0472723fa663ac06ad33cce1f06777cb39915
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 md:gap-6">
               <a href="#reservation" className="w-full sm:w-auto btn-premium px-8 md:px-10 py-3 md:py-4 text-[10px] md:text-[11px] uppercase tracking-[0.2em] font-black group text-center">
@@ -75,22 +56,6 @@ const Hero = () => {
               {/* Background Glow */}
               <div className="absolute inset-0 bg-landing-primary/20 rounded-full blur-[80px] md:blur-[120px] animate-pulse" />
 
-<<<<<<< HEAD
-            {/* Floating Elements */}
-            <motion.div
-              animate={{ y: [0, -20, 0] }}
-              transition={{ repeat: Infinity, duration: 4 }}
-              className="absolute top-0 right-0 glass-card p-4 flex items-center space-x-3"
-            >
-              <div className="w-12 h-12 bg-landing-primary/20 rounded-xl flex items-center justify-center">
-                <img src={burgerImg} alt="icon" className="w-8" />
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 uppercase font-bold">Fast Order</p>
-                <p className="text-sm font-bold text-white">Lightning Service</p>
-              </div>
-            </motion.div>
-=======
               {/* 1. Main Atmosphere Photo (Base) */}
               <motion.div
                 initial={{ scale: 0.9, opacity: 0, rotate: 5 }}
@@ -101,7 +66,6 @@ const Hero = () => {
                 <img src="/1000464401.jpg" alt="Ambiance" className="w-full h-full object-cover hover:scale-110 transition-transform duration-[5s]" />
                 <div className="absolute inset-0 bg-gradient-to-t from-dark/60 via-transparent to-transparent" />
               </motion.div>
->>>>>>> 72e0472723fa663ac06ad33cce1f06777cb39915
 
               {/* 2. Floating Accents */}
               <motion.div 

@@ -219,11 +219,7 @@ function App() {
                         </ProtectedRoute>
                       } />
 
-<<<<<<< HEAD
                       <Route path="/:role/menu" element={
-=======
-                      <Route path="/admin-menu" element={
->>>>>>> 72e0472723fa663ac06ad33cce1f06777cb39915
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER]}>
                           <MainLayout><Menu /></MainLayout>
                         </ProtectedRoute>

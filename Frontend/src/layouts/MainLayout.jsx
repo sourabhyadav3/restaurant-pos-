@@ -63,7 +63,6 @@ const MainLayout = ({ children }) => {
   };
 
   const menuItems = [
-<<<<<<< HEAD
     { name: 'Dashboard', icon: LayoutDashboard, path: getRoleModulePath('dashboard'), roles: [roles.ADMIN, roles.MANAGER, roles.CHEF, roles.WAITER, roles.CASHIER] },
     { name: 'Tables', icon: Table2, path: getRoleModulePath('tables'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
     { name: 'POS', icon: Calculator, path: getRoleModulePath('pos'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CASHIER] },
@@ -85,29 +84,6 @@ const MainLayout = ({ children }) => {
     { name: 'Settlements', icon: CreditCard, path: getRoleModulePath('settlements'), roles: [roles.CASHIER] },
     { name: 'Transactions', icon: History, path: getRoleModulePath('transactions'), roles: [roles.CASHIER] },
     { name: 'Settings', icon: Settings, path: getRoleModulePath('settings'), roles: [roles.ADMIN] },
-=======
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', roles: [roles.ADMIN, roles.MANAGER] },
-    { name: 'Tables', icon: Table2, path: '/tables', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
-    { name: 'POS', icon: Calculator, path: '/pos', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CASHIER] },
-    { name: 'Orders', icon: ClipboardList, path: '/orders', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF, roles.CASHIER] },
-    { name: 'Kitchen', icon: CookingPot, path: '/kitchen', roles: [roles.ADMIN, roles.MANAGER, roles.CHEF] },
-    { name: 'Tasks', icon: ClipboardCheck, path: '/tasks', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF] },
-    { name: 'Inventory', icon: Package, path: '/inventory', roles: [roles.ADMIN, roles.MANAGER, roles.CHEF] },
-    { name: 'Notifications', icon: Bell, path: '/notifications', roles: [roles.CHEF] },
-    { name: 'Menu', icon: UtensilsCrossed, path: '/admin-menu', roles: [roles.ADMIN, roles.MANAGER] },
-    { name: 'Staff', icon: Users, path: '/staff', roles: [roles.ADMIN] },
-    { name: 'Reports', icon: BarChart3, path: '/reports', roles: [roles.ADMIN, roles.MANAGER] },
-    { name: 'Rooms', icon: Bed, path: '/rooms', roles: [roles.ADMIN, roles.MANAGER] },
-    { name: 'Reservations', icon: CalendarCheck, path: '/reservations', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
-    { name: 'Concierge', icon: MessageSquare, path: '/concierge', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
-    { name: 'Services', icon: Compass, path: '/services', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
-    { name: 'QR Manager', icon: QrCode, path: '/qr-manager', roles: [roles.ADMIN, roles.MANAGER] },
-    { name: 'Guest Billing', icon: Receipt, path: '/folio', roles: [roles.ADMIN, roles.MANAGER] },
-    { name: 'Guest Bills', icon: Receipt, path: '/guest-bills', roles: [roles.CASHIER] },
-    { name: 'Settlements', icon: CreditCard, path: '/settlements', roles: [roles.CASHIER] },
-    { name: 'Transactions', icon: History, path: '/transactions', roles: [roles.CASHIER] },
-    { name: 'Settings', icon: Settings, path: '/settings', roles: [roles.ADMIN] },
->>>>>>> 72e0472723fa663ac06ad33cce1f06777cb39915
     
     // Customer Specific Items
     { name: 'Home', icon: Home, path: '/customer/home', roles: [roles.CUSTOMER] },
@@ -134,7 +110,6 @@ const MainLayout = ({ children }) => {
         )}
       >
         {/* Logo Area */}
-<<<<<<< HEAD
         <div 
           onClick={() => navigate(getRoleModulePath('dashboard'))}
           className="h-14 flex items-center px-5 shrink-0 cursor-pointer group/logo"
@@ -146,16 +121,6 @@ const MainLayout = ({ children }) => {
             {!isCollapsed && (
               <span 
                 className="text-lg font-black tracking-tight text-text-primary whitespace-nowrap group-hover/logo:text-primary transition-colors"
-=======
-        <div className="h-16 flex items-center px-6 shrink-0 border-b border-slate-50">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm shrink-0">
-              <img src="/1000464407-removebg-preview.png" alt="Logo" className="w-8 h-8 object-contain" />
-            </div>
-            {!isCollapsed && (
-              <span 
-                className="text-lg font-black tracking-tight text-text-primary whitespace-nowrap uppercase italic"
->>>>>>> 72e0472723fa663ac06ad33cce1f06777cb39915
               >
                 Gila<span className="text-primary">House</span>
               </span>
@@ -286,11 +251,7 @@ const MainLayout = ({ children }) => {
                       </div>
                       <div className="px-3 py-2 border-t border-slate-50">
                         <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Menu</p>
-<<<<<<< HEAD
                         <button onClick={() => { setSearchQuery(''); navigate(getRoleModulePath('menu')); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
-=======
-                        <button onClick={() => { setSearchQuery(''); navigate('/admin-menu'); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
->>>>>>> 72e0472723fa663ac06ad33cce1f06777cb39915
                            Margherita Pizza <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
                         </button>
                       </div>

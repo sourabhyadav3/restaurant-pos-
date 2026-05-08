@@ -44,20 +44,45 @@ export const HospitalityProvider = ({ children }) => {
 
   const [services, setServices] = useState(() => {
     const saved = localStorage.getItem('resto-hospitality-services');
-    return saved ? JSON.parse(saved) : [
+    const defaultServices = [
       { id: 'S1', name: 'Airport Shuttle', category: 'Transport', price: 1200, icon: '✈️', description: 'Comfortable transfer to/from airport' },
       { id: 'S2', name: 'Private City Tour', category: 'Transport', price: 3500, icon: '🚗', description: '4-hour private tour of city landmarks' },
-      { id: 'S3', name: 'Scuba Diving', category: 'Excursion', price: 5500, icon: '🤿', description: 'Guided diving session with equipment' },
-      { id: 'S4', name: 'Sunset Cruise', category: 'Excursion', price: 2800, icon: '⛵', description: 'Evening cruise with drinks and snacks' },
       { id: 'S5', name: 'Guided Hike', category: 'Excursion', price: 1500, icon: '🥾', description: 'Morning trail hike with local guide' }
     ];
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Robust filtering by ID and name
+        return parsed.filter(s => 
+          s.id !== 'S3' && 
+          s.id !== 'S4' && 
+          !s.name.toLowerCase().includes('scuba') && 
+          !s.name.toLowerCase().includes('sunset cruise')
+        );
+      } catch (e) {
+        return defaultServices;
+      }
+    }
+    return defaultServices;
   });
 
   const [serviceBookings, setServiceBookings] = useState(() => {
     const saved = localStorage.getItem('resto-hospitality-service-bookings');
-    return saved ? JSON.parse(saved) : [
-      { id: 'SB-101', guestName: 'Sarah Jenkins', serviceId: 'S4', date: '2026-05-11', time: '17:30', guests: 2, status: 'Pending', total: 5600 }
-    ];
+    const defaultBookings = [];
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return parsed.filter(b => 
+          b.serviceId !== 'S3' && 
+          b.serviceId !== 'S4' && 
+          !b.serviceName.toLowerCase().includes('scuba') && 
+          !b.serviceName.toLowerCase().includes('sunset cruise')
+        );
+      } catch (e) {
+        return defaultBookings;
+      }
+    }
+    return defaultBookings;
   });
 
   const [activityLog, setActivityLog] = useState(() => {

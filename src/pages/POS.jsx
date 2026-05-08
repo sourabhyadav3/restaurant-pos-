@@ -209,39 +209,47 @@ const POS = () => {
         </div>
 
         {/* Dynamic Menu Grid */}
-        <div className="flex-1 overflow-y-auto grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-8 items-start pr-1 pb-24 lg:pb-12 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-6 items-start pr-1 pb-24 lg:pb-12 scrollbar-hide">
           {filteredItems.map(item => (
             <div 
               key={item.id} 
               onClick={() => addToCart(item)}
-              className="card group cursor-pointer border-2 border-transparent hover:border-primary/20 p-3 lg:p-5 flex flex-col relative overflow-hidden bg-gradient-to-br from-white to-slate-50/30 aspect-[1/1.2] lg:aspect-[3.5/4]"
+              className="card group cursor-pointer border-2 border-transparent hover:border-primary/20 p-3 lg:p-5 flex flex-col relative overflow-hidden bg-gradient-to-br from-white to-slate-50/30 aspect-[1/1.3] md:aspect-[1/1.2] lg:aspect-[3.5/4]"
             >
               <div className="flex justify-between items-start mb-2 lg:mb-4 relative z-10">
-                 <div className="w-9 h-9 lg:w-12 lg:h-12 bg-white rounded-lg lg:rounded-2xl flex items-center justify-center text-xl lg:text-3xl shadow-xl shadow-slate-200 shrink-0">
+                 <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-white rounded-lg lg:rounded-2xl flex items-center justify-center text-lg md:text-2xl lg:text-3xl shadow-xl shadow-slate-200 shrink-0">
                     {item.image}
                  </div>
-                 <div className="flex flex-col items-end gap-1">
-                    <span className="badge bg-emerald-50 text-emerald-600 border border-emerald-100 text-[6px] lg:text-[8px] py-0 px-1 lg:px-1.5 font-black uppercase tracking-widest">
+                 <div className="flex flex-col items-end gap-1 min-w-0">
+                    <span className="badge bg-emerald-50 text-emerald-600 border border-emerald-100 text-[6px] lg:text-[8px] py-0 px-1 lg:px-1.5 font-black uppercase tracking-widest truncate">
                        READY
                     </span>
-                    <p className="hidden lg:block text-[9px] font-black text-slate-300 uppercase tracking-widest">{item.category}</p>
+                    <p className="hidden lg:block text-[9px] font-black text-slate-300 uppercase tracking-widest truncate w-full text-right">{item.category}</p>
                  </div>
               </div>
 
-              <div className="relative z-10 space-y-1 lg:space-y-2 min-h-0">
-                <h4 className="font-black text-text-primary text-xs lg:text-lg leading-tight group-hover:text-primary uppercase tracking-tight truncate lg:whitespace-normal">{item.name}</h4>
-                <p className="hidden lg:line-clamp-3 text-text-secondary text-xs font-medium opacity-60 leading-relaxed">{item.description}</p>
+              <div className="relative z-10 space-y-1 lg:space-y-2 min-w-0">
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-[10px] md:text-sm lg:text-lg font-black text-text-primary uppercase tracking-tight truncate">{item.name}</h4>
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-sm md:text-xl lg:text-3xl font-black text-primary tracking-tighter">₹{item.price}</p>
+                    {item.originalPrice && (
+                      <span className="text-[8px] md:text-xs text-slate-300 line-through font-bold">₹{item.originalPrice}</span>
+                    )}
+                  </div>
+                </div>
+                <p className="hidden lg:line-clamp-2 text-text-secondary text-[11px] font-medium opacity-60 leading-relaxed">{item.description}</p>
               </div>
 
-              <div className="mt-auto pt-3 lg:pt-6 flex items-center justify-between relative z-10">
-                <div className="flex flex-col">
-                   <span className="text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Price</span>
-                   <p className="text-base lg:text-3xl font-black text-text-primary tracking-tighter">₹{item.price}</p>
+              <div className="mt-auto pt-2 lg:pt-6 flex items-center justify-between relative z-10">
+                <div className="flex flex-col min-w-0">
+                   <span className="text-[7px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Price</span>
+                   <p className="text-sm md:text-xl lg:text-3xl font-black text-text-primary tracking-tighter truncate">₹{item.price}</p>
                 </div>
                 <div 
-                  className="w-8 h-8 lg:w-10 lg:h-10 bg-primary text-white rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg shadow-primary/30"
+                  className="w-7 h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 bg-primary text-white rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg shadow-primary/30 shrink-0"
                 >
-                  <Plus className="w-4 h-4 lg:w-5 lg:h-5 lg:stroke-[3]" />
+                  <Plus className="w-3.5 h-3.5 lg:w-5 lg:h-5 lg:stroke-[3]" />
                 </div>
               </div>
               

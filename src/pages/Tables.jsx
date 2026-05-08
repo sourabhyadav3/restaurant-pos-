@@ -153,7 +153,7 @@ const Tables = () => {
            </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-5 pb-20 lg:pb-0">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-5 pb-20 lg:pb-0">
           {tables.filter(t => t.floor === activeFloor).map((table) => {
             const config = getStatusConfig(table.status);
             const isSelected = selectedTable?.id === table.id;
@@ -163,13 +163,13 @@ const Tables = () => {
                 key={table.id}
                 onClick={() => setSelectedTable(table)}
                 className={cn(
-                  "card cursor-pointer relative overflow-hidden group border-2 bg-gradient-to-br from-white to-slate-50/50 p-4 lg:p-5",
+                  "card cursor-pointer relative overflow-hidden group border-2 bg-gradient-to-br from-white to-slate-50/50 p-3 lg:p-5",
                   isSelected ? "border-primary shadow-2xl shadow-primary/10" : "border-transparent"
                 )}
               >
                 <div className={cn("absolute top-0 left-0 w-full h-1", config.color)}></div>
                 <div className="flex justify-between items-start mb-3 lg:mb-6">
-                  <span className="text-base lg:text-xl font-black text-text-primary tracking-tighter uppercase">{table.name}</span>
+                  <span className="text-sm lg:text-xl font-black text-text-primary tracking-tighter uppercase truncate mr-1">{table.name}</span>
                   <div className="flex items-center gap-1 px-1.5 py-0.5 lg:px-2 lg:py-1 bg-white border border-slate-100 rounded-lg text-text-secondary font-bold text-[7px] lg:text-[9px] shadow-sm uppercase tracking-widest shrink-0">
                     <Users className="w-2.5 h-2.5 lg:w-3 lg:h-3" /> {table.capacity}
                   </div>

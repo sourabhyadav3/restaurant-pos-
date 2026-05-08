@@ -82,7 +82,6 @@ const MainLayout = ({ children }) => {
     { name: 'Reservations', icon: CalendarCheck, path: '/customer/reservations', roles: [roles.CUSTOMER] },
     { name: 'Excursions', icon: Compass, path: '/customer/services', roles: [roles.CUSTOMER] },
     { name: 'Favorites', icon: Heart, path: '/customer/favorites', roles: [roles.CUSTOMER] },
-    { name: 'Rewards', icon: Gift, path: '/customer/rewards', roles: [roles.CUSTOMER] },
     { name: 'Profile', icon: UserIcon, path: '/customer/profile', roles: [roles.CUSTOMER] },
     { name: 'Support', icon: HelpCircle, path: '/customer/support', roles: [roles.CUSTOMER] },
   ];
@@ -128,7 +127,10 @@ const MainLayout = ({ children }) => {
                 "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl",
                 isActive 
                   ? "bg-primary text-white shadow-xl shadow-primary/20" 
-                  : "text-text-secondary hover:bg-slate-50 hover:text-text-primary"
+                  : cn(
+                      "text-text-secondary",
+                      user?.role !== roles.CUSTOMER && "hover:bg-slate-50 hover:text-text-primary"
+                    )
               )}
             >
               <item.icon className={cn("w-5 h-5 shrink-0", !isCollapsed && "stroke-[2]")} />
@@ -163,7 +165,10 @@ const MainLayout = ({ children }) => {
         {/* Toggle Button (Hidden on Mobile) */}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-4 top-10 w-8 h-8 bg-white border border-border rounded-full hidden lg:flex items-center justify-center text-text-secondary hover:text-primary shadow-xl z-30"
+          className={cn(
+            "absolute -right-4 top-10 w-8 h-8 bg-white border border-border rounded-full hidden lg:flex items-center justify-center text-text-secondary shadow-xl z-30",
+            user?.role !== roles.CUSTOMER && "hover:text-primary"
+          )}
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>
@@ -188,7 +193,10 @@ const MainLayout = ({ children }) => {
           <div className="flex items-center gap-3 lg:gap-6 flex-1">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 text-text-secondary hover:text-primary"
+              className={cn(
+                "lg:hidden p-2 text-text-secondary transition-all",
+                user?.role !== roles.CUSTOMER && "hover:text-primary"
+              )}
             >
               <MenuIcon className="w-6 h-6" />
             </button>
@@ -211,7 +219,7 @@ const MainLayout = ({ children }) => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..." 
                 className={cn(
-                  "w-full pl-10 pr-4 py-2 bg-slate-50 lg:bg-white border-2 rounded-xl lg:rounded-2xl outline-none text-xs font-bold relative z-10 transition-all",
+                  "w-full pl-10 pr-4 py-2 bg-slate-50 lg:bg-white border-2 rounded-xl lg:rounded-2xl outline-none text-xs font-bold relative z-10",
                   isSearchFocused 
                     ? "border-primary ring-4 ring-primary/10 shadow-lg shadow-primary/5" 
                     : "border-primary/20"
@@ -227,20 +235,20 @@ const MainLayout = ({ children }) => {
                     <div className="p-2">
                       <div className="px-3 py-2">
                         <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Orders</p>
-                        <button onClick={() => { setSearchQuery(''); navigate('/orders'); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
-                           Order #124 <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
+                        <button onClick={() => { setSearchQuery(''); navigate('/orders'); }} className={cn("w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex justify-between items-center", user?.role !== roles.CUSTOMER && "hover:bg-slate-50")}>
+                           Order #124 <ChevronRight className="w-3 h-3 text-slate-300" />
                         </button>
                       </div>
                       <div className="px-3 py-2 border-t border-slate-50">
                         <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Tables</p>
-                        <button onClick={() => { setSearchQuery(''); navigate('/tables'); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
-                           Table T-03 <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
+                        <button onClick={() => { setSearchQuery(''); navigate('/tables'); }} className={cn("w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex justify-between items-center", user?.role !== roles.CUSTOMER && "hover:bg-slate-50")}>
+                           Table T-03 <ChevronRight className="w-3 h-3 text-slate-300" />
                         </button>
                       </div>
                       <div className="px-3 py-2 border-t border-slate-50">
                         <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Menu</p>
-                        <button onClick={() => { setSearchQuery(''); navigate('/menu'); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
-                           Margherita Pizza <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
+                        <button onClick={() => { setSearchQuery(''); navigate('/menu'); }} className={cn("w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex justify-between items-center group transition-all", user?.role !== roles.CUSTOMER && "hover:bg-slate-50")}>
+                           Margherita Pizza <ChevronRight className="w-3 h-3 text-slate-300 transition-colors" />
                         </button>
                       </div>
                     </div>
@@ -256,7 +264,7 @@ const MainLayout = ({ children }) => {
                 onClick={() => setShowNotifications(!showNotifications)}
                 className={cn(
                   "relative p-2 bg-slate-50 rounded-xl transition-all",
-                  showNotifications ? "text-primary bg-primary/10" : "text-text-secondary hover:text-primary"
+                  showNotifications ? "text-primary bg-primary/10" : cn("text-text-secondary", user?.role !== roles.CUSTOMER && "hover:text-primary")
                 )}
               >
                 <Bell className="w-5 h-5" />
@@ -331,8 +339,8 @@ const MainLayout = ({ children }) => {
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto px-4 lg:px-6 pt-4 lg:pt-6 pb-20 lg:pb-8 bg-transparent relative scrollbar-hide">
-          <div className="max-w-[1600px] mx-auto">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-4 lg:px-6 pt-3 sm:pt-4 lg:pt-6 pb-20 lg:pb-8 bg-transparent relative scrollbar-hide">
+          <div className="max-w-[1600px] mx-auto min-w-0">
             {children}
           </div>
         </main>
@@ -340,7 +348,7 @@ const MainLayout = ({ children }) => {
 
       {/* Mobile Bottom Navigation (Only for Customers) */}
       {user?.role === roles.CUSTOMER && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-t border-border z-[100] px-4 flex items-center justify-between shadow-[0_-10px_25px_rgba(0,0,0,0.05)]">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-border z-[100] px-4 flex items-center justify-between shadow-[0_-10px_25px_rgba(0,0,0,0.05)]">
            {[
     { name: 'Home', icon: Home, path: '/customer' },
     { name: 'Order Now', icon: UtensilsCrossed, path: '/customer/order' },
@@ -352,8 +360,8 @@ const MainLayout = ({ children }) => {
                to={item.path}
                end={item.path === '/customer'}
                className={({ isActive }) => cn(
-                 "flex flex-col items-center gap-1 transition-all",
-                 isActive ? "text-primary scale-110" : "text-slate-400"
+                 "flex flex-col items-center gap-1",
+                 isActive ? "text-primary" : "text-slate-400"
                )}
              >
                 <item.icon className="w-5 h-5 stroke-[2.5]" />

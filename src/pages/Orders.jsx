@@ -156,65 +156,67 @@ const Orders = () => {
         <div className="flex-1 overflow-hidden flex flex-col">
           {/* Desktop Table */}
           <div className="hidden md:block card p-0 overflow-hidden flex-1 shadow-2xl shadow-slate-200/50 border-none bg-white rounded-[2.5rem]">
-            <div className="h-full overflow-y-auto scrollbar-hide">
-              <table className="w-full">
-                <thead className="sticky top-0 z-10">
-                  <tr className="text-left text-text-secondary text-[9px] font-black uppercase tracking-[0.2em] border-b border-slate-50 bg-slate-50/50">
-                    <th className="px-8 py-5">Ticket</th>
-                    <th className="px-8 py-5">Customer / Table</th>
-                    <th className="px-8 py-5">Type</th>
-                    <th className="px-8 py-5">Status</th>
-                    <th className="px-8 py-5 text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {processedOrders.map((order) => (
-                    <tr 
-                      key={order.id} 
-                      className="text-sm hover:bg-slate-50 group cursor-pointer"
-                      onClick={() => setSelectedOrder(order)}
-                    >
-                      <td className="px-8 py-5">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg border border-slate-50">
-                              <ShoppingBag className="w-5 h-5 text-primary" />
-                          </div>
-                          <div>
-                              <span className="font-black text-text-primary text-base tracking-tight">{order.id}</span>
-                              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-1">{order.time}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-8 py-5">
-                        <p className="font-black text-text-primary text-sm leading-tight">{order.customer}</p>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1.5">
-                          {order.table !== '-' ? `TABLE ${order.table}` : 'WALK-IN'}
-                        </p>
-                      </td>
-                      <td className="px-8 py-5">
-                        <div className={cn(
-                          "badge font-black uppercase tracking-wider border text-[8px] px-2 py-1",
-                          order.type === 'Dine-in' ? "bg-indigo-50 text-primary border-indigo-100" : 
-                          order.type === 'Takeaway' ? "bg-orange-50 text-orange-600 border-orange-100" : "bg-emerald-50 text-emerald-600 border-emerald-100"
-                        )}>
-                          {order.type}
-                        </div>
-                      </td>
-                      <td className="px-8 py-5">
-                        <span className={cn("badge font-black border py-1 px-2 text-[8px]", getStatusStyle(order.status))}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="px-8 py-5 text-right">
-                        <div className="flex items-center justify-end gap-2 font-black text-text-primary text-base tracking-tight">
-                            {order.amount}
-                            <ChevronRight className="w-4 h-4 text-slate-200 group-hover:text-primary" />
-                        </div>
-                      </td>
+            <div className="h-full overflow-auto scrollbar-hide">
+              <div className="min-w-[800px]">
+                <table className="w-full">
+                  <thead className="sticky top-0 z-10">
+                    <tr className="text-left text-text-secondary text-[9px] font-black uppercase tracking-[0.2em] border-b border-slate-50 bg-slate-50/50">
+                      <th className="px-6 lg:px-8 py-5">Ticket</th>
+                      <th className="px-6 lg:px-8 py-5">Customer / Table</th>
+                      <th className="px-6 lg:px-8 py-5">Type</th>
+                      <th className="px-6 lg:px-8 py-5">Status</th>
+                      <th className="px-6 lg:px-8 py-5 text-right">Amount</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {processedOrders.map((order) => (
+                      <tr 
+                        key={order.id} 
+                        className="text-sm hover:bg-slate-50 group cursor-pointer"
+                        onClick={() => setSelectedOrder(order)}
+                      >
+                        <td className="px-6 lg:px-8 py-4 lg:py-5">
+                          <div className="flex items-center gap-3 lg:gap-4">
+                            <div className="w-9 h-9 lg:w-10 lg:h-10 bg-white rounded-xl flex items-center justify-center shadow-lg border border-slate-50 shrink-0">
+                                <ShoppingBag className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
+                            </div>
+                            <div className="min-w-0">
+                                <span className="font-black text-text-primary text-sm lg:text-base tracking-tight truncate block">{order.id}</span>
+                                <p className="text-[8px] lg:text-[9px] font-black text-slate-300 uppercase tracking-widest mt-1">{order.time}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 lg:px-8 py-4 lg:py-5">
+                          <p className="font-black text-text-primary text-xs lg:text-sm leading-tight truncate max-w-[150px]">{order.customer}</p>
+                          <p className="text-[8px] lg:text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1.5">
+                            {order.table !== '-' ? `TABLE ${order.table}` : 'WALK-IN'}
+                          </p>
+                        </td>
+                        <td className="px-6 lg:px-8 py-4 lg:py-5">
+                          <div className={cn(
+                            "badge font-black uppercase tracking-wider border text-[7px] lg:text-[8px] px-2 py-0.5 lg:py-1",
+                            order.type === 'Dine-in' ? "bg-indigo-50 text-primary border-indigo-100" : 
+                            order.type === 'Takeaway' ? "bg-orange-50 text-orange-600 border-orange-100" : "bg-emerald-50 text-emerald-600 border-emerald-100"
+                          )}>
+                            {order.type}
+                          </div>
+                        </td>
+                        <td className="px-6 lg:px-8 py-4 lg:py-5">
+                          <span className={cn("badge font-black border py-0.5 lg:py-1 px-2 text-[7px] lg:text-[8px]", getStatusStyle(order.status))}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="px-6 lg:px-8 py-4 lg:py-5 text-right">
+                          <div className="flex items-center justify-end gap-2 font-black text-text-primary text-sm lg:text-base tracking-tight">
+                              {order.amount}
+                              <ChevronRight className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-slate-200 group-hover:text-primary" />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 

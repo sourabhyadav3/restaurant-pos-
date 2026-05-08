@@ -134,7 +134,7 @@ const Staff = () => {
 
       <div className="flex-1 overflow-y-auto pb-20 lg:pb-8 pr-1 lg:pr-2 scrollbar-hide">
         {filteredStaff.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-6">
             {filteredStaff.map((member) => (
               <div 
                 key={member.id} 

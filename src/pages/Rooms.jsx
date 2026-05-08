@@ -122,7 +122,7 @@ const Rooms = () => {
 
       {/* Rooms Grid */}
       <div className="flex-1 overflow-y-auto scrollbar-hide -mx-1 px-1">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5 pb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 lg:gap-6 pb-10">
           {filteredRooms.map((room) => {
             const config = getStatusConfig(room.status);
             const StatusIcon = config.icon;

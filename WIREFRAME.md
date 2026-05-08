@@ -1,132 +1,143 @@
-# 🧱 Restaurant POS — Wireframe
+# 🏨 Hospitality Operations — Wireframe Architecture
 
 ---
 
-## 🧭 Main Layout
+## 🧭 Unified Main Layout
 
 ---
 
-| Sidebar        | Top Navbar                   |
-|                --------------------------------
-|                | Main Content Area           |
-|                |                            |
------------------------------------------------
+| Sidebar (RBAC)  | Top Navbar (Global Alerts + Profile) |
+|                 -------------------------------------
+|                 | Main Operational Content Area       |
+|                 |                                     |
+-------------------------------------------------------
 
 ---
 
-## 📊 Dashboard
+## 📊 Executive Dashboard (Command Center)
 
 ---
 
-## | Revenue | Orders | Tables | Top Items         |
+| Revenue Summary | Occupancy Rate | Kitchen Load | Active Staff |
+| ₹45,200 (+12%)  | 85% (32/40)   | Medium       | 12 Online    |
 
 ---
 
-| Live Orders           | Alerts               |
-| Order #123            | Low Stock            |
-| Table 5               | Delay Warning        |
-------------------------------------------------
+| Revenue Heatmap (7D) | Departmental Performance |
+| [ Bar Chart ]        | [ Progress Bars ]        |
+-------------------------------------------------------
 
 ---
 
-## 🪑 Table Management
+## 🛌 Hospitality Desk (Room Grid)
 
----------------- FLOOR VIEW ----------------
+---
 
-[ T1 🟢 ] [ T2 🔴 ] [ T3 🟡 ]
+---------------- PROPERTY VIEW ----------------
+
+[ RM-101 🟢 ] [ RM-102 🔴 ] [ RM-103 🟡 ]
+[ RM-201 🔴 ] [ RM-202 🟢 ] [ RM-203 🔵 ]
 
 Legend:
-🟢 Available
-🔴 Occupied
-🟡 Reserved
+🟢 Available  🔴 Occupied  🟡 Reserved  🔵 Cleaning
 
 ---
 
-Table Detail:
+Room Detail (RM-102):
+Guest: Alexander Wright
+Folio Balance: ₹12,500
 
-Table 5
-
-* Pizza x2
-* Coke x1
-
-[ Add Item ]
-[ Send to Kitchen ]
-[ Generate Bill ]
+[ Post Charge ] [ Manage Folio ] [ Request Service ]
 
 ---
 
-## 🧾 POS Screen
+## 🧾 Smart POS Screen (Restaurant)
 
 ---
 
-## | MENU               | CART                     |
+| CATEGORIES (Tabs) | MENU GRID          | ACTIVE CART (Drawer) |
+| [ Pizza ]         | [ Item Card ]      | [ Selected Items ]   |
+| [ Drinks ]        | [ Item Card ]      | [ Qty Controls ]     |
 
-| Pizza ₹200         | Pizza x2                |
-| Burger ₹150        | Coke x1                 |
-| Coke ₹50           |                         |
-------------------------------------------------
-
-| Subtotal           | ₹450                    |
-| GST                | ₹40                     |
-| Total              | ₹490                    |
-------------------------------------------------
-
-## | [ Pay ] [ Send KDS ]                         |
+| Checkout Options:                                    |
+| [ Cash ] [ Card ] [ UPI ] [ **ROOM SERVICE** ]       |
 
 ---
 
-## 👨‍🍳 KDS Screen
+## 👨‍🍳 Kitchen Display (KDS)
 
 ---
 
-| Order #123        | Order #124               |
-| Table 5           | Takeaway                |
-| Pizza x2          | Burger x1               |
-| Status: Pending   | Status: Cooking         |
+| Ticket #8821      | Ticket #8822       |
+| Room 102          | Table 05           |
+| [!] VIP GUEST     | Standard           |
+| Pizza x2          | Burger x1          |
+| Status: COOKING   | Status: PENDING    |
 -----------------------------------------------
 
-[ Change Status ]
+---
+
+## 💬 Concierge Messaging (Staff View)
 
 ---
 
-## 📦 Order Management
+| GUEST LIST (Left) | CHAT WINDOW (Center)               |
+| [ Guest Name ]    | [ Message Bubble ]                 |
+| [ Room Number ]   | [ Reply Box + Actions ]            |
 
 ---
 
-## | ID | Type | Status | Amount                 |
-
-## |123 | Dine | Ready  | ₹450                   |
+## 📦 Inventory Management
 
 ---
 
-## 👥 Staff Management
+| Item       | Dept    | Stock | Level     |
+| Salmon     | Kitchen | 5kg   | [ LOW ]   |
+| Towels     | House   | 150u  | [ GOOD ]  |
 
 ---
 
-## | Name | Role | Shift | Status                |
-
-## | Rahul | Waiter | Morning | Active          |
+## 🧾 Guest Folio (Billing Detail)
 
 ---
 
-## 💰 Billing
+Guest: Alexander Wright (RM-102)
+-----------------------------------------------
+| Description      | Dept    | Date   | Amount  |
+| Deluxe Suite     | Room    | 05-07  | ₹8,500  |
+| Seafood Grill    | POS     | 05-07  | ₹3,200  |
+| Laundry Service  | House   | 05-07  | ₹800    |
+-----------------------------------------------
+Total Balance: ₹12,500
 
-Total: ₹490
-
-[ Cash ] [ Card ] [ UPI ]
-
-[ Confirm Payment ]
+[ Generate Invoice ] [ Process Settlement ]
 
 ---
 
-## 📲 QR Flow
+## 📱 Guest Portal (Mobile Experience)
 
-Scan QR
+---
+
+[ WELCOME GUEST ]
+-----------------
+[ Order Dining ]
+[ Message Desk ]
+[ My Services  ]
+[ View My Bill ]
+-----------------
+
+---
+
+## 📲 Smart QR Workflow
+
+Scan Room QR (e.g., RM-102)
 ↓
-Menu
+Auto-set Context (Room Service)
 ↓
-Add Items
+Guest Menu
 ↓
-Place Order
+Order Placed
 ↓
-Kitchen
+Ticket to Kitchen (Tagged: Room 102)
+↓
+Automated Charge to Folio RM-102

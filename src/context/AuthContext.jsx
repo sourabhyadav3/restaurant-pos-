@@ -8,16 +8,28 @@ export const roles = {
   WAITER: 'WAITER',
   CHEF: 'CHEF',
   CASHIER: 'CASHIER',
+  CUSTOMER: 'CUSTOMER',
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({
-    name: 'Admin User',
-    role: roles.ADMIN, // Default to ADMIN for development
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('resto-user');
+    return savedUser ? JSON.parse(savedUser) : {
+      name: 'Admin User',
+      role: roles.ADMIN,
+    };
   });
 
-  const logout = () => setUser(null);
-  const login = (role) => setUser({ name: `${role} User`, role });
+  const logout = () => {
+    localStorage.removeItem('resto-user');
+    setUser(null);
+  };
+
+  const login = (role) => {
+    const newUser = { name: `${role} User`, role };
+    localStorage.setItem('resto-user', JSON.stringify(newUser));
+    setUser(newUser);
+  };
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>

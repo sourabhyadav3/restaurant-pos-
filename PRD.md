@@ -1,150 +1,125 @@
-# 🍽️ Restaurant POS System — PRD
+# 🏨 Hospitality Operations SaaS Platform — PRD
 
 ## 📌 Product Overview
 
-This system is a complete restaurant management platform that includes:
+This system is a comprehensive Hospitality and Restaurant management platform that includes:
 
-* POS (Billing)
-* Table Management
-* Kitchen Display System (KDS)
-* Order Management
-* QR Ordering System
-* Staff Management
+### 🍽️ Restaurant Operations
+* **POS (Billing)**: High-speed checkout and order processing.
+* **Table Management**: Real-time floor plan and occupancy tracking.
+* **Kitchen Display System (KDS)**: Ticket management and cooking status updates.
+- **Order Management**: End-to-end order lifecycle tracking.
+- **Inventory Management**: Stock tracking, low-stock alerts, and cost analysis.
 
-The goal is to streamline restaurant operations in real-time.
+### 🛌 Hospitality Operations
+* **Rooms Management**: Inventory of rooms, status (Available/Occupied/Cleaning).
+* **Reservations Lifecycle**: Booking, check-in, check-out, and guest history.
+* **Guest Billing & Folios**: Centralized billing for room charges, dining, and services.
+* **Concierge Messaging**: Direct guest-to-staff communication channel.
+* **Services & Transport**: Booking excursions, spa, and shuttle services.
+* **Staff Tasks & Shifts**: Duty assignment, maintenance tasks, and shift logs.
+
+### 📱 Guest Experience
+* **Customer Portal**: Self-service hub for guests.
+* **QR Smart Experience**: Context-aware QR scanning for rooms and tables.
+* **QR Ordering**: Direct-to-kitchen ordering from guest devices.
+
+### 📊 Management & Analytics
+* **Executive Dashboard**: Unified command center for hospitality and dining metrics.
+* **Notifications System**: Real-time operational alerts for all departments.
+
+The goal is to provide a unified "Single Pane of Glass" for hotel and restaurant property management.
 
 ---
 
 ## 🎯 Objectives
 
-* Fast order processing
-* Real-time kitchen coordination
-* Reduce manual work
-* Improve billing accuracy
-* Enable automation via QR ordering
+* **Unified Operations**: Bridge the gap between front-desk and restaurant.
+* **Guest Empowerment**: Enable self-service via QR and Customer Portal.
+* **Operational Visibility**: Real-time tracking of staff tasks and inventory.
+* **Revenue Optimization**: Seamlessly post F&B charges to guest folios.
+* **Efficiency**: Reduce manual coordination via automated notifications.
 
 ---
 
 ## 👥 User Roles
 
-### 1. Admin
-
-* Full system access
-* Manage staff, menu, reports, settings
+### 1. Admin / Owner
+* Full system access; Manage property settings, advanced reports, and global inventory.
 
 ### 2. Manager
+* Oversee daily operations, approve reservations, manage staff tasks, and monitor analytics.
 
-* Handle daily operations
-* Monitor orders, tables, kitchen
+### 3. Reception / Concierge
+* Handle room bookings, check-ins, guest folios, messaging, and service requests.
 
-### 3. Waiter
+### 4. Waiter / Captain
+* Manage table service, take orders, and handle room service requests.
 
-* Manage tables
-* Take and send orders
+### 5. Chef / KDS Manager
+* Manage kitchen ticket flow and inventory levels.
 
-### 4. Chef
-
-* View kitchen orders
-* Update cooking status
-
-### 5. Cashier
-
-* Handle billing and payments
+### 6. Customer / Guest
+* Book rooms, order food via QR, message concierge, and view billing via portal.
 
 ---
 
 ## 📦 Core Modules
 
-### 1. Dashboard
+### 1. Executive Analytics Dashboard
+* Unified view of Revenue, Occupancy Rate, Kitchen Load, and Staff Efficiency.
 
-* Revenue
-* Orders count
-* Active tables
-* Alerts
-
-### 2. Table Management
-
-* Table status (Available / Occupied / Reserved)
-* Open table
-* Add items
-* Generate bill
+### 2. Hospitality Desk (Rooms & Reservations)
+* Visual room grid, booking engine, and check-in/out automation.
 
 ### 3. POS System
+* Menu management, cart operations, tax calculation, and payment processing.
 
-* Menu display
-* Add items to cart
-* Apply tax
-* Generate bill
-* Payment handling
+### 4. Guest Folios & Billing
+* Itemized guest accounts supporting Room Service, Restaurant charges, and Services.
 
-### 4. Kitchen Display (KDS)
+### 5. Staff Tasks & Operations
+* Duty board for maintenance, cleaning, and guest service tasks.
 
-* Show orders
-* Update status:
+### 6. Inventory & Stock Control
+* Multi-department stock tracking with automated low-stock notifications.
 
-  * Pending
-  * Cooking
-  * Ready
+### 7. Kitchen Display (KDS)
+* Real-time order cards with status flow: Pending → Cooking → Ready.
 
-### 5. Order Management
-
-* Track all orders
-* Status flow:
-  New → Preparing → Ready → Delivered
-
-### 6. QR Ordering
-
-* Customer scans QR
-* Orders directly from menu
-* Sends to kitchen
-
-### 7. Staff Management
-
-* Add staff
-* Assign roles
-* Track shifts
-
-### 8. Billing & Payment
-
-* GST calculation
-* Payment modes:
-
-  * Cash
-  * Card
-  * UPI
+### 8. Concierge Messaging
+* Real-time chat system for internal staff and guest communication.
 
 ---
 
-## 🔄 System Flow
+## 🔄 Core User Flows
 
-Customer / Waiter
-↓
-POS System
-↓
-Kitchen (KDS)
-↓
-Order Ready
-↓
-Billing
-↓
-Payment
-↓
-Invoice
+### 🏨 Reservation & Check-In
+Guest Books Room → Manager Approves → Guest Checks In → Room Status: Occupied → Folio Opened.
+
+### 🍽️ Room Service / POS
+Guest Scans Room QR → Places Order → Order Tags as "Room Service" → Kitchen Prepares → Waiter Delivers → Charge Posted to Guest Folio.
+
+### 💬 Concierge Request
+Guest Messages Concierge → Task Assigned to Staff → Staff Completes Task → Notification Sent to Guest.
+
+### 💰 Checkout & Settlement
+Guest Requests Checkout → Concierge Reviews Folio (Rooms + F&B + Services) → Payment Processed → Room Status: Cleaning.
 
 ---
 
 ## ⚙️ Non-Functional Requirements
 
-* Responsive UI (Tablet + Desktop)
-* Real-time updates
-* Fast performance
-* Simple UI for staff usage
+* **Glassmorphic Premium UI**: High-end SaaS aesthetic for modern properties.
+* **Real-time Synchronization**: Instant updates across POS, KDS, and Front-Desk.
+- **Full Responsiveness**: Mobile-first guest experience; Tablet-first staff interface.
+* **Data Persistence**: Robust local-state management with persistence.
 
 ---
 
 ## 🚀 Success Criteria
 
-* Faster order processing
-* Reduced kitchen delays
-* Accurate billing
-* Smooth staff workflow
+* **Zero Coordination Lag**: Automated posting of F&B charges to folios.
+* **High Guest Engagement**: Significant volume of QR-based orders and messages.
+* **Operational Stability**: Real-time inventory alerts preventing stock-outs.
+* **Improved Revenue**: Increased service bookings via the Guest Portal.

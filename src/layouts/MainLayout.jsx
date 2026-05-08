@@ -16,17 +16,41 @@ import {
   User as UserIcon,
   ChevronLeft,
   ChevronRight,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  Home,
+  ShoppingCart,
+  History,
+  Heart,
+  Gift,
+  HelpCircle,
+  Smartphone,
+  Bed,
+  CalendarCheck,
+  Receipt,
+  MessageSquare,
+  QrCode,
+  Compass,
+  ClipboardCheck,
+  Package,
+  CreditCard
 } from 'lucide-react';
 import { useAuth, roles } from '../context/AuthContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useNotifications } from '../context/NotificationContext';
 import { cn } from '../utils/cn';
 
 const MainLayout = ({ children }) => {
   const { user, login, logout } = useAuth();
+  const { notifications, getUnreadCount, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const unreadCount = getUnreadCount(user?.role);
+  const myNotifications = notifications.filter(n => n.targetRole === user?.role || n.targetRole === 'ALL');
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/', roles: [roles.ADMIN, roles.MANAGER] },
@@ -34,71 +58,89 @@ const MainLayout = ({ children }) => {
     { name: 'POS', icon: Calculator, path: '/pos', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CASHIER] },
     { name: 'Orders', icon: ClipboardList, path: '/orders', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF, roles.CASHIER] },
     { name: 'Kitchen', icon: CookingPot, path: '/kitchen', roles: [roles.ADMIN, roles.MANAGER, roles.CHEF] },
+    { name: 'Tasks', icon: ClipboardCheck, path: '/tasks', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF] },
+    { name: 'Inventory', icon: Package, path: '/inventory', roles: [roles.ADMIN, roles.MANAGER, roles.CHEF] },
+    { name: 'Notifications', icon: Bell, path: '/notifications', roles: [roles.CHEF] },
     { name: 'Menu', icon: UtensilsCrossed, path: '/menu', roles: [roles.ADMIN, roles.MANAGER] },
     { name: 'Staff', icon: Users, path: '/staff', roles: [roles.ADMIN] },
     { name: 'Reports', icon: BarChart3, path: '/reports', roles: [roles.ADMIN, roles.MANAGER] },
+    { name: 'Rooms', icon: Bed, path: '/rooms', roles: [roles.ADMIN, roles.MANAGER] },
+    { name: 'Reservations', icon: CalendarCheck, path: '/reservations', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
+    { name: 'Concierge', icon: MessageSquare, path: '/concierge', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
+    { name: 'Services', icon: Compass, path: '/services', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
+    { name: 'QR Manager', icon: QrCode, path: '/qr-manager', roles: [roles.ADMIN, roles.MANAGER] },
+    { name: 'Guest Billing', icon: Receipt, path: '/folio', roles: [roles.ADMIN, roles.MANAGER] },
+    { name: 'Guest Bills', icon: Receipt, path: '/guest-bills', roles: [roles.CASHIER] },
+    { name: 'Settlements', icon: CreditCard, path: '/settlements', roles: [roles.CASHIER] },
+    { name: 'Transactions', icon: History, path: '/transactions', roles: [roles.CASHIER] },
     { name: 'Settings', icon: Settings, path: '/settings', roles: [roles.ADMIN] },
+    
+    // Customer Specific Items
+    { name: 'Home', icon: Home, path: '/customer', roles: [roles.CUSTOMER] },
+    { name: 'Order Now', icon: UtensilsCrossed, path: '/customer/order', roles: [roles.CUSTOMER] },
+    { name: 'Orders', icon: History, path: '/customer/orders', roles: [roles.CUSTOMER] },
+    { name: 'Reservations', icon: CalendarCheck, path: '/customer/reservations', roles: [roles.CUSTOMER] },
+    { name: 'Excursions', icon: Compass, path: '/customer/services', roles: [roles.CUSTOMER] },
+    { name: 'Favorites', icon: Heart, path: '/customer/favorites', roles: [roles.CUSTOMER] },
+    { name: 'Rewards', icon: Gift, path: '/customer/rewards', roles: [roles.CUSTOMER] },
+    { name: 'Profile', icon: UserIcon, path: '/customer/profile', roles: [roles.CUSTOMER] },
+    { name: 'Support', icon: HelpCircle, path: '/customer/support', roles: [roles.CUSTOMER] },
   ];
 
   const filteredMenu = menuItems.filter(item => item.roles.includes(user?.role));
 
-  const sidebarVariants = {
-    expanded: { width: 220, transition: { type: 'spring', stiffness: 300, damping: 30 } },
-    collapsed: { width: 88, transition: { type: 'spring', stiffness: 300, damping: 30 } }
-  };
-
   return (
-    <div className="flex h-screen bg-background overflow-hidden font-['Inter']">
+    <div className="fixed inset-0 flex bg-background overflow-hidden font-['Inter']">
       {/* Sidebar */}
-      <motion.aside 
-        initial={false}
-        animate={isCollapsed ? 'collapsed' : 'expanded'}
-        variants={sidebarVariants}
-        className="bg-white border-r border-border flex flex-col relative z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]"
+      <aside 
+        className={cn(
+          "bg-white border-r border-border flex flex-col relative z-[100] shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-full transition-all duration-300",
+          "lg:translate-x-0 fixed lg:relative",
+          isCollapsed ? "lg:w-[80px]" : "lg:w-[200px]",
+          isMobileMenuOpen ? "translate-x-0 w-[240px]" : "-translate-x-full lg:translate-x-0"
+        )}
       >
         {/* Logo Area */}
-        <div className="h-20 flex items-center px-6 shrink-0">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-10 h-10 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/30 shrink-0">
-              <CookingPot className="w-6 h-6 stroke-[2.5]" />
+        <div className="h-14 flex items-center px-5 shrink-0">
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/30 shrink-0">
+              <CookingPot className="w-5 h-5 stroke-[2.5]" />
             </div>
             {!isCollapsed && (
-              <motion.span 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-xl font-black tracking-tight text-text-primary whitespace-nowrap"
+              <span 
+                className="text-lg font-black tracking-tight text-text-primary whitespace-nowrap"
               >
                 Resto<span className="text-primary">OS</span>
-              </motion.span>
+              </span>
             )}
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-hide">
+        <nav className="flex-1 px-2.5 py-3 space-y-0.5 overflow-y-auto scrollbar-hide">
           {filteredMenu.map((item) => (
             <NavLink
               key={item.name}
               to={item.path}
+              end={item.path === '/' || item.path === '/customer'}
+              onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) => cn(
-                "group relative flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300",
+                "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl",
                 isActive 
                   ? "bg-primary text-white shadow-xl shadow-primary/20" 
                   : "text-text-secondary hover:bg-slate-50 hover:text-text-primary"
               )}
             >
-              <item.icon className={cn("w-6 h-6 shrink-0 transition-transform duration-300 group-hover:scale-110", !isCollapsed && "stroke-[2]")} />
+              <item.icon className={cn("w-5 h-5 shrink-0", !isCollapsed && "stroke-[2]")} />
               {!isCollapsed && (
-                <motion.span 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="font-bold text-sm tracking-wide"
+                <span 
+                  className="font-bold text-xs tracking-wide"
                 >
                   {item.name}
-                </motion.span>
+                </span>
               )}
               {isCollapsed && (
-                <div className="absolute left-full ml-4 px-3 py-2 bg-text-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 shadow-2xl translate-x-[-10px] group-hover:translate-x-0 z-[100]">
+                <div className="absolute left-full ml-4 px-2 py-1.5 bg-text-primary text-white text-[9px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none z-[100]">
                   {item.name}
                 </div>
               )}
@@ -107,160 +149,219 @@ const MainLayout = ({ children }) => {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-3 space-y-1 border-t border-slate-50">
-          <button 
-            onClick={() => setShowRoleSwitcher(true)}
-            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-text-secondary hover:bg-slate-50 hover:text-primary transition-all group"
-          >
-            <Users className="w-6 h-6 shrink-0 group-hover:rotate-12 transition-transform" />
-            {!isCollapsed && <span className="font-bold text-sm">Switch Role</span>}
-          </button>
+        <div className="p-2.5 space-y-0.5 border-t border-slate-50">
+
           <button 
             onClick={() => { logout(); navigate('/login'); }}
-            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-text-secondary hover:bg-danger/5 hover:text-danger transition-all group"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-text-secondary hover:bg-danger/5 hover:text-danger group"
           >
-            <LogOut className="w-6 h-6 shrink-0 group-hover:-translate-x-1 transition-transform" />
-            {!isCollapsed && <span className="font-bold text-sm">Logout</span>}
+            <LogOut className="w-5 h-5 shrink-0" />
+            {!isCollapsed && <span className="font-bold text-xs">Logout</span>}
           </button>
         </div>
 
-        {/* Toggle Button */}
+        {/* Toggle Button (Hidden on Mobile) */}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-4 top-10 w-8 h-8 bg-white border border-border rounded-full flex items-center justify-center text-text-secondary hover:text-primary shadow-xl hover:scale-110 transition-all z-50"
+          className="absolute -right-4 top-10 w-8 h-8 bg-white border border-border rounded-full hidden lg:flex items-center justify-center text-text-secondary hover:text-primary shadow-xl z-30"
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>
-      </motion.aside>
+      </aside>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[90] lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden relative">
-        {/* Header */}
-        <header className="h-20 bg-white/80 backdrop-blur-md border-b border-border flex items-center justify-between px-8 shrink-0 z-40">
-          <div className="flex items-center gap-6 flex-1">
-            <div className="relative w-full max-w-md group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary group-focus-within:text-primary transition-colors" />
+      <div className="flex-1 flex flex-col overflow-hidden relative bg-background">
+        {/* Premium SaaS Background Blobs */}
+        <div className="absolute top-[-10%] right-[-5%] w-[40rem] h-[40rem] bg-primary/[0.03] rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[35rem] h-[35rem] bg-indigo-400/[0.03] rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-[20%] left-[10%] w-[30rem] h-[30rem] bg-blue-300/[0.02] rounded-full blur-[80px] pointer-events-none" />
+                {/* Header */}
+        <header className="h-14 bg-white border-b border-border flex items-center justify-between px-3 lg:px-4 shrink-0 z-20">
+          <div className="flex items-center gap-3 lg:gap-6 flex-1">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden p-2 text-text-secondary hover:text-primary"
+            >
+              <MenuIcon className="w-6 h-6" />
+            </button>
+            <div 
+              className="relative w-full max-w-[420px] group z-[100]"
+            >
+              <div
+                className={cn(
+                  "absolute left-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none",
+                  isSearchFocused ? "text-primary" : "text-text-secondary"
+                )}
+              >
+                <Search className="w-4 h-4" />
+              </div>
               <input 
                 type="text" 
-                placeholder="Search orders, tables, menu..." 
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-primary/10 outline-none transition-all text-sm font-medium"
+                value={searchQuery}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setIsSearchFocused(false)}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search..." 
+                className={cn(
+                  "w-full pl-10 pr-4 py-2 bg-slate-50 lg:bg-white border-2 rounded-xl lg:rounded-2xl outline-none text-xs font-bold relative z-10 transition-all",
+                  isSearchFocused 
+                    ? "border-primary ring-4 ring-primary/10 shadow-lg shadow-primary/5" 
+                    : "border-primary/20"
+                )}
               />
+              
+              {searchQuery.length > 0 && (
+                <>
+                  <div className="fixed inset-0 z-0" onClick={() => setSearchQuery('')} />
+                  <div 
+                    className="absolute top-full mt-3 w-full bg-white border border-slate-100 rounded-3xl shadow-2xl overflow-hidden z-10 p-2"
+                  >
+                    <div className="p-2">
+                      <div className="px-3 py-2">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Orders</p>
+                        <button onClick={() => { setSearchQuery(''); navigate('/orders'); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
+                           Order #124 <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
+                        </button>
+                      </div>
+                      <div className="px-3 py-2 border-t border-slate-50">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Tables</p>
+                        <button onClick={() => { setSearchQuery(''); navigate('/tables'); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
+                           Table T-03 <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
+                        </button>
+                      </div>
+                      <div className="px-3 py-2 border-t border-slate-50">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Menu</p>
+                        <button onClick={() => { setSearchQuery(''); navigate('/menu'); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
+                           Margherita Pizza <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative p-3 bg-slate-50 rounded-2xl text-text-secondary hover:text-primary transition-colors"
-            >
-              <Bell className="w-6 h-6" />
-              <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-danger rounded-full border-2 border-white shadow-sm animate-pulse"></span>
-            </motion.button>
-            
-            <div className="h-10 w-[1px] bg-border mx-2"></div>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className={cn(
+                  "relative p-2 bg-slate-50 rounded-xl transition-all",
+                  showNotifications ? "text-primary bg-primary/10" : "text-text-secondary hover:text-primary"
+                )}
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-danger text-white text-[8px] font-black rounded-full border-2 border-white flex items-center justify-center animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
 
-            <div className="flex items-center gap-4">
+              {showNotifications && (
+                <>
+                  <div className="fixed inset-0 z-[100]" onClick={() => setShowNotifications(false)} />
+                  <div className="absolute top-full right-0 mt-3 w-[320px] bg-white border border-slate-100 rounded-[2rem] shadow-2xl overflow-hidden z-[110] animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
+                       <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Notifications</h4>
+                       <button onClick={() => markAllAsRead(user?.role)} className="text-[9px] font-black text-primary uppercase tracking-widest hover:underline">Mark all as read</button>
+                    </div>
+                    <div className="max-h-[380px] overflow-y-auto scrollbar-hide">
+                       {myNotifications.length === 0 ? (
+                         <div className="p-8 text-center opacity-40">
+                            <Bell className="w-8 h-8 mx-auto mb-2" />
+                            <p className="text-[10px] font-black uppercase tracking-widest">No notifications</p>
+                         </div>
+                       ) : (
+                         myNotifications.map((n) => (
+                           <div 
+                             key={n.id} 
+                             onClick={() => { markAsRead(n.id); setShowNotifications(false); }}
+                             className={cn(
+                               "p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer relative",
+                               !n.read && "bg-primary/[0.02]"
+                             )}
+                           >
+                              {!n.read && <div className="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-full" />}
+                              <p className="text-[10px] font-black text-text-primary uppercase tracking-tight leading-tight">{n.title}</p>
+                              <p className="text-[11px] font-medium text-slate-500 mt-1 line-clamp-2">{n.message}</p>
+                              <p className="text-[8px] font-black text-slate-300 mt-2 uppercase tracking-widest">{new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                           </div>
+                         ))
+                       )}
+                    </div>
+                    <button 
+                      onClick={() => { setShowNotifications(false); navigate('/notifications'); }}
+                      className="w-full py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-primary transition-colors border-t border-slate-50"
+                    >
+                      View All Activity
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <div className="h-8 w-[1px] bg-border mx-1"></div>
+
+            <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-black text-text-primary leading-none">{user?.name}</p>
-                <div className="mt-1.5 flex justify-end">
-                   <span className="badge bg-primary-light text-primary border-none text-[9px] py-0.5 font-black uppercase tracking-wider">
+                <p className="text-xs font-black text-text-primary leading-none">{user?.name}</p>
+                <div className="mt-1 flex justify-end">
+                   <span className="badge bg-primary-light text-primary border-none text-[8px] py-0 font-bold uppercase tracking-wider">
                       {user?.role}
                    </span>
                 </div>
               </div>
-              <motion.div 
-                whileHover={{ scale: 1.05 }}
-                className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-primary border-2 border-white shadow-xl cursor-pointer overflow-hidden"
+              <div 
+                className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-primary border-2 border-white shadow-lg cursor-pointer overflow-hidden"
               >
-                <UserIcon className="w-6 h-6 stroke-[2.5]" />
-              </motion.div>
+                <UserIcon className="w-5 h-5 stroke-[2.5]" />
+              </div>
             </div>
           </div>
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto p-8 bg-background relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={window.location.pathname}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+        <main className="flex-1 overflow-y-auto px-4 lg:px-6 pt-4 lg:pt-6 pb-20 lg:pb-8 bg-transparent relative scrollbar-hide">
+          <div className="max-w-[1600px] mx-auto">
+            {children}
+          </div>
         </main>
       </div>
 
-      {/* Role Switcher Drawer */}
-      <AnimatePresence>
-        {showRoleSwitcher && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowRoleSwitcher(false)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[100]"
-            />
-            <motion.div 
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl z-[101] p-10 flex flex-col"
-            >
-              <div className="flex justify-between items-center mb-10">
-                 <div>
-                    <h2 className="text-2xl font-black tracking-tight">Role Switcher</h2>
-                    <p className="text-text-secondary text-sm font-medium mt-1">Simulate different user views</p>
-                 </div>
-                 <button onClick={() => setShowRoleSwitcher(false)} className="p-2 hover:bg-slate-50 rounded-xl transition-all">
-                    <ChevronRight className="w-6 h-6" />
-                 </button>
-              </div>
-              
-              <div className="flex-1 space-y-4">
-                {Object.values(roles).map((role) => (
-                  <motion.button
-                    whileHover={{ scale: 1.02, x: -5 }}
-                    whileTap={{ scale: 0.98 }}
-                    key={role}
-                    onClick={() => {
-                      login(role);
-                      setShowRoleSwitcher(false);
-                      navigate('/');
-                    }}
-                    className={cn(
-                      "w-full p-6 rounded-[2rem] border-2 text-left transition-all flex items-center justify-between group",
-                      user?.role === role 
-                        ? "border-primary bg-indigo-50 text-primary shadow-xl shadow-primary/10" 
-                        : "border-slate-50 bg-slate-50/50 hover:border-primary/20 hover:bg-white"
-                    )}
-                  >
-                    <span className="font-black text-sm uppercase tracking-widest">{role}</span>
-                    <div className={cn(
-                      "w-10 h-10 rounded-2xl flex items-center justify-center transition-all",
-                      user?.role === role ? "bg-primary text-white" : "bg-white text-slate-300 group-hover:text-primary"
-                    )}>
-                      <ChevronRight className="w-5 h-5" />
-                    </div>
-                  </motion.button>
-                ))}
-              </div>
-
-              <div className="pt-10 border-t border-slate-50">
-                 <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] text-center italic">
-                   Development Mode Overlay
-                 </p>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* Mobile Bottom Navigation (Only for Customers) */}
+      {user?.role === roles.CUSTOMER && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-t border-border z-[100] px-4 flex items-center justify-between shadow-[0_-10px_25px_rgba(0,0,0,0.05)]">
+           {[
+    { name: 'Home', icon: Home, path: '/customer' },
+    { name: 'Order Now', icon: UtensilsCrossed, path: '/customer/order' },
+    { name: 'Orders', icon: History, path: '/customer/orders' },
+    { name: 'Profile', icon: UserIcon, path: '/customer/profile' },
+  ].map(item => (
+             <NavLink 
+               key={item.name} 
+               to={item.path}
+               end={item.path === '/customer'}
+               className={({ isActive }) => cn(
+                 "flex flex-col items-center gap-1 transition-all",
+                 isActive ? "text-primary scale-110" : "text-slate-400"
+               )}
+             >
+                <item.icon className="w-5 h-5 stroke-[2.5]" />
+                <span className="text-[8px] font-black uppercase tracking-widest">{item.name}</span>
+             </NavLink>
+           ))}
+        </div>
+      )}
     </div>
   );
 };

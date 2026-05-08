@@ -50,69 +50,69 @@ const Excursions = () => {
   return (
     <div className="min-h-screen bg-[#fcfcfc] text-slate-800 font-sans">
       {/* Header - Consistent with Menu */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 py-4 px-6 md:px-12 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <img src="/1000464407-removebg-preview.png" alt="Logo" className="h-8 md:h-10 w-auto object-contain" />
-          <span className="text-xl font-black uppercase tracking-tighter text-[#2a2a2a]">Gila House</span>
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 py-3 md:py-4 px-4 md:px-12 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2 md:gap-3">
+          <img src="/1000464407-removebg-preview.png" alt="Logo" className="h-7 md:h-10 w-auto object-contain" />
+          <span className="text-[14px] md:text-xl font-black uppercase tracking-tighter text-[#2a2a2a]">Gila House</span>
         </Link>
         
-        <nav className="hidden md:flex items-center gap-8">
-          <Link to="/menu" className="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">Restaurant</Link>
-          <Link to="/excursions" className="text-sm font-bold text-orange-500 border-b-2 border-orange-500 pb-1">Excursions</Link>
-          <Link to="/transport" className="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">Transport</Link>
+        <nav className="hidden md:flex items-center gap-4 lg:gap-8">
+          <Link to="/menu" className="text-xs lg:text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">Restaurant</Link>
+          <Link to="/excursions" className="text-xs lg:text-sm font-bold text-orange-500 border-b-2 border-orange-500 pb-1">Excursions</Link>
+          <Link to="/transport" className="text-xs lg:text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">Transport</Link>
         </nav>
 
-        <Link to="/book" className="bg-orange-500 text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest shadow-lg shadow-orange-200 hover:bg-orange-600 transition-all">
+        <Link to="/book" className="bg-orange-500 text-white px-4 md:px-6 py-2 md:py-2.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest shadow-lg shadow-orange-200 hover:bg-orange-600 transition-all">
           Reserve Table
         </Link>
       </header>
 
       {/* Hero Section - Matching SS */}
-      <section className="bg-[#1e8a75] py-20 px-6 text-center text-white relative overflow-hidden">
+      <section className="bg-[#1e8a75] py-12 md:py-20 px-6 text-center text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/5" />
         <div className="relative z-10 max-w-4xl mx-auto">
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-60">Gila House</span>
-          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mt-4 mb-6">Excursions & Activities</h1>
-          <p className="text-sm md:text-lg opacity-80 font-medium max-w-2xl mx-auto">
+          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] opacity-60">Gila House</span>
+          <h1 className="text-3xl md:text-6xl font-black uppercase tracking-tighter mt-4 mb-4 md:mb-6">Excursions & Activities</h1>
+          <p className="text-xs md:text-lg opacity-80 font-medium max-w-2xl mx-auto leading-relaxed">
             Explore the island with our curated guided tours and local adventures
           </p>
         </div>
       </section>
 
-      <main className="max-w-7xl mx-auto px-6 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <main className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
           {excursionData.map((item) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl shadow-gray-100/50 border border-transparent hover:border-teal-100 group transition-all duration-500"
+              className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl shadow-gray-100/50 border border-transparent hover:border-teal-100 group transition-all duration-500"
             >
               {/* Image Area - Matching SS Style */}
-              <div className="h-72 overflow-hidden relative">
+              <div className="h-60 md:h-72 overflow-hidden relative">
                  <img src={item.img} alt={item.name} className="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" />
                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
               </div>
               
-              <div className="p-10">
-                <h3 className="text-2xl font-black text-[#2a2a2a] mb-2 uppercase tracking-tight group-hover:text-[#1e8a75] transition-colors">{item.name}</h3>
+              <div className="p-6 md:p-10">
+                <h3 className="text-xl md:text-2xl font-black text-[#2a2a2a] mb-2 uppercase tracking-tight group-hover:text-[#1e8a75] transition-colors">{item.name}</h3>
                 
-                <div className="flex items-center gap-6 mb-6">
-                   <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase">
+                <div className="flex items-center gap-6 mb-4 md:mb-6">
+                   <div className="flex items-center gap-1.5 text-[9px] md:text-[10px] font-bold text-gray-400 uppercase">
                       <MapPin size={14} className="text-teal-500" /> {item.location}
                    </div>
                 </div>
 
-                <p className="text-sm text-gray-500 leading-relaxed mb-8">
+                <p className="text-xs md:text-sm text-gray-500 leading-relaxed mb-6 md:mb-8">
                   {item.desc}
                 </p>
 
-                <div className="flex items-center justify-between pt-6 border-t border-gray-50">
-                  <span className="text-2xl font-black text-[#1e8a75] tracking-tighter">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-gray-50">
+                  <span className="text-xl md:text-2xl font-black text-[#1e8a75] tracking-tighter">
                     {item.price}
                   </span>
-                  <button className="bg-orange-500 text-white px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-100 hover:bg-orange-600 transition-all active:scale-95">
+                  <button className="w-full sm:w-auto bg-orange-500 text-white px-6 md:px-8 py-3 md:py-3.5 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-100 hover:bg-orange-600 transition-all active:scale-95">
                     Book This Excursion
                   </button>
                 </div>
@@ -121,8 +121,8 @@ const Excursions = () => {
           ))}
         </div>
 
-        <div className="mt-32 text-center">
-           <div className="inline-flex items-center gap-2 text-xs font-black text-gray-300 uppercase tracking-widest mb-4">
+        <div className="mt-16 md:mt-32 text-center">
+           <div className="inline-flex items-center gap-2 text-[10px] md:text-xs font-black text-gray-300 uppercase tracking-widest">
               Visit us to order <ChevronRight size={14} /> Gila House Restaurant & Bar
            </div>
         </div>

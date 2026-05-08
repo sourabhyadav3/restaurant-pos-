@@ -49,48 +49,57 @@ const GuestDashboard = () => {
         </button>
       </header>
 
-      <main className="max-w-md mx-auto px-4 pt-6">
-        {/* Greeting Card */}
-        <motion.div 
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-orange-400 to-orange-500 rounded-[2rem] p-6 text-white shadow-xl shadow-orange-100 mb-6 overflow-hidden relative"
-        >
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-70 mb-2">Thursday 7 May</p>
-          <h2 className="text-2xl font-black mb-4 tracking-tight leading-tight">Good morning, MANUEL!</h2>
-          
-          <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-lg">
-            <MapPin size={12} />
-            <span className="text-[9px] font-black uppercase tracking-widest">Asmara</span>
-          </div>
-        </motion.div>
-
-        {/* Quick Order Section */}
-        <section className="mb-8">
-          <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Quick Order</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <Link to="/guest-menu" className="bg-orange-50/60 hover:bg-orange-50 transition-colors rounded-[1.5rem] p-5 flex flex-col items-center text-center border border-orange-100/30">
-              <div className="w-11 h-11 bg-orange-400 rounded-xl flex items-center justify-center text-white mb-3 shadow-md shadow-orange-200">
-                <ChefHat size={22} />
+      <main className="max-w-7xl mx-auto px-4 md:px-8 pt-6 md:pt-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          {/* Greeting Card */}
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="lg:col-span-2 bg-gradient-to-br from-orange-400 to-orange-500 rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 text-white shadow-xl shadow-orange-100 overflow-hidden relative flex flex-col justify-center"
+          >
+            <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] opacity-70 mb-3 md:mb-4">Thursday 7 May</p>
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 md:mb-8 tracking-tight leading-none">Good morning, MANUEL!</h2>
+            
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl">
+                <MapPin size={14} />
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Asmara</span>
               </div>
-              <span className="text-[13px] font-black text-slate-800 mb-0.5">Order to Room</span>
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Full menu</span>
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl">
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Room 204</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Quick Order Section */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2 px-2">Quick Actions</h3>
+            <Link to="/guest-menu" className="flex-1 bg-orange-50/60 hover:bg-orange-50 transition-colors rounded-[2rem] p-6 flex items-center gap-6 border border-orange-100/30 group">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-orange-400 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-200 group-hover:scale-110 transition-transform">
+                <ChefHat size={28} />
+              </div>
+              <div>
+                <span className="block text-lg font-black text-slate-800 leading-tight">Order to Room</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Full menu</span>
+              </div>
             </Link>
 
-            <Link to="/guest-menu" className="bg-purple-50/60 hover:bg-purple-50 transition-colors rounded-[1.5rem] p-5 flex flex-col items-center text-center border border-purple-100/30">
-              <div className="w-11 h-11 bg-purple-500 rounded-xl flex items-center justify-center text-white mb-3 shadow-md shadow-purple-200">
-                <GlassWater size={22} />
+            <Link to="/guest-menu" className="flex-1 bg-purple-50/60 hover:bg-purple-50 transition-colors rounded-[2rem] p-6 flex items-center gap-6 border border-purple-100/30 group">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-purple-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-purple-200 group-hover:scale-110 transition-transform">
+                <GlassWater size={28} />
               </div>
-              <span className="text-[13px] font-black text-slate-800 mb-0.5">Bar Drinks</span>
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Cocktails & more</span>
+              <div>
+                <span className="block text-lg font-black text-slate-800 leading-tight">Bar Drinks</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Cocktails & more</span>
+              </div>
             </Link>
           </div>
-        </section>
+        </div>
 
         {/* Our Services Grid */}
-        <section>
-          <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Our Services</h3>
-          <div className="grid grid-cols-2 gap-3">
+        <section className="mb-20">
+          <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6 px-2">Explore Our Services</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
             {services.map((service, i) => (
               <motion.div
                 key={service.title}
@@ -98,12 +107,12 @@ const GuestDashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <Link to={service.link} className="bg-white hover:shadow-lg hover:shadow-teal-900/5 transition-all rounded-[1.5rem] p-4 flex flex-col border border-gray-50 h-full group">
-                  <div className={`w-10 h-10 ${service.bg} rounded-xl flex items-center justify-center ${service.color} mb-3 group-hover:scale-105 transition-transform`}>
-                    <service.icon size={18} strokeWidth={2.5} />
+                <Link to={service.link} className="bg-white hover:shadow-2xl hover:shadow-orange-900/5 transition-all rounded-[2rem] p-6 flex flex-col border border-gray-50 h-full group">
+                  <div className={`w-12 h-12 md:w-14 md:h-14 ${service.bg} rounded-2xl flex items-center justify-center ${service.color} mb-5 group-hover:scale-110 transition-transform`}>
+                    <service.icon size={22} strokeWidth={2.5} />
                   </div>
-                  <span className="text-[13px] font-black text-slate-800 mb-0.5">{service.title}</span>
-                  <span className="text-[9px] font-bold text-gray-400 leading-tight line-clamp-1">{service.desc}</span>
+                  <span className="text-sm md:text-base font-black text-slate-800 mb-1 leading-tight">{service.title}</span>
+                  <span className="text-[10px] md:text-[11px] font-bold text-gray-400 leading-relaxed line-clamp-2">{service.desc}</span>
                 </Link>
               </motion.div>
             ))}

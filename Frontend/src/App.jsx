@@ -161,7 +161,6 @@ function App() {
                       <Route path="/kitchen" element={<ModuleRedirect module="kitchen" />} />
                       <Route path="/tasks" element={<ModuleRedirect module="tasks" />} />
                       <Route path="/inventory" element={<ModuleRedirect module="inventory" />} />
-                      <Route path="/menu" element={<ModuleRedirect module="menu" />} />
                       <Route path="/staff" element={<ModuleRedirect module="staff" />} />
                       <Route path="/reports" element={<ModuleRedirect module="reports" />} />
                       <Route path="/rooms" element={<ModuleRedirect module="rooms" />} />
@@ -219,11 +218,7 @@ function App() {
                         </ProtectedRoute>
                       } />
 
-<<<<<<< HEAD
                       <Route path="/:role/menu" element={
-=======
-                      <Route path="/admin-menu" element={
->>>>>>> 72e0472723fa663ac06ad33cce1f06777cb39915
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER]}>
                           <MainLayout><Menu /></MainLayout>
                         </ProtectedRoute>

@@ -2,10 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const stats = [
-  { label: 'Happy Customers', value: '12k+' },
-  { label: 'Food Varieties', value: '85+' },
-  { label: 'Years Experience', value: '25+' },
-  { label: 'Master Chefs', value: '15+' },
+  { label: 'Transactions Daily', value: '50k+' },
+  { label: 'Uptime Guarantee', value: '99.9%' },
+  { label: 'Smart QR Partners', value: '500+' },
+  { label: 'Expert Support', value: '24/7' },
 ];
 
 const Stats = () => {

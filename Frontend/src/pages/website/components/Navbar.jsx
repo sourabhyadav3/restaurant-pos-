@@ -26,14 +26,16 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-dark/80 backdrop-blur-md py-4 shadow-xl' : 'bg-transparent py-6'
-        }`}
+      className={`fixed w-full z-50 transition-all duration-300 ${
+        scrolled ? 'bg-dark/80 backdrop-blur-md py-4 shadow-xl' : 'bg-transparent py-6'
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold font-display tracking-tight text-white">
-              RESTA<span className="text-landing-primary">URANT</span>
+          <Link to="/" className="flex items-center space-x-3">
+            <img src="/logo.jpg" alt="Logo" className="w-10 h-10 rounded-xl object-cover shadow-lg shadow-landing-primary/20" />
+            <span className="text-2xl font-black font-display tracking-tight text-white uppercase italic">
+              Pro<span className="text-landing-primary">POS</span>
             </span>
           </Link>
 

@@ -12,8 +12,11 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="space-y-6">
-            <Link to="/" className="text-2xl font-bold font-display tracking-tight">
-              RESTA<span className="text-landing-primary">URANT</span>
+            <Link to="/" className="flex items-center space-x-3 mb-8">
+               <img src="/logo.jpg" alt="Logo" className="w-10 h-10 rounded-xl object-cover" />
+               <span className="text-2xl font-black font-display tracking-tight uppercase italic">
+                  Pro<span className="text-landing-primary">POS</span>
+               </span>
             </Link>
             <p className="text-gray-400 leading-relaxed">
               Bringing you the best culinary experiences since 2014. Quality food, fast delivery, and unmatched service.
@@ -65,7 +68,7 @@ const Footer = () => {
         </div>
 
         <div className="pt-12 border-t border-white/10 flex flex-col md:row justify-between items-center text-gray-500 text-sm">
-          <p>© 2026 Restaurant Pro. All Rights Reserved.</p>
+          <p>© 2026 ProPOS. All Rights Reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>

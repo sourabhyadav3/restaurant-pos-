@@ -18,11 +18,13 @@ import {
   Eye,
   ExternalLink,
   ShoppingBag,
+  Printer,
   X
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { cn } from "../../../utils/cn";
 import { useOrders } from "../../../context/OrdersContext";
+import printContent from '../../../utils/printUtil';
 
 const Kitchen = () => {
   const { orders, updateOrderStatus, cancelOrder, toggleItemComplete, updateOrderPriority, resetOrders } = useOrders();
@@ -32,6 +34,14 @@ const Kitchen = () => {
   const [dropdownOrderId, setDropdownOrderId] = useState(null);
   const [viewingOrder, setViewingOrder] = useState(null);
   const [transferringOrderId, setTransferringOrderId] = useState(null);
+  const [orderForKOT, setOrderForKOT] = useState(null);
+
+  const handlePrintKOT = (order) => {
+    setOrderForKOT(order);
+    setTimeout(() => {
+      printContent('printable-area');
+    }, 100);
+  };
 
   const kitchenOrders = orders.map(o => ({
     ...o,
@@ -104,22 +114,22 @@ const Kitchen = () => {
            </div>
         </div>
 
-        <div className="flex items-center gap-3 lg:gap-4 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
+        <div className="flex items-center gap-3 lg:gap-4 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1 min-w-0">
            {/* Metric Cards */}
-           <div className="card p-3 lg:p-4 flex flex-col justify-between w-32 lg:w-40 h-20 lg:h-24 bg-white border border-slate-100 shadow-sm group shrink-0">
+           <div className="card p-3 lg:p-4 flex flex-col justify-between w-28 sm:w-32 lg:w-40 h-20 lg:h-24 bg-white border border-slate-100 shadow-sm group shrink-0">
               <div className="flex justify-between items-start">
                  <p className="text-[7px] lg:text-[8px] uppercase font-bold text-slate-400 tracking-[0.2em]">Queue</p>
                  <Timer className="w-3 h-3 lg:w-4 lg:h-4 text-primary opacity-40" />
               </div>
-              <p className="text-base lg:text-lg font-black text-text-primary tracking-tighter">14.2<span className="text-[9px] lg:text-[10px] font-bold text-slate-300 ml-0.5 uppercase">min</span></p>
+              <p className="text-sm sm:text-base lg:text-lg font-black text-text-primary tracking-tighter">14.2<span className="text-[9px] lg:text-[10px] font-bold text-slate-300 ml-0.5 uppercase">min</span></p>
            </div>
            
-           <div className="card p-3 lg:p-4 flex flex-col justify-between w-32 lg:w-40 h-20 lg:h-24 bg-white border border-slate-100 shadow-sm group shrink-0">
+           <div className="card p-3 lg:p-4 flex flex-col justify-between w-28 sm:w-32 lg:w-40 h-20 lg:h-24 bg-white border border-slate-100 shadow-sm group shrink-0">
               <div className="flex justify-between items-start">
                  <p className="text-[7px] lg:text-[8px] uppercase font-bold text-slate-400 tracking-[0.2em]">Load</p>
                  <Utensils className="w-3 h-3 lg:w-4 lg:h-4 text-emerald-600 opacity-40" />
               </div>
-              <p className="text-base lg:text-lg font-black text-emerald-600 tracking-tighter uppercase">Normal</p>
+              <p className="text-sm sm:text-base lg:text-lg font-black text-emerald-600 tracking-tighter uppercase">Normal</p>
            </div>
 
            <div className="h-10 w-[1px] bg-slate-200 mx-1" />
@@ -165,8 +175,8 @@ const Kitchen = () => {
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filter tickets..."
-              className="w-full pl-10 pr-4 py-2.5 lg:py-3 bg-white border border-border rounded-xl lg:rounded-2xl focus:ring-4 focus:ring-primary/10 outline-none text-[9px] lg:text-[10px] font-bold uppercase tracking-widest placeholder:text-slate-300"
+              placeholder="Find ticket..."
+              className="w-full pl-10 pr-4 py-3 lg:py-3.5 bg-white border border-slate-100 rounded-xl lg:rounded-2xl focus:ring-4 focus:ring-primary/10 outline-none text-[9px] lg:text-[10px] font-bold uppercase tracking-widest placeholder:text-slate-300 shadow-sm"
             />
          </div>
       </div>
@@ -229,11 +239,8 @@ const Kitchen = () => {
                              <button onClick={() => { setViewingOrder(order); setDropdownOrderId(null); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-[9px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 rounded-xl text-left">
                                <Eye className="w-3.5 h-3.5" /> View Details
                              </button>
-                             <button onClick={() => togglePriority(order.id)} className="w-full flex items-center gap-3 px-4 py-2.5 text-[9px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 rounded-xl text-left">
-                               <Zap className="w-3.5 h-3.5 text-warning" /> {order.priority === 'high' ? 'Standard Priority' : 'Mark High Priority'}
-                             </button>
-                             <button onClick={() => { setTransferringOrderId(order.id); setDropdownOrderId(null); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-[9px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 rounded-xl text-left">
-                               <ExternalLink className="w-3.5 h-3.5 text-primary" /> Transfer Ticket
+                             <button onClick={() => { handlePrintKOT(order); setDropdownOrderId(null); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-[9px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 rounded-xl text-left">
+                               <Printer className="w-3.5 h-3.5 text-primary" /> Print KOT
                              </button>
                              <div className="h-[1px] bg-slate-50 my-1 mx-2" />
                              <button onClick={() => handleCancelOrder(order.id)} className="w-full flex items-center gap-3 px-4 py-2.5 text-[9px] font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-50 rounded-xl text-left">
@@ -332,7 +339,7 @@ const Kitchen = () => {
               );
             })
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-20 min-w-[600px]">
+            <div className="col-span-full flex flex-col items-center justify-center text-center py-20 lg:py-32 px-6">
                <div className="w-40 h-40 bg-slate-50 rounded-[3rem] shadow-inner flex items-center justify-center mb-10 relative">
                   <Sparkles className="w-20 h-20 text-slate-200" />
                   <ChefHat className="absolute w-10 h-10 text-primary opacity-20 -top-2 -right-2 rotate-12" />
@@ -399,8 +406,14 @@ const Kitchen = () => {
                 </div>
               </div>
             </div>
-            <div className="px-5 py-5 lg:px-6 lg:py-6 bg-slate-50 border-t border-slate-100 shrink-0">
-              <button onClick={() => setViewingOrder(null)} className="w-full py-3.5 lg:py-4 bg-primary text-white rounded-xl lg:rounded-2xl font-black uppercase tracking-widest text-[9px] lg:text-[10px] shadow-xl shadow-primary/20">
+            <div className="px-5 py-5 lg:px-6 lg:py-6 bg-slate-50 border-t border-slate-100 shrink-0 flex gap-3">
+              <button 
+                onClick={() => handlePrintKOT(viewingOrder)}
+                className="flex-1 py-3.5 lg:py-4 bg-white border border-slate-200 text-slate-600 rounded-xl lg:rounded-2xl font-black uppercase tracking-widest text-[9px] lg:text-[10px] shadow-sm flex items-center justify-center gap-2"
+              >
+                <Printer className="w-4 h-4" /> Print KOT
+              </button>
+              <button onClick={() => setViewingOrder(null)} className="flex-1 py-3.5 lg:py-4 bg-primary text-white rounded-xl lg:rounded-2xl font-black uppercase tracking-widest text-[9px] lg:text-[10px] shadow-xl shadow-primary/20">
                 Close Audit View
               </button>
             </div>
@@ -451,6 +464,52 @@ const Kitchen = () => {
           </div>
         </div>,
         document.body
+      )}
+      {/* Hidden Printable KOT */}
+      {orderForKOT && (
+        <div id="printable-area" className="hidden print:block printable-area receipt-print">
+          <div className="text-center border-b-2 border-slate-900 pb-2 mb-4">
+            <h1 className="text-xl font-black uppercase tracking-tighter">KITCHEN TICKET</h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest">ORDER #{orderForKOT.id}</p>
+          </div>
+          
+          <div className="flex justify-between text-[11px] font-black mb-4 uppercase">
+            <div>
+              <p>TABLE: {orderForKOT.table}</p>
+              <p>TYPE: {orderForKOT.type}</p>
+            </div>
+            <div className="text-right">
+              <p>TIME: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+              <p className={orderForKOT.priority === 'high' ? 'text-rose-600' : ''}>PRIORITY: {orderForKOT.priority}</p>
+            </div>
+          </div>
+
+          <div className="border-y border-slate-900 py-4 mb-4">
+            <table className="w-full text-[12px]">
+              <thead>
+                <tr className="border-b border-slate-300">
+                  <th className="text-left py-1 uppercase">QTY</th>
+                  <th className="text-left py-1 uppercase">ITEM</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {orderForKOT.items.map((item, i) => (
+                  <tr key={i}>
+                    <td className="py-2 font-black text-lg">{item.qty}x</td>
+                    <td className="py-2">
+                      <p className="font-black uppercase">{item.name}</p>
+                      {item.notes && <p className="text-[10px] italic font-bold text-rose-600 mt-1">*** {item.notes} ***</p>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="text-center pt-2">
+            <p className="text-[9px] font-black uppercase tracking-widest">RestoOS Kitchen Display System</p>
+          </div>
+        </div>
       )}
     </div>
   );

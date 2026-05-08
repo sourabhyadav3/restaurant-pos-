@@ -16,12 +16,17 @@ import {
   Receipt,
   Users,
   MessageSquare,
-  Sparkles
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  Printer,
+  Bed
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useMenu } from "../../../context/MenuContext";
 import { useHospitality } from "../../../context/HospitalityContext";
 import { useOrders } from "../../../context/OrdersContext";
+import printContent from '../../../utils/printUtil';
 
 const POS = () => {
   const { items, categoriesList } = useMenu();
@@ -40,6 +45,7 @@ const POS = () => {
   const [selectedItemForSize, setSelectedItemForSize] = useState(null);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState('');
+  const [orderForReceipt, setOrderForReceipt] = useState(null);
 
   const orderHistory = [
     { id: '#ORD-9901', time: '10:15 AM', items: 3, total: 1240, status: 'Completed' },
@@ -139,11 +145,29 @@ const POS = () => {
 
       setIsProcessing(false);
       setShowPaymentModal(false);
+      setOrderForReceipt(newOrder);
       setCart([]);
       setDiscount(0);
       setSelectedGuest('');
-      showToastMessage(paymentMethod === 'Room Service' ? 'Charge added to guest folio!' : 'Payment Successful! Receipt printed.');
+      showToastMessage(paymentMethod === 'Room Service' ? 'Charge added to guest folio!' : 'Payment Successful!');
     }, 2000);
+  };
+
+  const handlePrintOnly = () => {
+    const currentOrder = {
+      customer: paymentMethod === 'Room Service' ? selectedGuest : 'Walk-in',
+      type: paymentMethod === 'Room Service' ? 'Room Service' : 'Dine-in',
+      table: paymentMethod === 'Room Service' ? selectedGuest : '-',
+      amount: `₹${total}`,
+      items: cart.reduce((acc, i) => acc + i.qty, 0),
+      itemsList: cart.map(i => ({ name: i.name, quantity: i.qty, price: i.price })),
+      payment: paymentMethod,
+      status: 'Pro-forma'
+    };
+    setOrderForReceipt(currentOrder);
+    setTimeout(() => {
+      printContent('printable-area');
+    }, 500);
   };
 
   const filteredItems = items.filter(item => {
@@ -610,18 +634,28 @@ const POS = () => {
 
             {/* Bottom Actions Area */}
             <div className="px-5 py-5 lg:px-6 lg:py-6 border-t border-slate-50 bg-white shrink-0">
-              <button 
-                disabled={isProcessing}
-                onClick={handleFinalPayment}
-                className={cn(
-                  "w-full py-3.5 lg:py-4.5 text-base lg:text-lg shadow-xl rounded-xl lg:rounded-2xl font-black tracking-tight",
-                  isProcessing 
-                    ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
-                    : "btn-primary shadow-primary/20"
-                )}
-              >
-                {isProcessing ? 'Processing...' : 'Pay & Print Receipt'}
-              </button>
+              <div className="grid grid-cols-2 gap-4">
+                <button 
+                  disabled={isProcessing}
+                  onClick={handlePrintOnly}
+                  className="w-full py-4 bg-slate-50 text-slate-400 hover:text-primary border border-slate-100 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 transition-all active:scale-95"
+                >
+                   <Printer className="w-4 h-4" /> Print Invoice
+                </button>
+                <button 
+                  disabled={isProcessing}
+                  onClick={handleFinalPayment}
+                  className={cn(
+                    "w-full py-4 shadow-xl rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 transition-all active:scale-95",
+                    isProcessing 
+                      ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
+                      : "btn-primary shadow-primary/20"
+                  )}
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  {isProcessing ? 'Processing...' : 'Pay & Settle'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -674,6 +708,57 @@ const POS = () => {
                 Cancel Selection
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Hidden Printable Receipt */}
+      {orderForReceipt && (
+        <div id="printable-area" className="hidden print:block printable-area receipt-print">
+          <div className="text-center border-b-2 border-slate-900 pb-4 mb-4">
+            <h1 className="text-xl font-black uppercase tracking-tighter">The Luxe Grande</h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest mt-1">POS Sales Receipt</p>
+          </div>
+          
+          <div className="flex justify-between text-[10px] font-bold mb-4">
+            <div>
+              <p>ORDER: {Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
+              <p>CUSTOMER: {orderForReceipt.customer}</p>
+              <p>DATE: {new Date().toLocaleDateString()}</p>
+            </div>
+            <div className="text-right">
+              <p>TIME: {new Date().toLocaleTimeString()}</p>
+              <p>TYPE: {orderForReceipt.type}</p>
+            </div>
+          </div>
+
+          <table className="w-full text-[10px] mb-4">
+            <thead>
+              <tr className="border-b border-slate-300">
+                <th className="text-left py-2">ITEM</th>
+                <th className="text-center py-2">QTY</th>
+                <th className="text-right py-2">PRICE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orderForReceipt.itemsList?.map((item, i) => (
+                <tr key={i} className="border-b border-slate-100">
+                  <td className="py-2 uppercase font-medium">{item.name}</td>
+                  <td className="py-2 text-center">{item.quantity}</td>
+                  <td className="py-2 text-right">₹{item.price.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan="2" className="py-4 font-black uppercase text-right pr-4">Total Amount</td>
+                <td className="py-4 text-right font-black text-sm">{orderForReceipt.amount}</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div className="text-center pt-4 border-t border-slate-200">
+            <p className="text-[9px] font-black uppercase tracking-widest">Thank you for your business!</p>
+            <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Powered by RestoOS</p>
           </div>
         </div>
       )}

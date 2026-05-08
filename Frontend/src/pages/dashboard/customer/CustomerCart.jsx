@@ -85,7 +85,7 @@ const CustomerCart = () => {
         <h2 className="text-2xl font-black text-text-primary uppercase tracking-tight">Your cart is empty</h2>
         <p className="text-slate-400 font-medium mt-2 max-w-[250px] leading-relaxed">Looks like you haven't added anything to your cart yet.</p>
         <button 
-          onClick={() => navigate('/customer/order')}
+          onClick={() => navigate('/customer/order-now')}
           className="mt-8 btn-primary px-10 py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
         >
            Browse Menu

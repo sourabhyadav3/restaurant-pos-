@@ -12,12 +12,19 @@ const ecosystem = [
     bgColor: 'bg-white'
   },
   {
+<<<<<<< HEAD
+    title: 'Fast Order',
+    desc: 'Experience lightning-fast service with our optimized order delivery system.',
+    icon: Truck,
+    color: 'bg-landing-primary/10 text-landing-primary'
+=======
     title: 'Smart Payments',
     desc: 'Seamless UPI and Card integrations for lightning-fast checkouts.',
     img: '/Immagine 2026-04-16 042508.png',
     tag: 'Secure',
     fit: 'object-contain',
     bgColor: 'bg-white'
+>>>>>>> 72e0472723fa663ac06ad33cce1f06777cb39915
   },
   {
     title: 'Ultra Fast Wifi',

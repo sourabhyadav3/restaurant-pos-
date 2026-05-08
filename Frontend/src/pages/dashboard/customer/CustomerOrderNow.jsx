@@ -55,6 +55,9 @@ const CustomerOrderNow = () => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
 
   const filteredItems = items.filter(item => {
     const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
@@ -123,7 +126,7 @@ const CustomerOrderNow = () => {
          </div>
        ) : (
          <>
-           <div className="flex-1 overflow-y-auto scrollbar-hide space-y-4 mb-6">
+           <div className="flex-1 overflow-y-auto scrollbar-hide space-y-4 mb-6 pr-1">
               {cartItems.map((item) => (
                 <div key={item.id} className="flex gap-4 p-3 bg-slate-50 rounded-2xl group relative">
                    <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center text-3xl shadow-sm shrink-0">
@@ -174,37 +177,15 @@ const CustomerOrderNow = () => {
               <button 
                 onClick={() => {
                   if (cartItems.length === 0) return;
-                  
-                  const newOrder = {
-                    customer: profile.name,
-                    table: isRoomService ? activeStay.targetId : (profile.tableId !== '-' ? `T-${profile.tableId}` : '-'),
-                    type: isRoomService ? 'Room Service' : profile.diningType,
-                    status: 'Pending',
-                    amount: `₹${total.toFixed(0)}`,
-                    items: cartItems.length,
-                    itemsList: cartItems.map(i => ({ name: i.name, quantity: i.quantity, price: i.price, size: i.size })),
-                    source: isRoomService ? 'Room Service' : 'Customer',
-                    paymentStatus: isRoomService ? 'Charged to Room' : 'Unpaid'
-                  };
-                  
-                  addOrder(newOrder);
-                  
                   if (isRoomService) {
-                    addToFolio(profile.name, {
-                      description: `Room Service: Order ${newOrder.id}`,
-                      amount: total,
-                      date: new Date().toLocaleDateString(),
-                      type: 'Food'
-                    });
+                    handleFinalPlaceOrder('Charged to Room');
+                  } else {
+                    setShowPaymentModal(true);
                   }
-
-                  clearCart();
-                  alert(isRoomService ? `Order Placed! Delivered to Room ${activeStay.targetId}` : 'Order Placed Successfully! Heading to tracking...');
-                  navigate('/customer/orders');
                 }}
                 className="w-full btn-primary py-4 rounded-2xl flex items-center justify-center gap-3 text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all group"
               >
-                Place Order <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Checkout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
            </div>
          </>
@@ -212,32 +193,71 @@ const CustomerOrderNow = () => {
     </div>
   );
 
+  const handleFinalPlaceOrder = (method) => {
+    setPaymentProcessing(true);
+    
+    // Simulate processing
+    setTimeout(() => {
+      const newOrder = {
+        customer: profile.name,
+        table: isRoomService ? activeStay.targetId : (profile.tableId !== '-' ? `T-${profile.tableId}` : '-'),
+        type: isRoomService ? 'Room Service' : profile.diningType,
+        status: 'Pending',
+        amount: `₹${total.toFixed(0)}`,
+        items: cartItems.length,
+        itemsList: cartItems.map(i => ({ name: i.name, quantity: i.quantity, price: i.price, size: i.size })),
+        source: isRoomService ? 'Room Service' : 'Customer',
+        paymentStatus: method === 'Pay at Counter' ? 'Unpaid' : 'Paid',
+        paymentMethod: method
+      };
+      
+      addOrder(newOrder);
+      
+      if (isRoomService) {
+        addToFolio(profile.name, {
+          description: `Room Service: Order ${newOrder.id}`,
+          amount: total,
+          date: new Date().toLocaleDateString(),
+          type: 'Food'
+        });
+      }
+
+      setPaymentProcessing(false);
+      setShowPaymentModal(false);
+      clearCart();
+      navigate('/customer/orders');
+    }, 2000);
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-8rem)] lg:h-full gap-8 relative">
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-8rem)] lg:h-full gap-8 relative pb-24 lg:pb-0">
       {/* Menu Side */}
       <div className="flex-1 flex flex-col gap-6 min-w-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-           <h2 className="text-2xl lg:text-3xl font-black text-text-primary uppercase tracking-tight leading-none">Order <span className="text-primary">Now</span></h2>
-           <div className="flex-1 max-w-md relative group">
+           <div>
+              <h2 className="text-2xl lg:text-3xl font-black text-text-primary uppercase tracking-tight leading-none">Order <span className="text-primary">Now</span></h2>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">{profile.diningType} • Table {profile.tableId}</p>
+           </div>
+           <div className="flex-1 max-w-md relative group w-full">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-primary transition-colors" />
               <input 
                 type="text" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search food items..." 
-                className="w-full pl-11 pr-5 py-3 bg-white border border-slate-100 rounded-2xl outline-none shadow-sm text-sm font-bold focus:ring-4 focus:ring-primary/5 transition-all"
+                className="w-full pl-11 pr-5 py-3.5 lg:py-3 bg-white border border-slate-100 rounded-2xl outline-none shadow-sm text-sm font-bold focus:ring-4 focus:ring-primary/5 transition-all"
               />
            </div>
         </div>
 
         {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1 shrink-0">
           {categoriesList.map(cat => (
             <button 
               key={cat}
               onClick={() => setActiveCategory(cat)}
               className={cn(
-                "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 whitespace-nowrap transition-all",
+                "px-5 lg:px-6 py-2.5 rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest border-2 whitespace-nowrap transition-all",
                 activeCategory === cat 
                 ? "bg-primary text-white border-primary shadow-lg shadow-primary/10" 
                 : "bg-white text-text-secondary border-transparent hover:bg-slate-50"
@@ -249,18 +269,18 @@ const CustomerOrderNow = () => {
         </div>
 
         {/* Food Items Grid */}
-        <div className="flex-1 overflow-y-auto scrollbar-hide pr-1">
-           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 pb-24 lg:pb-6">
+        <div className="flex-1 overflow-y-auto scrollbar-hide pr-1 min-h-0">
+           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 pb-6 lg:pb-6">
               {filteredItems.map(item => (
                 <div 
                   key={item.id} 
                   onClick={() => openItemModal(item)}
-                  className="card group cursor-pointer border-none shadow-xl shadow-slate-100/50 p-4 bg-white hover:bg-slate-50 transition-all flex flex-col h-full relative"
+                  className="card group cursor-pointer border-none shadow-xl shadow-slate-100/50 p-4 bg-white hover:bg-slate-50 transition-all flex flex-col h-full relative active:scale-[0.98]"
                 >
                    <div className="absolute top-4 left-4 z-10 w-4 h-4 border-2 border-slate-100 rounded-sm flex items-center justify-center bg-white">
                      <div className={cn("w-2 h-2 rounded-full", item.id % 2 === 0 ? "bg-rose-500" : "bg-emerald-500")} />
                    </div>
-                   <div className="h-40 bg-slate-50 rounded-[2rem] flex items-center justify-center text-6xl mb-4 shadow-inner relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-500">
+                   <div className="h-32 sm:h-40 bg-slate-50 rounded-[2rem] flex items-center justify-center text-5xl sm:text-6xl mb-4 shadow-inner relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-500">
                       {item.image}
                       <button 
                         onClick={(e) => handleToggleFavorite(item.id, e)}
@@ -324,9 +344,9 @@ const CustomerOrderNow = () => {
       {showMobileCart && (
         <div className="fixed inset-0 z-[300] lg:hidden">
            <div onClick={() => setShowMobileCart(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[3rem] max-h-[85vh] flex flex-col overflow-hidden">
-              <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto my-4" />
-              <div className="flex-1 overflow-y-auto px-6 pb-10">
+           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[3rem] max-h-[85vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom-full duration-300">
+              <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto my-4 shrink-0" />
+              <div className="flex-1 overflow-y-auto px-6 pb-10 scrollbar-hide">
                  <CartSummary isMobile={true} />
               </div>
            </div>
@@ -335,10 +355,10 @@ const CustomerOrderNow = () => {
 
       {/* Customization Modal */}
       {showItemModal && selectedItem && (
-        <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[400] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setShowItemModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg bg-white rounded-[2rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
-             <div className="relative h-48 lg:h-56 bg-slate-50 flex items-center justify-center text-6xl lg:text-8xl shrink-0">
+          <div className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] animate-in fade-in slide-in-from-bottom-full sm:zoom-in duration-300 self-end sm:self-center">
+             <div className="relative h-40 sm:h-48 lg:h-56 bg-slate-50 flex items-center justify-center text-6xl lg:text-8xl shrink-0">
                 {selectedItem.image}
                 <button onClick={() => setShowItemModal(false)} className="absolute top-4 lg:top-6 right-4 lg:right-6 p-2 lg:p-3 bg-white/80 backdrop-blur-md rounded-2xl text-slate-400 hover:text-rose-500 shadow-xl transition-all">
                    <X className="w-5 h-5 lg:w-6 lg:h-6" />
@@ -370,7 +390,7 @@ const CustomerOrderNow = () => {
                             key={size.name}
                             onClick={() => setSelectedSize(size)}
                             className={cn(
-                              "flex-1 min-w-[100px] px-4 py-3 rounded-2xl border-2 transition-all text-center",
+                              "flex-1 min-w-[100px] px-4 py-3.5 sm:py-3 rounded-2xl border-2 transition-all text-center",
                               selectedSize.name === size.name 
                               ? "bg-primary/5 border-primary text-primary" 
                               : "bg-white border-slate-100 text-slate-400"
@@ -406,12 +426,122 @@ const CustomerOrderNow = () => {
 
                 <button 
                   onClick={handleAddToCartAction}
-                  className="w-full btn-primary py-4 rounded-2xl lg:rounded-3xl flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest shadow-2xl shadow-primary/30 active:scale-95 transition-all"
+                  className="w-full btn-primary py-4 lg:py-5 rounded-2xl lg:rounded-3xl flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest shadow-2xl shadow-primary/30 active:scale-95 transition-all"
                 >
                    <Plus className="w-5 h-5" /> Add to Order
                 </button>
              </div>
           </div>
+        </div>
+      )}
+
+      {/* Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-0 sm:p-4">
+           <div onClick={() => !paymentProcessing && setShowPaymentModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+           <div className="relative w-full max-w-md bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-full sm:zoom-in-95 duration-300 self-end sm:self-center">
+              <div className="px-6 sm:px-8 py-5 sm:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                 <div>
+                    <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight">Complete Payment</h3>
+                    <p className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 text-primary">Secure Transaction Gateway</p>
+                 </div>
+                 {!paymentProcessing && <button onClick={() => setShowPaymentModal(false)} className="p-2 hover:bg-white rounded-xl transition-all shadow-sm"><X className="w-5 h-5" /></button>}
+              </div>
+
+              <div className="p-6 sm:p-8 space-y-6 max-h-[80vh] overflow-y-auto scrollbar-hide">
+                 {paymentProcessing ? (
+                    <div className="py-12 flex flex-col items-center justify-center text-center space-y-6">
+                       <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                       <div>
+                          <p className="text-sm font-black uppercase tracking-tight">Processing Payment...</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2">Please do not refresh or close the page</p>
+                       </div>
+                    </div>
+                 ) : (
+                   <>
+                    <div className="bg-primary/5 p-5 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border border-primary/10 flex items-center justify-between">
+                       <div>
+                          <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-1">Total Amount</p>
+                          <p className="text-2xl sm:text-3xl font-black text-text-primary tracking-tighter">₹{total.toFixed(0)}</p>
+                       </div>
+                       <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-primary">
+                          <ShoppingBag className="w-6 h-6" />
+                       </div>
+                    </div>
+
+                    <div className="space-y-3">
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Select Payment Method</p>
+                       
+                       <button 
+                         onClick={() => setSelectedPaymentMethod('UPI')}
+                         className={cn(
+                           "w-full p-4 sm:p-5 rounded-2xl border-2 flex items-center justify-between transition-all group",
+                           selectedPaymentMethod === 'UPI' ? "bg-primary border-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 border-transparent text-text-primary hover:border-primary/20"
+                         )}
+                       >
+                          <div className="flex items-center gap-4">
+                             <div className={cn("w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center", selectedPaymentMethod === 'UPI' ? "bg-white/20" : "bg-white shadow-sm text-primary")}>
+                                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                             </div>
+                             <div className="text-left">
+                                <p className="text-[11px] sm:text-xs font-black uppercase tracking-tight">UPI / QR Code</p>
+                                <p className={cn("text-[8px] font-bold uppercase tracking-widest mt-0.5", selectedPaymentMethod === 'UPI' ? "text-white/60" : "text-slate-400")}>Instant settlement</p>
+                             </div>
+                          </div>
+                          {selectedPaymentMethod === 'UPI' && <Check className="w-4 h-4 sm:w-5 sm:h-5" />}
+                       </button>
+
+                       <button 
+                         onClick={() => setSelectedPaymentMethod('Card')}
+                         className={cn(
+                           "w-full p-4 sm:p-5 rounded-2xl border-2 flex items-center justify-between transition-all group",
+                           selectedPaymentMethod === 'Card' ? "bg-primary border-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 border-transparent text-text-primary hover:border-primary/20"
+                         )}
+                       >
+                          <div className="flex items-center gap-4">
+                             <div className={cn("w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center", selectedPaymentMethod === 'Card' ? "bg-white/20" : "bg-white shadow-sm text-primary")}>
+                                <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
+                             </div>
+                             <div className="text-left">
+                                <p className="text-[11px] sm:text-xs font-black uppercase tracking-tight">Credit / Debit Card</p>
+                                <p className={cn("text-[8px] font-bold uppercase tracking-widest mt-0.5", selectedPaymentMethod === 'Card' ? "text-white/60" : "text-slate-400")}>Safe & Secure</p>
+                             </div>
+                          </div>
+                          {selectedPaymentMethod === 'Card' && <Check className="w-4 h-4 sm:w-5 sm:h-5" />}
+                       </button>
+
+                       <button 
+                         onClick={() => setSelectedPaymentMethod('Pay at Counter')}
+                         className={cn(
+                           "w-full p-4 sm:p-5 rounded-2xl border-2 flex items-center justify-between transition-all group",
+                           selectedPaymentMethod === 'Pay at Counter' ? "bg-primary border-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 border-transparent text-text-primary hover:border-primary/20"
+                         )}
+                       >
+                          <div className="flex items-center gap-4">
+                             <div className={cn("w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center", selectedPaymentMethod === 'Pay at Counter' ? "bg-white/20" : "bg-white shadow-sm text-primary")}>
+                                <UtensilsCrossed className="w-4 h-4 sm:w-5 sm:h-5" />
+                             </div>
+                             <div className="text-left">
+                                <p className="text-[11px] sm:text-xs font-black uppercase tracking-tight">Pay at Counter</p>
+                                <p className={cn("text-[8px] font-bold uppercase tracking-widest mt-0.5", selectedPaymentMethod === 'Pay at Counter' ? "text-white/60" : "text-slate-400")}>Cash or Physical terminal</p>
+                             </div>
+                          </div>
+                          {selectedPaymentMethod === 'Pay at Counter' && <Check className="w-4 h-4 sm:w-5 sm:h-5" />}
+                       </button>
+                    </div>
+
+                    <button 
+                      disabled={!selectedPaymentMethod}
+                      onClick={() => handleFinalPlaceOrder(selectedPaymentMethod)}
+                      className="w-full py-4 sm:py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-slate-900/20 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-4"
+                    >
+                       {selectedPaymentMethod === 'Pay at Counter' ? 'Confirm Order' : 'Pay & Place Order'}
+                       <ArrowRight className="w-4 h-4" />
+                    </button>
+                   </>
+                 )}
+              </div>
+           </div>
         </div>
       )}
     </div>

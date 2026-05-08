@@ -39,7 +39,7 @@ const CustomerFavorites = () => {
              <div className="mt-5 flex items-center justify-between">
                 <p className="text-lg font-black text-text-primary tracking-tighter">₹{item.price}</p>
                 <button 
-                  onClick={() => navigate('/customer/order')}
+                  onClick={() => navigate('/customer/order-now')}
                   className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-sm"
                 >
                    <Plus className="w-5 h-5" />

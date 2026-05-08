@@ -18,10 +18,12 @@ import {
   Bed,
   UtensilsCrossed,
   Wrench,
-  Sparkles
+  Sparkles,
+  Printer
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
+import printContent from "../../../utils/printUtil";
 
 const Tasks = () => {
   const { tasks, staff, addTask, updateTaskStatus, deleteTask } = useHospitality();
@@ -79,6 +81,12 @@ const Tasks = () => {
               className="w-full pl-11 pr-5 py-3 bg-white border border-slate-100 rounded-2xl outline-none shadow-sm text-sm font-bold focus:ring-4 focus:ring-primary/5 transition-all"
             />
           </div>
+          <button 
+             onClick={() => printContent('printable-area')}
+            className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-primary transition-all shadow-sm"
+          >
+            <Printer className="w-5 h-5" />
+          </button>
           <button 
             onClick={() => setShowAddModal(true)}
             className="btn-primary h-[48px] px-6 rounded-2xl flex items-center gap-3 font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
@@ -246,6 +254,35 @@ const Tasks = () => {
            </div>
         </div>
       )}
+      {/* Hidden Printable Tasks */}
+      <div id="printable-area" className="hidden print:block printable-area">
+        <div className="text-center border-b-2 border-slate-900 pb-4 mb-8">
+           <h1 className="text-2xl font-black uppercase tracking-tighter">Daily Duty Board</h1>
+           <p className="text-[10px] font-bold uppercase tracking-widest mt-1">Generated: {new Date().toLocaleString()}</p>
+        </div>
+        <table className="w-full text-left text-[10px]">
+           <thead>
+             <tr className="border-b border-slate-900">
+               <th className="py-2 uppercase font-black">Task Title</th>
+               <th className="py-2 uppercase font-black">Assignee</th>
+               <th className="py-2 uppercase font-black">Location</th>
+               <th className="py-2 uppercase font-black">Deadline</th>
+               <th className="py-2 uppercase font-black text-right">Status</th>
+             </tr>
+           </thead>
+           <tbody className="divide-y divide-slate-100">
+             {filteredTasks.map(task => (
+               <tr key={task.id}>
+                 <td className="py-3 font-black uppercase">{task.title}</td>
+                 <td className="py-3 uppercase font-bold text-primary">{task.assignee}</td>
+                 <td className="py-3 uppercase text-slate-500">{task.target}</td>
+                 <td className="py-3 font-black">{task.deadline}</td>
+                 <td className="py-3 text-right font-black uppercase">{task.status}</td>
+               </tr>
+             ))}
+           </tbody>
+        </table>
+      </div>
     </div>
   );
 };

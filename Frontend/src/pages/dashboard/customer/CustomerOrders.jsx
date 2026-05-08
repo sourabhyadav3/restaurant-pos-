@@ -11,12 +11,14 @@ import {
   Star,
   MapPin,
   ClipboardList,
-  X
+  X,
+  Printer
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useOrders } from "../../../context/OrdersContext";
 import { useCustomer } from "../../../context/CustomerContext";
 import { useNavigate } from 'react-router-dom';
+import printContent from '../../../utils/printUtil';
 
 const CustomerOrders = () => {
   const navigate = useNavigate();
@@ -49,7 +51,7 @@ const CustomerOrders = () => {
 
   const handleReorder = (order) => {
     alert('Adding items from ' + order.id + ' to cart!');
-    navigate('/customer/order');
+    navigate('/customer/order-now');
   };
 
   const trackingSteps = [
@@ -120,7 +122,9 @@ const CustomerOrders = () => {
                   <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 border-t md:border-t-0 pt-4 md:pt-0 border-slate-50">
                      <div className="text-right">
                         <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-0.5">Order Total</p>
-                        <p className="text-lg lg:text-xl font-black text-text-primary tracking-tighter">₹{order.total}</p>
+                        <p className="text-lg lg:text-xl font-black text-text-primary tracking-tighter">
+                           {order.amount?.startsWith('₹') ? order.amount : `₹${order.amount || 0}`}
+                        </p>
                      </div>
                      <div className="flex items-center gap-2">
                         {activeTab === 'History' ? (
@@ -140,12 +144,18 @@ const CustomerOrders = () => {
                                   Cancel
                                </button>
                              )}
-                             <button 
-                              onClick={() => setSelectedTrackOrder(order)}
-                              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
-                             >
-                                Track Order <ChevronRight className="w-3.5 h-3.5" />
-                             </button>
+                              <button 
+                               onClick={() => { setSelectedTrackOrder(order); setTimeout(() => printContent('printable-area'), 200); }}
+                               className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:text-primary transition-all shadow-sm border border-slate-100"
+                              >
+                                 <Printer className="w-4 h-4" />
+                              </button>
+                              <button 
+                               onClick={() => setSelectedTrackOrder(order)}
+                               className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                              >
+                                 Track Order <ChevronRight className="w-3.5 h-3.5" />
+                              </button>
                           </div>
                         )}
                      </div>
@@ -222,7 +232,7 @@ const CustomerOrders = () => {
                 <div className="card p-6 bg-slate-50 border-none space-y-4">
                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
                       <span>Order Items</span>
-                      <span>₹{selectedTrackOrder.total}</span>
+                      <span>{selectedTrackOrder.amount?.startsWith('₹') ? selectedTrackOrder.amount : `₹${selectedTrackOrder.amount || 0}`}</span>
                    </div>
                    <div className="space-y-3">
                       {selectedTrackOrder.itemsList?.map((item, i) => (
@@ -266,6 +276,63 @@ const CustomerOrders = () => {
             </div>
          </div>
       </div>
+      {/* Hidden Printable Receipt */}
+      {selectedTrackOrder && (
+        <div id="printable-area" className="hidden print:block printable-area receipt-print">
+          <div className="text-center border-b-2 border-slate-900 pb-4 mb-4">
+            <h1 className="text-xl font-black uppercase tracking-tighter">THE LUXE GRANDE</h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest mt-1">Customer Order Receipt</p>
+          </div>
+          
+          <div className="flex justify-between text-[11px] font-black mb-4 uppercase">
+            <div>
+              <p>ORDER ID: {selectedTrackOrder.id}</p>
+              <p>TABLE: {selectedTrackOrder.table}</p>
+            </div>
+            <div className="text-right">
+              <p>DATE: {new Date().toLocaleDateString()}</p>
+              <p>TIME: {selectedTrackOrder.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+            </div>
+          </div>
+
+          <div className="border-y border-slate-900 py-4 mb-4">
+            <table className="w-full text-[12px]">
+              <thead>
+                <tr className="border-b border-slate-300">
+                  <th className="text-left py-1 uppercase">QTY</th>
+                  <th className="text-left py-1 uppercase">ITEM</th>
+                  <th className="text-right py-1 uppercase">PRICE</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {selectedTrackOrder.itemsList?.map((item, i) => (
+                  <tr key={i}>
+                    <td className="py-2 font-black">{item.quantity || 1}x</td>
+                    <td className="py-2 uppercase font-black">{item.name}</td>
+                    <td className="py-2 text-right font-black">₹{item.price || (parseFloat(selectedTrackOrder.amount?.replace('₹', '') || 0) / (selectedTrackOrder.itemsList?.length || 1)).toFixed(0)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="space-y-1 mb-6">
+            <div className="flex justify-between text-sm font-black uppercase">
+              <span>Total Amount</span>
+              <span>{selectedTrackOrder.amount?.startsWith('₹') ? selectedTrackOrder.amount : `₹${selectedTrackOrder.amount || 0}`}</span>
+            </div>
+            <div className="flex justify-between text-[10px] font-bold uppercase text-slate-500">
+              <span>Payment Status</span>
+              <span>{selectedTrackOrder.status === 'Delivered' ? 'PAID' : 'PENDING'}</span>
+            </div>
+          </div>
+
+          <div className="text-center pt-2">
+            <p className="text-[9px] font-black uppercase tracking-widest">Thank you for your visit!</p>
+            <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase">Please visit again</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

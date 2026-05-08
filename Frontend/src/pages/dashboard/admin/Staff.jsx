@@ -19,10 +19,13 @@ import {
   Edit2,
   Trash2,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Printer,
+  Bed
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
+import printContent from "../../../utils/printUtil";
 
 const Staff = () => {
   const { staff: staffMembers, addStaff, updateStaff, deleteStaff } = useHospitality();
@@ -105,6 +108,16 @@ const Staff = () => {
                 className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-100 rounded-xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none shadow-sm text-xs font-bold uppercase tracking-widest"
               />
            </div>
+           <button 
+             onClick={() => {
+              setTimeout(() => {
+                printContent('printable-area');
+              }, 500);
+            }}
+             className="p-2.5 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-primary transition-all shadow-sm shrink-0"
+           >
+             <Printer className="w-5 h-5" />
+           </button>
            <button 
              onClick={() => { setEditingStaff(null); setShowAddModal(true); }}
              className="btn-primary flex items-center justify-center gap-2 h-[42px] px-5 shadow-xl shadow-primary/20 text-[10px] lg:text-xs font-black uppercase tracking-widest shrink-0"
@@ -284,6 +297,37 @@ const Staff = () => {
            </div>
         </div>
       )}
+      {/* Hidden Printable Staff List */}
+      <div id="printable-area" className="hidden print:block printable-area">
+        <div className="text-center border-b-2 border-slate-900 pb-4 mb-8">
+           <h1 className="text-2xl font-black uppercase tracking-tighter">Staff Directory Manifest</h1>
+           <p className="text-[10px] font-bold uppercase tracking-widest mt-1">Generated: {new Date().toLocaleString()}</p>
+        </div>
+        <table className="w-full text-left text-[10px]">
+           <thead>
+             <tr className="border-b border-slate-900">
+               <th className="py-2 uppercase font-black">ID</th>
+               <th className="py-2 uppercase font-black">Name</th>
+               <th className="py-2 uppercase font-black">Role</th>
+               <th className="py-2 uppercase font-black">Shift</th>
+               <th className="py-2 uppercase font-black">Rating</th>
+               <th className="py-2 uppercase font-black text-right">Status</th>
+             </tr>
+           </thead>
+           <tbody className="divide-y divide-slate-100">
+             {staffMembers.map(member => (
+               <tr key={member.id}>
+                 <td className="py-2 font-bold text-slate-400">ID-{member.id}</td>
+                 <td className="py-2 font-black uppercase">{member.name}</td>
+                 <td className="py-2 uppercase text-primary font-bold">{member.role}</td>
+                 <td className="py-2 uppercase">{member.shift}</td>
+                 <td className="py-2 font-black text-yellow-600">{member.rating} ★</td>
+                 <td className="py-2 text-right font-black uppercase">{member.status}</td>
+               </tr>
+             ))}
+           </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth, roles } from './context/AuthContext';
 import { MenuProvider } from './context/MenuContext';
 import { OrdersProvider } from './context/OrdersContext';
@@ -50,7 +50,6 @@ import CustomerHome from './pages/dashboard/customer/CustomerHome';
 import CustomerOrderNow from './pages/dashboard/customer/CustomerOrderNow';
 import CustomerOrders from './pages/dashboard/customer/CustomerOrders';
 import CustomerFavorites from './pages/dashboard/customer/CustomerFavorites';
-import CustomerRewards from './pages/dashboard/customer/CustomerRewards';
 import CustomerProfile from './pages/dashboard/customer/CustomerProfile';
 import CustomerSupport from './pages/dashboard/customer/CustomerSupport';
 import CustomerReservations from './pages/dashboard/customer/CustomerReservations';
@@ -71,27 +70,55 @@ import NotificationsPage from './pages/dashboard/common/Notifications';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
+  const { role: routeRole } = useParams();
+  
   if (!user) return <Navigate to="/login" />;
+  
+  // If route has a role prefix, it MUST match the user's role
+  if (routeRole && routeRole.toUpperCase() !== user.role) {
+    const correctPrefix = user.role.toLowerCase();
+    return <Navigate to={`/${correctPrefix}/dashboard`} />;
+  }
+
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    if (user.role === roles.CUSTOMER) return <Navigate to="/customer" />;
-    return <Navigate to="/login" />;
+    const correctPrefix = user.role.toLowerCase();
+    return <Navigate to={`/${correctPrefix}/dashboard`} />;
   }
   return children;
 };
 
+const DashboardRedirect = () => {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" />;
+  
+  const rolePrefix = user.role.toLowerCase();
+  if (user.role === roles.CUSTOMER) return <Navigate to="/customer/home" />;
+  return <Navigate to={`/${rolePrefix}/dashboard`} />;
+};
+
+const ModuleRedirect = ({ module }) => {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" />;
+  
+  const rolePrefix = user.role.toLowerCase();
+  return <Navigate to={`/${rolePrefix}/${module}`} replace />;
+};
+
 const ThemeHandler = () => {
   useEffect(() => {
-    const savedTheme = localStorage.getItem('resto-theme') || 'indigo';
+    const savedTheme = localStorage.getItem('pos-theme') || 'indigo';
     const themes = {
       indigo: { primary: '#6366F1', dark: '#4F46E5', light: '#EEF2FF' },
-      emerald: { primary: '#10B981', dark: '#059669', light: '#ECFDF5' },
       rose: { primary: '#F43F5E', dark: '#E11D48', light: '#FFF1F2' },
-      amber: { primary: '#F59E0B', dark: '#D97706', light: '#FFFBEB' },
+      emerald: { primary: '#10B981', dark: '#059669', light: '#ECFDF5' },
+      orange: { primary: '#F59E0B', dark: '#D97706', light: '#FFFBEB' },
+      purple: { primary: '#9333EA', dark: '#7E22CE', light: '#FAF5FF' }
     };
+    
     const theme = themes[savedTheme] || themes.indigo;
-    document.documentElement.style.setProperty('--primary', theme.primary);
-    document.documentElement.style.setProperty('--primary-dark', theme.dark);
-    document.documentElement.style.setProperty('--primary-light', theme.light);
+    document.documentElement.style.setProperty('--color-primary', theme.primary);
+    document.documentElement.style.setProperty('--color-primary-dark', theme.dark);
+    document.documentElement.style.setProperty('--color-primary-light', theme.light);
   }, []);
   return null;
 };
@@ -126,140 +153,170 @@ function App() {
                       <Route path="/login" element={<Login />} />
                       
                       {/* Admin/Manager/Staff Routes */}
-                      <Route path="/dashboard" element={
-                        <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.CHEF]}>
+                      {/* Redirect generic routes to role-specific routes */}
+                      <Route path="/dashboard" element={<DashboardRedirect />} />
+                      <Route path="/tables" element={<ModuleRedirect module="tables" />} />
+                      <Route path="/pos" element={<ModuleRedirect module="pos" />} />
+                      <Route path="/orders" element={<ModuleRedirect module="orders" />} />
+                      <Route path="/kitchen" element={<ModuleRedirect module="kitchen" />} />
+                      <Route path="/tasks" element={<ModuleRedirect module="tasks" />} />
+                      <Route path="/inventory" element={<ModuleRedirect module="inventory" />} />
+                      <Route path="/menu" element={<ModuleRedirect module="menu" />} />
+                      <Route path="/staff" element={<ModuleRedirect module="staff" />} />
+                      <Route path="/reports" element={<ModuleRedirect module="reports" />} />
+                      <Route path="/rooms" element={<ModuleRedirect module="rooms" />} />
+                      <Route path="/reservations" element={<ModuleRedirect module="reservations" />} />
+                      <Route path="/folio" element={<ModuleRedirect module="folio" />} />
+                      <Route path="/guest-bills" element={<ModuleRedirect module="guest-bills" />} />
+                      <Route path="/settlements" element={<ModuleRedirect module="settlements" />} />
+                      <Route path="/transactions" element={<ModuleRedirect module="transactions" />} />
+                      <Route path="/concierge" element={<ModuleRedirect module="concierge" />} />
+                      <Route path="/services" element={<ModuleRedirect module="services" />} />
+                      <Route path="/qr-manager" element={<ModuleRedirect module="qr-manager" />} />
+                      <Route path="/notifications" element={<ModuleRedirect module="notifications" />} />
+                      <Route path="/settings" element={<ModuleRedirect module="settings" />} />
+
+                      {/* Role-Specific Module Routes */}
+                      <Route path="/:role/dashboard" element={
+                        <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF, roles.CASHIER]}>
                           <MainLayout><Dashboard /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/tables" element={
+                      <Route path="/:role/tables" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.WAITER]}>
                           <MainLayout><Tables /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/pos" element={
+                      <Route path="/:role/pos" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CASHIER]}>
                           <MainLayout><POS /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/orders" element={
+                      <Route path="/:role/orders" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF, roles.CASHIER]}>
                           <MainLayout><Orders /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/kitchen" element={
+                      <Route path="/:role/kitchen" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.CHEF]}>
                           <MainLayout><Kitchen /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/tasks" element={
+                      <Route path="/:role/tasks" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF]}>
                           <MainLayout><Tasks /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/inventory" element={
+                      <Route path="/:role/inventory" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.CHEF]}>
                           <MainLayout><Inventory /></MainLayout>
                         </ProtectedRoute>
                       } />
 
+<<<<<<< HEAD
+                      <Route path="/:role/menu" element={
+=======
                       <Route path="/admin-menu" element={
+>>>>>>> 72e0472723fa663ac06ad33cce1f06777cb39915
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER]}>
                           <MainLayout><Menu /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/staff" element={
+                      <Route path="/:role/staff" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN]}>
                           <MainLayout><Staff /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/reports" element={
+                      <Route path="/:role/reports" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER]}>
                           <MainLayout><Reports /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/rooms" element={
+                      <Route path="/:role/rooms" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER]}>
                           <MainLayout><Rooms /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/reservations" element={
+                      <Route path="/:role/reservations" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.WAITER]}>
                           <MainLayout><Reservations /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/folio" element={
+                      <Route path="/:role/folio" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.CASHIER]}>
                           <MainLayout><GuestFolio /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/guest-bills" element={
+                      <Route path="/:role/guest-bills" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.CASHIER]}>
                           <MainLayout><GuestBills /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/settlements" element={
+                      <Route path="/:role/settlements" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.CASHIER]}>
                           <MainLayout><Settlements /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/transactions" element={
+                      <Route path="/:role/transactions" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.CASHIER]}>
                           <MainLayout><Transactions /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/concierge" element={
+                      <Route path="/:role/concierge" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.WAITER]}>
                           <MainLayout><Concierge /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/services" element={
+                      <Route path="/:role/services" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.WAITER]}>
                           <MainLayout><ServiceManager /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/qr-manager" element={
+                      <Route path="/:role/qr-manager" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER]}>
                           <MainLayout><QRManager /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/notifications" element={
-                        <ProtectedRoute>
+                      <Route path="/:role/notifications" element={
+                        <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF, roles.CASHIER]}>
                           <MainLayout><NotificationsPage /></MainLayout>
                         </ProtectedRoute>
                       } />
 
-                      <Route path="/settings" element={
+                      <Route path="/:role/settings" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN]}>
                           <MainLayout><Settings /></MainLayout>
                         </ProtectedRoute>
                       } />
 
                       {/* Customer Routes */}
-                      <Route path="/customer" element={
+                      <Route path="/customer" element={<Navigate to="/customer/home" replace />} />
+                      
+                      <Route path="/customer/home" element={
                         <ProtectedRoute allowedRoles={[roles.CUSTOMER]}>
                           <MainLayout><CustomerHome /></MainLayout>
                         </ProtectedRoute>
                       } />
                       
-                      <Route path="/customer/order" element={
+                      <Route path="/customer/order-now" element={
                         <ProtectedRoute allowedRoles={[roles.CUSTOMER]}>
                           <MainLayout><CustomerOrderNow /></MainLayout>
                         </ProtectedRoute>
@@ -286,12 +343,6 @@ function App() {
                       <Route path="/customer/favorites" element={
                         <ProtectedRoute allowedRoles={[roles.CUSTOMER]}>
                           <MainLayout><CustomerFavorites /></MainLayout>
-                        </ProtectedRoute>
-                      } />
-
-                      <Route path="/customer/rewards" element={
-                        <ProtectedRoute allowedRoles={[roles.CUSTOMER]}>
-                          <MainLayout><CustomerRewards /></MainLayout>
                         </ProtectedRoute>
                       } />
 

@@ -27,12 +27,12 @@ const Login = () => {
       setLoading(false);
 
       switch (role) {
-        case roles.ADMIN:
-        case roles.MANAGER: navigate('/dashboard'); break;
-        case roles.WAITER: navigate('/tables'); break;
-        case roles.CHEF: navigate('/kitchen'); break;
-        case roles.CASHIER: navigate('/pos'); break;
-        case roles.CUSTOMER: navigate('/customer'); break;
+        case roles.ADMIN: navigate('/admin/dashboard'); break;
+        case roles.MANAGER: navigate('/manager/dashboard'); break;
+        case roles.WAITER: navigate('/waiter/dashboard'); break;
+        case roles.CHEF: navigate('/chef/dashboard'); break;
+        case roles.CASHIER: navigate('/cashier/dashboard'); break;
+        case roles.CUSTOMER: navigate('/customer/home'); break;
         default: navigate('/dashboard');
       }
     }, 1000);
@@ -44,12 +44,12 @@ const Login = () => {
       login(role);
       setLoading(false);
       switch (role) {
-        case roles.ADMIN:
-        case roles.MANAGER: navigate('/dashboard'); break;
-        case roles.WAITER: navigate('/tables'); break;
-        case roles.CHEF: navigate('/kitchen'); break;
-        case roles.CASHIER: navigate('/pos'); break;
-        case roles.CUSTOMER: navigate('/customer'); break;
+        case roles.ADMIN: navigate('/admin/dashboard'); break;
+        case roles.MANAGER: navigate('/manager/dashboard'); break;
+        case roles.WAITER: navigate('/waiter/dashboard'); break;
+        case roles.CHEF: navigate('/chef/dashboard'); break;
+        case roles.CASHIER: navigate('/cashier/dashboard'); break;
+        case roles.CUSTOMER: navigate('/customer/home'); break;
         default: navigate('/dashboard');
       }
     }, 500);

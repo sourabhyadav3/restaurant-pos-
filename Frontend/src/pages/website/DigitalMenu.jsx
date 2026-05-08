@@ -39,31 +39,31 @@ const DigitalMenu = () => {
   return (
     <div className="min-h-screen bg-[#fcfcfc] text-slate-800 font-sans">
       {/* Header - Matching Screenshot */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 py-4 px-6 md:px-12 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <img src="/1000464407-removebg-preview.png" alt="Logo" className="h-8 md:h-10 w-auto object-contain" />
-          <span className="text-xl font-black uppercase tracking-tighter text-[#2a2a2a]">Gila House</span>
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 py-3 md:py-4 px-4 md:px-12 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2 md:gap-3">
+          <img src="/1000464407-removebg-preview.png" alt="Logo" className="h-7 md:h-10 w-auto object-contain" />
+          <span className="text-[14px] md:text-xl font-black uppercase tracking-tighter text-[#2a2a2a]">Gila House</span>
         </Link>
         
-        <nav className="hidden md:flex items-center gap-8">
-          <Link to="/menu" className="text-sm font-bold text-orange-500 border-b-2 border-orange-500 pb-1">Restaurant</Link>
-          <Link to="/excursions" className="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">Excursions</Link>
-          <Link to="/transport" className="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">Transport</Link>
+        <nav className="hidden md:flex items-center gap-4 lg:gap-8">
+          <Link to="/menu" className="text-xs lg:text-sm font-bold text-orange-500 border-b-2 border-orange-500 pb-1">Restaurant</Link>
+          <Link to="/excursions" className="text-xs lg:text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">Excursions</Link>
+          <Link to="/transport" className="text-xs lg:text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">Transport</Link>
         </nav>
 
-        <Link to="/book" className="bg-orange-500 text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest shadow-lg shadow-orange-200 hover:bg-orange-600 transition-all active:scale-95">
+        <Link to="/book" className="bg-orange-500 text-white px-4 md:px-6 py-2 md:py-2.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest shadow-lg shadow-orange-200 hover:bg-orange-600 transition-all active:scale-95">
           Reserve Table
         </Link>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
         {/* Category Selector - Matching Screenshot */}
-        <div className="flex items-center justify-center gap-3 mb-16 overflow-x-auto pb-4 no-scrollbar">
+        <div className="flex items-center md:justify-center gap-2 md:gap-3 mb-8 md:mb-16 overflow-x-auto pb-4 no-scrollbar">
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all ${
+              className={`flex items-center gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full text-[9px] md:text-[11px] font-black uppercase tracking-widest transition-all shrink-0 ${
                 activeCategory === cat.id 
                 ? 'bg-orange-500 text-white shadow-xl shadow-orange-100' 
                 : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
@@ -76,7 +76,7 @@ const DigitalMenu = () => {
         </div>
 
         {/* Menu Grid - Matching Screenshot */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           <AnimatePresence mode="wait">
             {menuData[activeCategory].map((item) => (
               <motion.div
@@ -84,10 +84,10 @@ const DigitalMenu = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="bg-white rounded-[2rem] overflow-hidden shadow-2xl shadow-gray-100/50 hover:shadow-orange-100/50 transition-all duration-500 border border-transparent hover:border-orange-100 group cursor-pointer"
+                className="bg-white rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-2xl shadow-gray-100/50 hover:shadow-orange-100/50 transition-all duration-500 border border-transparent hover:border-orange-100 group cursor-pointer"
               >
                 {/* Premium Food Image - Matching SS Style */}
-                <div className="h-56 overflow-hidden relative">
+                <div className="h-48 md:h-56 overflow-hidden relative">
                    <img 
                      src={item.img} 
                      alt={item.name} 
@@ -96,12 +96,12 @@ const DigitalMenu = () => {
                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 </div>
                 
-                <div className="p-8">
-                  <h3 className="text-lg font-black text-[#2a2a2a] mb-2 leading-tight group-hover:text-orange-500 transition-colors">{item.name}</h3>
-                  <p className="text-xs text-gray-400 font-medium leading-relaxed mb-6 h-10 overflow-hidden line-clamp-2">
+                <div className="p-6 md:p-8">
+                  <h3 className="text-base md:text-lg font-black text-[#2a2a2a] mb-2 leading-tight group-hover:text-orange-500 transition-colors">{item.name}</h3>
+                  <p className="text-[10px] md:text-xs text-gray-400 font-medium leading-relaxed mb-4 md:mb-6 h-10 overflow-hidden line-clamp-2">
                     {item.desc}
                   </p>
-                  <p className="text-lg font-black text-orange-500 tracking-tight">
+                  <p className="text-base md:text-lg font-black text-orange-500 tracking-tight">
                     {item.price}
                   </p>
                 </div>
@@ -110,9 +110,9 @@ const DigitalMenu = () => {
           </AnimatePresence>
         </div>
 
-        <div className="mt-24 text-center">
-          <p className="text-xs font-bold text-gray-300 uppercase tracking-widest mb-4">Visit us to order</p>
-          <p className="text-sm font-black text-gray-400 uppercase tracking-tighter">Gila House Restaurant & Bar</p>
+        <div className="mt-16 md:mt-24 text-center">
+          <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-4">Visit us to order</p>
+          <p className="text-xs md:text-sm font-black text-gray-400 uppercase tracking-tighter">Gila House Restaurant & Bar</p>
         </div>
       </main>
 

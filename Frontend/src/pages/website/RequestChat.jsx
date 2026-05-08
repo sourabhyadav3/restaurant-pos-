@@ -52,25 +52,25 @@ const RequestChat = () => {
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 pt-8">
-        <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6">How can we help you?</h3>
+      <main className="max-w-4xl mx-auto px-4 md:px-8 pt-8 md:pt-12">
+        <h3 className="text-[10px] md:text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-6 md:mb-8 text-center md:text-left">How can we help you?</h3>
         
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
           {categories.map((cat, i) => (
             <Link
               key={cat.title}
               to={cat.title === 'Reception' ? '/chat' : '#'}
-              className="w-full bg-white rounded-2xl p-5 flex items-center gap-4 border border-gray-50 shadow-sm hover:border-teal-100 transition-all group text-left block"
+              className="w-full bg-white rounded-2xl md:rounded-[2rem] p-5 md:p-8 flex items-center gap-4 md:gap-6 border border-gray-50 shadow-sm hover:border-teal-100 hover:shadow-xl hover:shadow-teal-900/5 transition-all group text-left block"
             >
               {/* Icon Container */}
-              <div className={`w-12 h-12 ${cat.bg} rounded-xl flex items-center justify-center text-2xl group-hover:scale-105 transition-transform shadow-sm`}>
+              <div className={`w-12 h-12 md:w-16 md:h-16 ${cat.bg} rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-4xl group-hover:scale-105 transition-transform shadow-sm`}>
                 {cat.emoji}
               </div>
 
               {/* Content */}
               <div className="flex-1">
-                <h4 className="text-[15px] font-black text-slate-800 mb-0.5">{cat.title}</h4>
-                <p className="text-[11px] font-bold text-gray-400 leading-tight">
+                <h4 className="text-[15px] md:text-lg font-black text-slate-800 mb-0.5 md:mb-1">{cat.title}</h4>
+                <p className="text-[11px] md:text-xs font-bold text-gray-400 leading-tight">
                   {cat.desc}
                 </p>
               </div>

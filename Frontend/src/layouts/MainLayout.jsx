@@ -53,7 +53,7 @@ const MainLayout = ({ children }) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const menuItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/', roles: [roles.ADMIN, roles.MANAGER] },
+    { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', roles: [roles.ADMIN, roles.MANAGER] },
     { name: 'Tables', icon: Table2, path: '/tables', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
     { name: 'POS', icon: Calculator, path: '/pos', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CASHIER] },
     { name: 'Orders', icon: ClipboardList, path: '/orders', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF, roles.CASHIER] },
@@ -61,7 +61,7 @@ const MainLayout = ({ children }) => {
     { name: 'Tasks', icon: ClipboardCheck, path: '/tasks', roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF] },
     { name: 'Inventory', icon: Package, path: '/inventory', roles: [roles.ADMIN, roles.MANAGER, roles.CHEF] },
     { name: 'Notifications', icon: Bell, path: '/notifications', roles: [roles.CHEF] },
-    { name: 'Menu', icon: UtensilsCrossed, path: '/menu', roles: [roles.ADMIN, roles.MANAGER] },
+    { name: 'Menu', icon: UtensilsCrossed, path: '/admin-menu', roles: [roles.ADMIN, roles.MANAGER] },
     { name: 'Staff', icon: Users, path: '/staff', roles: [roles.ADMIN] },
     { name: 'Reports', icon: BarChart3, path: '/reports', roles: [roles.ADMIN, roles.MANAGER] },
     { name: 'Rooms', icon: Bed, path: '/rooms', roles: [roles.ADMIN, roles.MANAGER] },
@@ -101,16 +101,16 @@ const MainLayout = ({ children }) => {
         )}
       >
         {/* Logo Area */}
-        <div className="h-14 flex items-center px-5 shrink-0">
-          <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/30 shrink-0">
-              <CookingPot className="w-5 h-5 stroke-[2.5]" />
+        <div className="h-16 flex items-center px-6 shrink-0 border-b border-slate-50">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm shrink-0">
+              <img src="/1000464407-removebg-preview.png" alt="Logo" className="w-8 h-8 object-contain" />
             </div>
             {!isCollapsed && (
               <span 
-                className="text-lg font-black tracking-tight text-text-primary whitespace-nowrap"
+                className="text-lg font-black tracking-tight text-text-primary whitespace-nowrap uppercase italic"
               >
-                Resto<span className="text-primary">OS</span>
+                Gila<span className="text-primary">House</span>
               </span>
             )}
           </div>
@@ -239,7 +239,7 @@ const MainLayout = ({ children }) => {
                       </div>
                       <div className="px-3 py-2 border-t border-slate-50">
                         <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Menu</p>
-                        <button onClick={() => { setSearchQuery(''); navigate('/menu'); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
+                        <button onClick={() => { setSearchQuery(''); navigate('/admin-menu'); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
                            Margherita Pizza <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
                         </button>
                       </div>

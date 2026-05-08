@@ -1,25 +1,31 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Utensils, Truck, Clock, ShieldCheck } from 'lucide-react';
+import { Utensils, Truck, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
 
 const ecosystem = [
   {
     title: 'Instant QR Ordering',
     desc: 'Zero wait time. Guests scan, browse, and order directly from their table.',
     img: '/Immagine 2026-04-16 042531.png',
-    tag: 'Revolutionary'
+    tag: 'Revolutionary',
+    fit: 'object-contain',
+    bgColor: 'bg-white'
   },
   {
     title: 'Smart Payments',
     desc: 'Seamless UPI and Card integrations for lightning-fast checkouts.',
     img: '/Immagine 2026-04-16 042508.png',
-    tag: 'Secure'
+    tag: 'Secure',
+    fit: 'object-contain',
+    bgColor: 'bg-white'
   },
   {
     title: 'Ultra Fast Wifi',
     desc: 'Keep your guests connected with our managed high-speed network.',
     img: '/Modern Black and White Wifi Poster (2).jpg',
-    tag: 'Connected'
+    tag: 'Connected',
+    fit: 'object-contain',
+    bgColor: 'bg-[#f4d5a8]' // Matching the cream background of the poster
   }
 ];
 
@@ -40,27 +46,30 @@ const Services = () => {
           The <span className="text-landing-primary italic">Smart</span> Ecosystem
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
           {ecosystem.map((item, i) => (
             <motion.div
               key={item.title}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.2 }}
               viewport={{ once: true }}
-              className="glass-card group p-0 overflow-hidden hover:border-landing-primary/30 transition-all duration-500"
+              className="glass-card group p-0 overflow-hidden hover:border-landing-primary/50 transition-all duration-700 shadow-2xl flex flex-col h-full"
             >
-              <div className="relative h-64 overflow-hidden bg-white flex items-center justify-center p-8">
-                 <img src={item.img} alt={item.title} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700" />
-                 <div className="absolute top-4 left-4 bg-dark/80 backdrop-blur-md px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest text-landing-primary">
+              <div className={`relative h-96 overflow-hidden ${item.bgColor} flex items-center justify-center p-6 shadow-inner`}>
+                 <img src={item.img} alt={item.title} className={`w-full h-full transition-transform duration-[2s] group-hover:scale-105 ${item.fit}`} />
+                 <div className="absolute inset-0 bg-dark/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                 <div className="absolute top-6 left-6 bg-landing-primary text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-xl z-20">
                     {item.tag}
                  </div>
               </div>
-              <div className="p-8 text-left">
-                <h3 className="text-xl font-black mb-3 text-white uppercase tracking-tight">{item.title}</h3>
-                <p className="text-gray-400 leading-relaxed text-xs font-medium">{item.desc}</p>
-                <div className="mt-6 flex items-center gap-2 text-[9px] font-black text-landing-primary uppercase tracking-[0.2em] group-hover:gap-4 transition-all">
-                   Learn More <span className="w-8 h-px bg-landing-primary" />
+              <div className="p-10 text-left bg-dark-lighter/50 backdrop-blur-sm border-t border-white/5 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-2xl font-black mb-4 text-white uppercase tracking-tight group-hover:text-landing-primary transition-colors">{item.title}</h3>
+                  <p className="text-gray-400 leading-relaxed text-sm font-medium mb-8">{item.desc}</p>
+                </div>
+                <div className="flex items-center gap-4 text-[11px] font-black text-landing-primary uppercase tracking-[0.3em] mt-auto">
+                   Get Started <ArrowRight size={16} className="group-hover:translate-x-3 transition-transform" />
                 </div>
               </div>
             </motion.div>

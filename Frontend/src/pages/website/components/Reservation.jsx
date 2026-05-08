@@ -1,0 +1,191 @@
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Calendar, Clock, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
+
+const Reservation = () => {
+  const [submitted, setSubmitted] = useState(false);
+  const [activeMeal, setActiveMeal] = useState('Dinner');
+
+  const mealOptions = {
+    Breakfast: [
+      { name: 'Classic Omelette', price: '$12', desc: 'Farm fresh eggs with herbs' },
+      { name: 'Pancake Stack', price: '$15', desc: 'Maple syrup and fresh berries' },
+      { name: 'Avocado Toast', price: '$14', desc: 'Sourdough with poached eggs' },
+    ],
+    Lunch: [
+      { name: 'Wagyu Burger', price: '$22', desc: 'Truffle mayo and brioche bun' },
+      { name: 'Ceasar Salad', price: '$18', desc: 'Grilled chicken and parmesan' },
+      { name: 'Pasta Carbonara', price: '$20', desc: 'Crispy pancetta and egg yolk' },
+    ],
+    Dinner: [
+      { name: 'Ribeye Steak', price: '$45', desc: 'Aged beef with garlic butter' },
+      { name: 'Grilled Salmon', price: '$38', desc: 'Lemon butter and asparagus' },
+      { name: 'Lamb Chops', price: '$42', desc: 'Mint glaze and roasted roots' },
+    ],
+    Bar: [
+      { name: 'Old Fashioned', price: '$16', desc: 'Bourbon with aromatic bitters' },
+      { name: 'Signature Mojito', price: '$14', desc: 'Fresh mint and white rum' },
+      { name: 'Craft Beer Flight', price: '$20', desc: 'Selection of 4 local brews' },
+    ]
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <section className="py-12 md:py-24 bg-dark relative overflow-hidden" id="reservation">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="glass-card p-16 border-emerald-500/20"
+          >
+            <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-8">
+              <CheckCircle2 className="text-emerald-500" size={40} />
+            </div>
+            <h2 className="text-4xl font-black text-white uppercase tracking-tight mb-4">Table Reserved!</h2>
+            <p className="text-gray-400 text-lg mb-8">We've received your booking for {activeMeal}. Get ready for an exceptional dining experience.</p>
+            <button 
+              onClick={() => setSubmitted(false)}
+              className="text-landing-primary font-black uppercase tracking-widest text-sm hover:underline"
+            >
+              Book another slot
+            </button>
+          </motion.div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="py-12 md:py-24 bg-dark relative overflow-hidden" id="reservation">
+      {/* Background Accents */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-landing-primary/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-landing-secondary/10 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-16">
+          <span className="text-landing-primary font-black uppercase tracking-[0.3em] text-xs">Reservations</span>
+          <h2 className="text-4xl md:text-6xl font-black font-display mt-4 text-white uppercase tracking-tighter leading-none">
+            Secure Your <span className="text-landing-primary italic">Seat</span>
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
+            <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-8 flex items-center gap-4">
+              <span className="w-8 h-px bg-landing-primary"></span>
+              Step 1: Select Experience
+            </h3>
+            
+            {/* Meal Tabs */}
+            <div className="flex flex-wrap gap-2 mb-8">
+              {Object.keys(mealOptions).map((meal) => (
+                <button
+                  key={meal}
+                  onClick={() => setActiveMeal(meal)}
+                  className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                    activeMeal === meal 
+                    ? 'bg-landing-primary text-white shadow-lg shadow-landing-primary/20' 
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                  }`}
+                >
+                  {meal}
+                </button>
+              ))}
+            </div>
+
+            {/* Curated Menu Preview */}
+            <div className="glass-card p-6 border-white/5">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-landing-primary mb-6">Curated {activeMeal} Menu</p>
+              <div className="space-y-6">
+                {mealOptions[activeMeal].map((item, idx) => (
+                  <motion.div 
+                    key={idx}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex justify-between items-center group cursor-default"
+                  >
+                    <div>
+                      <h4 className="text-white font-bold text-sm uppercase group-hover:text-landing-primary transition-colors">{item.name}</h4>
+                      <p className="text-xs text-gray-500">{item.desc}</p>
+                    </div>
+                    <span className="text-landing-primary font-black">{item.price}</span>
+                  </motion.div>
+                ))}
+              </div>
+              <p className="mt-8 pt-6 border-t border-white/5 text-[9px] text-gray-500 italic">
+                * Prices are starting estimates for pre-order sets.
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="glass-card p-8 md:p-12 border-white/5 backdrop-blur-2xl relative"
+          >
+            <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-8 flex items-center gap-4">
+              <span className="w-8 h-px bg-landing-secondary"></span>
+              Step 2: Booking Info
+            </h3>
+            
+            <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Full Name</label>
+                  <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-landing-primary transition-all text-white font-medium" placeholder="John Doe" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Guests</label>
+                  <div className="relative">
+                    <select className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-landing-primary transition-all text-white font-medium appearance-none">
+                      <option className="bg-dark">2 Persons</option>
+                      <option className="bg-dark">4 Persons</option>
+                      <option className="bg-dark">6 Persons</option>
+                      <option className="bg-dark">8+ Persons</option>
+                    </select>
+                    <Users size={16} className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Date</label>
+                  <input required type="date" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-landing-primary transition-all text-white font-medium" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Time</label>
+                  <input required type="time" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-landing-primary transition-all text-white font-medium" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Meal Preference</label>
+                <input readOnly value={activeMeal} className="w-full bg-white/5 border border-landing-primary/30 rounded-2xl px-6 py-4 outline-none text-landing-primary font-bold uppercase tracking-widest text-xs" />
+              </div>
+
+              <button type="submit" className="w-full btn-premium py-5 rounded-2xl flex items-center justify-center gap-3 text-xs font-black uppercase tracking-[0.2em] shadow-2xl shadow-landing-primary/20 group">
+                Confirm Booking <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Reservation;

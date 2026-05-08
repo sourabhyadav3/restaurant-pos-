@@ -10,8 +10,8 @@ const services = [
     color: 'bg-blue-500/10 text-blue-500'
   },
   {
-    title: 'Fast Delivery',
-    desc: 'Get your food delivered at your doorstep within 30 minutes.',
+    title: 'Fast Order',
+    desc: 'Experience lightning-fast service with our optimized order delivery system.',
     icon: Truck,
     color: 'bg-landing-primary/10 text-landing-primary'
   },

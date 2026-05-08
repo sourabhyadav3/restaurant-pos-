@@ -29,7 +29,7 @@ const Hero = () => {
               transition={{ delay: 0.2 }}
               className="inline-block bg-landing-primary/10 text-landing-primary px-4 py-2 rounded-full text-sm font-bold mb-6 border border-landing-primary/20"
             >
-              🚀 Fast Delivery & Best Quality
+              🚀 Fast Order & Best Quality
             </motion.span>
             <h1 className="text-5xl md:text-7xl font-bold font-display leading-tight mb-6 text-white">
               Delicious Food <br />
@@ -38,7 +38,7 @@ const Hero = () => {
               </span>
             </h1>
             <p className="text-lg text-gray-400 mb-8 max-w-lg leading-relaxed">
-              Experience the finest gourmet cuisine delivered right to your doorstep. Fresh ingredients, expert chefs, and lightning-fast delivery.
+              Experience the finest gourmet cuisine with our lightning-fast order system. Fresh ingredients, expert chefs, and premium service.
             </p>
             <div className="flex flex-wrap gap-4">
               <button className="btn-premium flex items-center group">
@@ -75,8 +75,8 @@ const Hero = () => {
                 <img src={burgerImg} alt="icon" className="w-8" />
               </div>
               <div>
-                <p className="text-xs text-gray-400 uppercase font-bold">Fast Delivery</p>
-                <p className="text-sm font-bold text-white">30 Mins Express</p>
+                <p className="text-xs text-gray-400 uppercase font-bold">Fast Order</p>
+                <p className="text-sm font-bold text-white">Lightning Service</p>
               </div>
             </motion.div>
 

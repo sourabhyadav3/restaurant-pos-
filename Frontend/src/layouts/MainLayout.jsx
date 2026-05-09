@@ -112,10 +112,10 @@ const MainLayout = ({ children }) => {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "bg-white border-r border-border flex flex-col relative z-[150] shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-full transition-all duration-300",
+          "bg-white border-r border-border flex flex-col relative z-[150] shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-full transition-all duration-300 ease-in-out",
           "lg:translate-x-0 fixed lg:relative",
-          isCollapsed ? "lg:w-[80px]" : "lg:w-[200px]",
-          isMobileMenuOpen ? "translate-x-0 w-[240px]" : "-translate-x-full lg:translate-x-0"
+          isCollapsed ? "lg:w-[72px]" : "lg:w-[220px]",
+          isMobileMenuOpen ? "translate-x-0 w-[260px]" : "-translate-x-full lg:translate-x-0"
         )}
       >
         {/* Logo Area */}
@@ -152,10 +152,10 @@ const MainLayout = ({ children }) => {
                   : "text-text-secondary hover:bg-slate-50 hover:text-text-primary"
               )}
             >
-              <item.icon className={cn("w-5 h-5 shrink-0", !isCollapsed && "stroke-[2]")} />
+              <item.icon className={cn("w-5 h-5 shrink-0 transition-transform group-hover:scale-110", !isCollapsed && "stroke-[2]")} />
               {!isCollapsed && (
                 <span 
-                  className="font-bold text-xs tracking-wide"
+                  className="font-bold text-xs tracking-wide truncate"
                 >
                   {item.name}
                 </span>
@@ -208,7 +208,7 @@ const MainLayout = ({ children }) => {
         <div className="absolute top-[20%] left-[10%] w-[30rem] h-[30rem] bg-blue-300/[0.02] rounded-full blur-[80px] pointer-events-none" />
                 {/* Header */}
         <header className={cn(
-          "h-14 bg-white border-b border-border flex items-center justify-between px-3 lg:px-4 shrink-0 z-[140]",
+          "h-16 bg-white/80 backdrop-blur-md border-b border-border flex items-center justify-between px-4 lg:px-8 shrink-0 z-[140] transition-all",
           "sticky top-0 left-0 right-0 lg:relative lg:top-auto lg:left-auto lg:right-auto"
         )}>
           <div className="flex items-center gap-3 lg:gap-6 flex-1">
@@ -235,12 +235,12 @@ const MainLayout = ({ children }) => {
                 onFocus={() => setIsSearchFocused(true)}
                 onBlur={() => setIsSearchFocused(false)}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search..." 
+                placeholder="Search anything..." 
                 className={cn(
-                  "w-full pl-10 pr-4 py-2 bg-slate-50 lg:bg-white border-2 rounded-xl lg:rounded-2xl outline-none text-xs font-bold relative z-10 transition-all",
+                  "w-full pl-10 pr-4 py-2.5 bg-slate-50 lg:bg-white border-2 rounded-xl lg:rounded-2xl outline-none text-xs font-bold relative z-10 transition-all",
                   isSearchFocused 
                     ? "border-primary ring-4 ring-primary/10 shadow-lg shadow-primary/5" 
-                    : "border-primary/20"
+                    : "border-slate-100 hover:border-primary/20"
                 )}
               />
               

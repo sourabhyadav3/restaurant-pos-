@@ -193,38 +193,38 @@ const POS = () => {
       {/* Menu Area */}
       <div className="flex-1 flex flex-col gap-4 lg:gap-6 overflow-hidden">
         {/* Search & Action Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between shrink-0 gap-4">
-          <div className="relative flex-1 group">
+        <div className="flex flex-col md:flex-row items-center justify-between shrink-0 gap-3 md:gap-4">
+          <div className="relative flex-1 w-full group">
             <Search className="absolute left-4 lg:left-5 top-1/2 -translate-y-1/2 w-4 h-4 lg:w-5 lg:h-5 text-text-secondary group-focus-within:text-primary" />
             <input 
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search..." 
-              className="w-full pl-10 lg:pl-12 pr-4 lg:pr-5 py-2.5 lg:py-3 bg-white border border-slate-100 rounded-xl lg:rounded-[1.2rem] focus:ring-4 focus:ring-primary/5 focus:border-primary/30 outline-none shadow-sm font-black text-[9px] lg:text-[10px] uppercase tracking-widest placeholder:text-slate-300"
+              placeholder="Search items..." 
+              className="w-full pl-10 lg:pl-12 pr-4 lg:pr-5 py-3 lg:py-3.5 bg-white border border-slate-100 rounded-xl lg:rounded-2xl focus:ring-4 focus:ring-primary/5 focus:border-primary/30 outline-none shadow-sm font-bold text-[10px] lg:text-[11px] uppercase tracking-widest placeholder:text-slate-300"
             />
           </div>
-          <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex gap-2 w-full md:w-auto">
               <button 
                 onClick={() => setShowHistory(true)}
-                className="flex-1 sm:flex-none p-3 lg:p-4 bg-white border border-slate-100 rounded-xl lg:rounded-2xl hover:border-primary/20 hover:bg-slate-50 shadow-sm group flex items-center justify-center gap-2 lg:gap-3"
+                className="flex-1 md:flex-none p-3 lg:p-4 bg-white border border-slate-100 rounded-xl lg:rounded-2xl hover:border-primary/20 hover:bg-slate-50 shadow-sm group flex items-center justify-center gap-2 lg:gap-3 transition-all active:scale-95"
               >
                  <History className="w-4 h-4 lg:w-5 lg:h-5 text-text-secondary group-hover:text-primary" />
-                 <span className="sm:hidden text-[9px] font-black uppercase tracking-widest text-text-secondary group-hover:text-primary">History</span>
+                 <span className="md:hidden text-[9px] font-black uppercase tracking-widest text-text-secondary group-hover:text-primary">Order History</span>
               </button>
           </div>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-3 scrollbar-hide shrink-0 px-1">
+        <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-3 scrollbar-hide shrink-0 px-1 -mx-4 md:mx-0 px-4 md:px-0">
           {categoriesList.map(cat => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
               className={cn(
-                "px-3.5 lg:px-4 py-1.5 lg:py-2 rounded-lg lg:rounded-xl text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.15em] whitespace-nowrap border-2",
+                "px-4 lg:px-5 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.15em] whitespace-nowrap border-2 transition-all active:scale-95",
                 activeCategory === cat 
                   ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" 
-                  : "bg-white text-text-secondary border-transparent hover:border-primary/20 hover:bg-indigo-50/50"
+                  : "bg-white text-text-secondary border-slate-50 hover:border-primary/20 hover:bg-indigo-50/50"
               )}
             >
               {cat}
@@ -233,15 +233,15 @@ const POS = () => {
         </div>
 
         {/* Dynamic Menu Grid */}
-        <div className="flex-1 overflow-y-auto grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-8 items-start pr-1 pb-24 lg:pb-12 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 lg:gap-6 items-start pr-1 pb-32 lg:pb-12 scrollbar-hide">
           {filteredItems.map(item => (
             <div 
               key={item.id} 
               onClick={() => addToCart(item)}
-              className="card group cursor-pointer border-2 border-transparent hover:border-primary/20 p-3 lg:p-5 flex flex-col relative overflow-hidden bg-gradient-to-br from-white to-slate-50/30 aspect-[1/1.2] lg:aspect-[3.5/4]"
+              className="card group cursor-pointer border-2 border-transparent hover:border-primary/20 p-3 lg:p-5 flex flex-col relative overflow-hidden bg-gradient-to-br from-white to-slate-50/30 aspect-[1/1.3] lg:aspect-[3/4] transition-all hover:shadow-xl hover:-translate-y-1 active:scale-95"
             >
               <div className="flex justify-between items-start mb-2 lg:mb-4 relative z-10">
-                 <div className="w-9 h-9 lg:w-12 lg:h-12 bg-white rounded-lg lg:rounded-2xl flex items-center justify-center overflow-hidden text-xl lg:text-3xl shadow-xl shadow-slate-200 shrink-0">
+                 <div className="w-10 h-10 lg:w-14 lg:h-14 bg-white rounded-lg lg:rounded-2xl flex items-center justify-center overflow-hidden text-xl lg:text-3xl shadow-xl shadow-slate-200 shrink-0">
                     {item.image && item.image.length > 2 ? (
                       <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                     ) : (
@@ -249,31 +249,35 @@ const POS = () => {
                     )}
                  </div>
                  <div className="flex flex-col items-end gap-1">
-                    <span className="badge bg-emerald-50 text-emerald-600 border border-emerald-100 text-[6px] lg:text-[8px] py-0 px-1 lg:px-1.5 font-black uppercase tracking-widest">
+                    <span className="badge bg-emerald-50 text-emerald-600 border border-emerald-100 text-[7px] lg:text-[9px] py-0.5 px-1.5 lg:px-2 font-black uppercase tracking-widest">
                        READY
                     </span>
                     <p className="hidden lg:block text-[9px] font-black text-slate-300 uppercase tracking-widest">{item.category}</p>
                  </div>
               </div>
 
-              <div className="relative z-10 space-y-1 lg:space-y-2 min-h-0">
-                <h4 className="font-black text-text-primary text-xs lg:text-lg leading-tight group-hover:text-primary uppercase tracking-tight truncate lg:whitespace-normal">{item.name}</h4>
-                <p className="hidden lg:line-clamp-3 text-text-secondary text-xs font-medium opacity-60 leading-relaxed">{item.description}</p>
+              <div className="relative z-10 mb-2 flex-1 flex flex-col min-h-0">
+                <h4 className="font-black text-text-primary text-[11px] lg:text-base leading-tight group-hover:text-primary uppercase tracking-tight line-clamp-2 mb-1">
+                  {item.name}
+                </h4>
+                <p className="line-clamp-2 text-text-secondary text-[9px] lg:text-[11px] font-medium opacity-60 leading-relaxed">
+                  {item.description}
+                </p>
               </div>
 
-              <div className="mt-auto pt-3 lg:pt-6 flex items-center justify-between relative z-10">
+              <div className="mt-auto pt-2 lg:pt-3 border-t border-slate-50 flex items-center justify-between relative z-10 shrink-0">
                 <div className="flex flex-col">
-                   <span className="text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Price</span>
-                   <p className="text-base lg:text-3xl font-black text-text-primary tracking-tighter">₹{item.price}</p>
+                   <span className="text-[8px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Price</span>
+                   <p className="text-sm lg:text-xl font-black text-text-primary tracking-tighter leading-none">₹{item.price}</p>
                 </div>
                 <div 
-                  className="w-8 h-8 lg:w-10 lg:h-10 bg-primary text-white rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg shadow-primary/30"
+                  className="w-7 h-7 lg:w-10 lg:h-10 bg-primary text-white rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg shadow-primary/30 group-hover:bg-primary-dark transition-colors"
                 >
                   <Plus className="w-4 h-4 lg:w-5 lg:h-5 lg:stroke-[3]" />
                 </div>
               </div>
               
-              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
+              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           ))}
         </div>
@@ -281,12 +285,12 @@ const POS = () => {
 
       {/* Cart & Billing Section */}
       <div className={cn(
-        "fixed inset-x-0 bottom-0 lg:relative lg:inset-auto z-40 transition-transform duration-300 lg:translate-y-0",
-        "w-full lg:w-[300px] xl:w-[340px] flex flex-col shrink-0 h-[80vh] lg:h-full",
+        "fixed inset-x-0 bottom-0 lg:relative lg:inset-auto z-40 transition-transform duration-300 lg:translate-y-0 shadow-2xl lg:shadow-none",
+        "w-full lg:w-[320px] xl:w-[380px] flex flex-col shrink-0 h-[85vh] lg:h-full",
         isMobileCartOpen ? "translate-y-0" : "translate-y-full lg:translate-y-0",
-        cart.length === 0 ? "opacity-90 grayscale-[0.2]" : "opacity-100"
+        cart.length === 0 ? "opacity-95" : "opacity-100"
       )}>
-        <div className="card flex-1 flex flex-col p-0 overflow-hidden border border-primary/10 shadow-2xl bg-white rounded-t-[2.5rem] lg:rounded-[2rem]">
+        <div className="card flex-1 flex flex-col p-0 overflow-hidden border border-primary/10 bg-white rounded-t-[2.5rem] lg:rounded-[2rem]">
           {/* Mobile Close Handle */}
           <div className="lg:hidden flex justify-center py-2 shrink-0" onClick={() => setIsMobileCartOpen(false)}>
             <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
@@ -444,11 +448,11 @@ const POS = () => {
                 <span>Tax (GST 5%)</span>
                 <span className="text-white">₹{gst}</span>
               </div>
-              <div className="pt-4 border-t border-slate-800 flex justify-between items-end">
+              <div className="pt-4 mt-2 border-t border-white/10 flex justify-between items-end">
                 <div className="flex flex-col">
-                  <span className="text-slate-500 text-[8px] font-bold uppercase tracking-[0.3em] mb-1.5">Grand Total</span>
+                  <span className="text-white/40 text-[9px] font-black uppercase tracking-[0.3em] mb-1.5">Grand Total</span>
                   <div className="flex items-baseline gap-2">
-                     <h4 className="text-3xl font-black text-white tracking-tighter">₹{total}</h4>
+                     <h4 className="text-3xl lg:text-4xl font-black text-white tracking-tighter">₹{total}</h4>
                      <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">INR</span>
                   </div>
                 </div>
@@ -462,7 +466,7 @@ const POS = () => {
               <button 
                 disabled={cart.length === 0 || isProcessing}
                 onClick={handleKDS}
-                className="flex flex-col items-center justify-center gap-2 py-4 bg-white/10 border-2 border-white/10 rounded-2xl text-[9px] font-bold uppercase tracking-[0.2em] hover:bg-white/20 hover:border-white/20 disabled:opacity-50 transition-all group"
+                className="flex flex-col items-center justify-center gap-2 py-4 bg-white/10 border-2 border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-white/20 hover:border-white/20 disabled:opacity-50 transition-all group active:scale-95"
               >
                 <ChefHat className={cn("w-5 h-5 text-white")} /> 
                 {isProcessing ? 'Sending...' : 'Send to KDS'}
@@ -470,7 +474,7 @@ const POS = () => {
               <button 
                 onClick={() => setShowPaymentModal(true)}
                 disabled={cart.length === 0 || isProcessing}
-                className="flex flex-col items-center justify-center gap-2 py-4 bg-white text-primary rounded-2xl text-[9px] font-bold uppercase tracking-[0.2em] shadow-2xl shadow-black/10 hover:bg-slate-50 disabled:opacity-50 transition-all group"
+                className="flex flex-col items-center justify-center gap-2 py-4 bg-white text-primary rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] shadow-2xl shadow-black/10 hover:bg-slate-50 disabled:opacity-50 transition-all group active:scale-95"
               >
                 <CreditCard className="w-5 h-5" /> 
                 Checkout
@@ -582,7 +586,7 @@ const POS = () => {
 
               <div className="space-y-4">
                 <h4 className="text-[9px] font-black text-text-secondary uppercase tracking-[0.3em] px-1">Payment Method</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4">
                   {[
                     { name: 'Cash', icon: Receipt, color: 'text-emerald-600', bg: 'bg-emerald-50' },
                     { name: 'Card', icon: CreditCard, color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -593,16 +597,16 @@ const POS = () => {
                       onClick={() => setPaymentMethod(method.name)}
                       key={method.name} 
                       className={cn(
-                        "relative p-3 lg:p-4 rounded-xl lg:rounded-2xl border-2 flex lg:flex-col items-center lg:justify-center gap-3 transition-all overflow-hidden", 
+                        "relative p-3 lg:p-5 rounded-xl lg:rounded-[1.5rem] border-2 flex flex-col items-center justify-center gap-2 lg:gap-3 transition-all overflow-hidden active:scale-95", 
                         paymentMethod === method.name 
                           ? "border-primary bg-indigo-50/30 shadow-md" 
                           : "border-slate-50 bg-slate-50/50 hover:border-primary/20 hover:bg-white"
                       )}
                     >
-                      <div className={cn("w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl flex items-center justify-center shadow-sm shrink-0", method.bg)}>
-                        <method.icon className={cn("w-4 h-4 lg:w-5 lg:h-5 stroke-[2.5]", method.color)} />
+                      <div className={cn("w-9 h-9 lg:w-12 lg:h-12 rounded-lg lg:rounded-2xl flex items-center justify-center shadow-sm shrink-0", method.bg)}>
+                        <method.icon className={cn("w-4 h-4 lg:w-6 lg:h-6 stroke-[2.5]", method.color)} />
                       </div>
-                      <span className="text-[8px] lg:text-[9px] font-black uppercase tracking-[0.1em]">{method.name}</span>
+                      <span className="text-[9px] lg:text-[10px] font-black uppercase tracking-[0.1em] text-center">{method.name}</span>
                     </button>
                   ))}
                 </div>

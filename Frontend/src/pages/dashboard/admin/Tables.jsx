@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Users, 
   Clock, 
@@ -266,9 +267,9 @@ const Tables = () => {
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
           />
           <div 
-            className="relative w-full sm:max-w-[520px] max-h-[90vh] sm:max-h-[85vh] bg-white shadow-2xl z-[201] flex flex-col rounded-t-[2.5rem] sm:rounded-[2.5rem] overflow-hidden self-end sm:self-center"
+            className="relative w-full max-w-[95%] md:max-w-[520px] max-h-[90vh] bg-white shadow-2xl z-[201] flex flex-col rounded-[2rem] md:rounded-[2.5rem] overflow-hidden self-center"
           >
-            <div className="px-5 py-4 lg:px-6 lg:py-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/30 shrink-0">
+             <div className="px-5 py-4 md:px-6 md:py-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/30 shrink-0">
               <div className="flex items-center gap-3 lg:gap-4">
                 <div className={cn("w-10 lg:w-12 h-10 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center font-black text-base lg:text-lg text-white shadow-xl", getStatusConfig(selectedTable.status).color)}>
                   {selectedTable.name}
@@ -452,32 +453,32 @@ const Tables = () => {
       )}
 
       {/* Modern Compact Add Table Modal */}
-      {showAddTable && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+      {showAddTable && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
           <div 
             onClick={() => setShowAddTable(false)}
-            className="absolute inset-0 bg-slate-900/60"
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
           />
           <div 
-            className="relative w-full max-w-md bg-white rounded-t-[2.5rem] lg:rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20 self-end lg:self-center"
+            className="relative w-full max-w-[95%] md:max-w-md bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20 self-center"
           >
             <form onSubmit={handleCreateTable}>
-              <div className="px-6 py-5 lg:px-8 lg:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/20">
-              <div className="flex items-center gap-3 lg:gap-4">
-                 <div className="w-12 h-12 lg:w-14 lg:h-14 bg-primary rounded-xl lg:rounded-2xl flex items-center justify-center text-white shadow-xl relative group shrink-0">
-                    <Users className="w-5 h-5 lg:w-6 lg:h-6" />
-                 </div>
-                 <div>
-                    <h3 className="text-lg lg:text-xl font-black uppercase tracking-tight leading-none">New Table</h3>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5 lg:mt-1">Assign to {activeFloor}</p>
-                 </div>
+              <div className="px-5 py-4 md:px-8 md:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/20 shrink-0">
+                <div className="flex items-center gap-3 md:gap-4">
+                   <div className="w-10 h-10 md:w-14 md:h-14 bg-primary rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl relative group shrink-0">
+                      <Users className="w-5 h-5 md:w-6 md:h-6" />
+                   </div>
+                   <div>
+                      <h3 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none">New Table</h3>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1">Assign to {activeFloor}</p>
+                   </div>
+                </div>
+                <button type="button" onClick={() => setShowAddTable(false)} className="p-2 md:p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 shadow-sm group">
+                  <X className="w-5 h-5 text-slate-400" />
+                </button>
               </div>
-              <button type="button" onClick={() => setShowAddTable(false)} className="p-2 lg:p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 shadow-sm group">
-                <X className="w-5 h-5 text-slate-400" />
-              </button>
-            </div>
-
-            <div className="p-8 space-y-6">
+ 
+              <div className="p-6 md:p-8 space-y-6">
               <div className="space-y-1.5">
                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Asset Identifier</label>
                  <input 
@@ -529,10 +530,11 @@ const Tables = () => {
                <button type="button" onClick={() => setShowAddTable(false)} className="flex-1 py-3.5 lg:py-4 border-2 border-slate-100 rounded-xl lg:rounded-2xl font-black uppercase tracking-widest text-[9px] lg:text-[10px] hover:bg-slate-50">Cancel</button>
                <button type="submit" className="flex-1 btn-primary py-3.5 lg:py-4 rounded-xl lg:rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 text-[9px] lg:text-[10px]">Create Entry</button>
             </div>
-          </form>
-        </div>
-      </div>
-    )}
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* History Modal */}
       {showHistory && (
@@ -542,7 +544,7 @@ const Tables = () => {
             className="absolute inset-0 bg-slate-900/60"
           />
           <div 
-            className="relative w-full max-w-[620px] max-h-[90vh] lg:max-h-[85vh] bg-white rounded-t-[2.5rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col self-end lg:self-center"
+            className="relative w-full max-w-[95%] md:max-w-[620px] max-h-[90vh] bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col self-center"
           >
             <div className="px-6 py-6 lg:px-8 lg:py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
                <div>
@@ -584,7 +586,7 @@ const Tables = () => {
             className="absolute inset-0 bg-slate-900/60"
           />
           <div 
-            className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] lg:rounded-[3rem] shadow-2xl p-6 lg:p-10 self-end lg:self-center"
+            className="relative w-full max-w-[95%] md:max-w-lg bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl p-6 md:p-10 self-center max-h-[90vh] overflow-y-auto"
           >
             <h3 className="text-xl lg:text-2xl font-black tracking-tight mb-6 lg:mb-8">Quick Add Items</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
@@ -625,7 +627,7 @@ const Tables = () => {
             className="absolute inset-0 bg-slate-900/60"
           />
           <div 
-            className="relative w-full max-w-xl bg-white rounded-t-[2.5rem] lg:rounded-3xl shadow-2xl flex flex-col max-h-[90vh] lg:max-h-[85vh] border border-white/20 self-end lg:self-center"
+            className="relative w-full max-w-[95%] md:max-w-xl bg-white rounded-[2rem] md:rounded-3xl shadow-2xl flex flex-col max-h-[90vh] border border-white/20 self-center"
           >
             {/* Header */}
             <div className="px-5 py-5 lg:px-6 lg:py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/20 shrink-0">

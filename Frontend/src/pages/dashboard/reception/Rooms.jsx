@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Plus, 
   Search, 
@@ -166,13 +167,21 @@ const Rooms = () => {
           })}
         </div>
       </div>      {/* Modals */}
-      {showAddRoom && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+      {showAddRoom && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setShowAddRoom(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg bg-white rounded-[2rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
-            <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
-              <h3 className="text-xl font-black uppercase tracking-tight">Add New Unit</h3>
-              <button onClick={() => setShowAddRoom(false)} className="p-2 hover:bg-white rounded-xl transition-all"><X className="w-6 h-6" /></button>
+          <div className="relative w-full max-w-[95%] md:max-w-lg bg-white rounded-t-[2rem] sm:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
+            <div className="px-6 py-5 md:px-8 md:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
+               <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                     <Plus className="w-5 h-5 text-primary stroke-[3]" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none">Add New Unit</h3>
+                    <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1 leading-none">Register and configure hospitality space</p>
+                  </div>
+               </div>
+              <button onClick={() => setShowAddRoom(false)} className="p-2 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 transition-all shadow-sm"><X className="w-5 h-5 text-slate-400" /></button>
             </div>
             <form 
               onSubmit={(e) => {
@@ -190,132 +199,146 @@ const Rooms = () => {
                 setNewRoomData({ name: '', type: 'Deluxe', capacity: 2, status: 'Available', notes: '' });
                 setShowAddRoom(false);
               }} 
-              className="p-8 space-y-6 overflow-y-auto scrollbar-hide"
+              className="flex-1 overflow-y-auto scrollbar-hide"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Room Name</label>
-                  <input 
-                    required
-                    value={newRoomData.name}
-                    onChange={(e) => setNewRoomData({...newRoomData, name: e.target.value})}
-                    placeholder="e.g. LENA"
-                    className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 transition-all"
+              <div className="p-6 md:p-8 space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Room Name</label>
+                    <input 
+                      required
+                      value={newRoomData.name}
+                      onChange={(e) => setNewRoomData({...newRoomData, name: e.target.value})}
+                      placeholder="e.g. LENA"
+                      className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Type</label>
+                    <div className="relative">
+                      <select 
+                        value={newRoomData.type}
+                        onChange={(e) => setNewRoomData({...newRoomData, type: e.target.value})}
+                        className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all appearance-none"
+                      >
+                        {roomTypes.map(t => <option key={t}>{t}</option>)}
+                      </select>
+                      <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 rotate-90 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Capacity</label>
+                    <input 
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={newRoomData.capacity}
+                      onChange={(e) => setNewRoomData({...newRoomData, capacity: e.target.value})}
+                      className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Initial Status</label>
+                    <div className="relative">
+                      <select 
+                        value={newRoomData.status}
+                        onChange={(e) => setNewRoomData({...newRoomData, status: e.target.value})}
+                        className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all appearance-none"
+                      >
+                        {roomStatuses.map(s => <option key={s}>{s}</option>)}
+                      </select>
+                      <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 rotate-90 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Notes</label>
+                  <textarea 
+                    value={newRoomData.notes}
+                    onChange={(e) => setNewRoomData({...newRoomData, notes: e.target.value})}
+                    className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white h-24 resize-none transition-all"
+                    placeholder="Additional space configuration details..."
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Type</label>
-                  <select 
-                    value={newRoomData.type}
-                    onChange={(e) => setNewRoomData({...newRoomData, type: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 transition-all"
-                  >
-                    {roomTypes.map(t => <option key={t}>{t}</option>)}
-                  </select>
-                </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Capacity</label>
-                  <input 
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={newRoomData.capacity}
-                    onChange={(e) => setNewRoomData({...newRoomData, capacity: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 transition-all"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Initial Status</label>
-                  <select 
-                    value={newRoomData.status}
-                    onChange={(e) => setNewRoomData({...newRoomData, status: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 transition-all"
-                  >
-                    {roomStatuses.map(s => <option key={s}>{s}</option>)}
-                  </select>
-                </div>
+              <div className="p-6 md:p-8 border-t border-slate-50 bg-white shrink-0 relative z-20">
+                <button type="submit" className="w-full btn-primary py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 active:scale-95 transition-all">
+                  Register Unit
+                </button>
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Notes</label>
-                <textarea 
-                  value={newRoomData.notes}
-                  onChange={(e) => setNewRoomData({...newRoomData, notes: e.target.value})}
-                  className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 h-24 resize-none transition-all"
-                  placeholder="Additional details..."
-                />
-              </div>
-              <button className="w-full btn-primary py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 active:scale-95 transition-all">
-                Register Unit
-              </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {selectedRoom && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+      {selectedRoom && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setSelectedRoom(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg bg-white rounded-[2rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in slide-in-from-bottom-10 duration-300">
-            <div className="p-6 lg:p-8 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center shrink-0">
+          <div className="relative w-full max-w-[95%] md:max-w-lg bg-white rounded-t-[2rem] sm:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
+            <div className="p-5 md:p-8 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-4">
-                <div className={cn("w-12 lg:w-14 h-12 lg:h-14 rounded-2xl flex items-center justify-center text-white shadow-xl", getStatusConfig(selectedRoom.status).color)}>
-                  <Bed className="w-6 lg:w-7 h-6 lg:h-7" />
+                <div className={cn("w-12 md:w-14 h-12 md:h-14 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-inner", getStatusConfig(selectedRoom.status).color)}>
+                  <Bed className="w-6 md:w-7 h-6 md:h-7" />
                 </div>
                 <div>
-                  <h3 className="text-xl lg:text-2xl font-black text-text-primary uppercase tracking-tight">{selectedRoom.name}</h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{selectedRoom.id}</p>
+                  <h3 className="text-xl md:text-2xl font-black text-text-primary uppercase tracking-tight leading-none">{selectedRoom.name}</h3>
+                  <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1">{selectedRoom.id}</p>
                 </div>
               </div>
-              <button onClick={() => setSelectedRoom(null)} className="p-3 hover:bg-white rounded-2xl transition-all"><X className="w-6 h-6" /></button>
+              <button onClick={() => setSelectedRoom(null)} className="p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 transition-all shadow-sm"><X className="w-5 h-5 text-slate-400" /></button>
             </div>
             
-            <div className="p-6 lg:p-8 space-y-6 lg:space-y-8 overflow-y-auto scrollbar-hide">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
+            <div className="flex-1 overflow-y-auto scrollbar-hide px-6 py-8 md:px-8 md:py-10 space-y-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Guest Assignment</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-base font-black text-text-primary">{selectedRoom.assignedGuest || 'No Guest'}</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Guest Assignment</p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-base font-black text-text-primary">{selectedRoom.assignedGuest || 'No Guest Active'}</p>
                     {selectedRoom.assignedGuest && (
                       <button 
                         onClick={() => {
                           updateRoom(selectedRoom.id, { assignedGuest: null, status: 'Cleaning' });
                           setSelectedRoom(null);
                         }}
-                        className="p-1.5 bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-500 hover:text-white transition-all"
+                        className="p-1.5 bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-500 hover:text-white transition-all shadow-sm"
                         title="Unassign Guest"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>
                 </div>
                 <div className="sm:text-right">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Room State</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Room State</p>
                   <div className="flex sm:justify-end">
-                    <select 
-                      value={selectedRoom.status}
-                      onChange={(e) => {
-                        updateRoom(selectedRoom.id, { status: e.target.value });
-                        setSelectedRoom({...selectedRoom, status: e.target.value});
-                      }}
-                      className={cn("px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 outline-none transition-all", getStatusConfig(selectedRoom.status).border, getStatusConfig(selectedRoom.status).text)}
-                    >
-                      {roomStatuses.map(s => <option key={s}>{s}</option>)}
-                    </select>
+                    <div className="relative min-w-[140px]">
+                      <select 
+                        value={selectedRoom.status}
+                        onChange={(e) => {
+                          updateRoom(selectedRoom.id, { status: e.target.value });
+                          setSelectedRoom({...selectedRoom, status: e.target.value});
+                        }}
+                        className={cn("w-full px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 outline-none transition-all appearance-none", getStatusConfig(selectedRoom.status).border, getStatusConfig(selectedRoom.status).text)}
+                      >
+                        {roomStatuses.map(s => <option key={s}>{s}</option>)}
+                      </select>
+                      <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rotate-90 pointer-events-none opacity-50" />
+                    </div>
                   </div>
                 </div>
               </div>
 
               {!selectedRoom.assignedGuest && (
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Direct Assign Guest</label>
+                <div className="space-y-3">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Direct Assignment</label>
                   <div className="flex gap-2">
                     <input 
                       id="assign-guest-input"
-                      placeholder="Enter guest name..."
-                      className="flex-1 px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 transition-all"
+                      placeholder="Enter guest name for onboarding..."
+                      className="flex-1 px-5 py-4 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-inner"
                     />
                     <button 
                       onClick={() => {
@@ -325,7 +348,7 @@ const Rooms = () => {
                           setSelectedRoom(null);
                         }
                       }}
-                      className="px-6 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[9px] shadow-lg shadow-primary/20"
+                      className="px-6 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[9px] shadow-xl shadow-primary/20 active:scale-95 transition-all"
                     >
                       Assign
                     </button>
@@ -333,41 +356,42 @@ const Rooms = () => {
                 </div>
               )}
 
-              <div className="p-6 bg-slate-50 rounded-[2rem] space-y-4">
+              <div className="p-6 bg-slate-50 rounded-[2.5rem] border border-slate-100/50 space-y-4">
                 <div className="flex justify-between items-center">
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Configuration</p>
-                   <span className="px-3 py-1 bg-white rounded-lg text-[9px] font-black uppercase tracking-widest text-primary border border-slate-100">{selectedRoom.type}</span>
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Configuration Profile</p>
+                   <span className="px-3 py-1 bg-white rounded-lg text-[9px] font-black uppercase tracking-widest text-primary border border-slate-100 shadow-sm">{selectedRoom.type}</span>
                 </div>
                 <textarea 
-                  className="w-full bg-transparent text-xs font-medium text-text-secondary leading-relaxed border-none outline-none resize-none h-20"
+                  className="w-full bg-transparent text-xs font-medium text-text-secondary leading-relaxed border-none outline-none resize-none h-20 scrollbar-hide"
                   defaultValue={selectedRoom.notes}
                   onBlur={(e) => updateRoom(selectedRoom.id, { notes: e.target.value })}
-                  placeholder="No specific notes for this unit."
+                  placeholder="No specific intelligence notes for this unit."
                 />
               </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <button 
-                  onClick={() => setSelectedRoom(null)}
-                  className="flex-1 py-4 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all"
-                >
-                  Close Details
-                </button>
-                <button 
-                  onClick={() => {
-                    if (confirm('Delete this unit? This action cannot be undone.')) {
-                      deleteRoom(selectedRoom.id);
-                      setSelectedRoom(null);
-                    }
-                  }}
-                  className="w-full sm:w-14 h-14 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all active:scale-95 shadow-sm"
-                >
-                  <Trash2 className="w-6 h-6" />
-                </button>
-              </div>
+            </div>
+            
+            <div className="p-6 md:p-8 border-t border-slate-50 flex flex-col sm:flex-row gap-4 bg-white shrink-0 relative z-20">
+              <button 
+                onClick={() => setSelectedRoom(null)}
+                className="flex-1 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all active:scale-95"
+              >
+                Close Details
+              </button>
+              <button 
+                onClick={() => {
+                  if (confirm('Delete this unit? This action cannot be undone.')) {
+                    deleteRoom(selectedRoom.id);
+                    setSelectedRoom(null);
+                  }
+                }}
+                className="w-full sm:w-14 h-14 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all active:scale-95 shadow-sm"
+              >
+                <Trash2 className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>

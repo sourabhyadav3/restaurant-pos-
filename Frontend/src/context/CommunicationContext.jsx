@@ -27,6 +27,24 @@ export const CommunicationProvider = ({ children }) => {
         sender: 'Staff', 
         timestamp: new Date(Date.now() - 3500000).toISOString(),
         status: 'delivered'
+      },
+      { 
+        id: 3, 
+        guestName: 'John Doe', 
+        guestId: 'CUST-002', 
+        content: 'What are the gym timings today?', 
+        sender: 'Guest', 
+        timestamp: new Date(Date.now() - 7200000).toISOString(),
+        status: 'read'
+      },
+      { 
+        id: 4, 
+        guestName: 'Michael Scott', 
+        guestId: 'CUST-003', 
+        content: 'I need a wake up call at 6:00 AM.', 
+        sender: 'Guest', 
+        timestamp: new Date(Date.now() - 1800000).toISOString(),
+        status: 'sent'
       }
     ];
   });
@@ -34,7 +52,9 @@ export const CommunicationProvider = ({ children }) => {
   const [activeChats, setActiveChats] = useState(() => {
     const saved = localStorage.getItem('resto-communication-chats');
     return saved ? JSON.parse(saved) : [
-      { guestId: 'CUST-001', guestName: 'Sarah Jenkins', lastMessage: 'Sure, our staff will deliver them shortly.', lastTimestamp: new Date(Date.now() - 3500000).toISOString(), unreadCount: 0 }
+      { guestId: 'CUST-001', guestName: 'Sarah Jenkins', lastMessage: 'Sure, our staff will deliver them shortly.', lastTimestamp: new Date(Date.now() - 3500000).toISOString(), unreadCount: 0 },
+      { guestId: 'CUST-002', guestName: 'John Doe', lastMessage: 'What are the gym timings today?', lastTimestamp: new Date(Date.now() - 7200000).toISOString(), unreadCount: 0 },
+      { guestId: 'CUST-003', guestName: 'Michael Scott', lastMessage: 'I need a wake up call at 6:00 AM.', lastTimestamp: new Date(Date.now() - 1800000).toISOString(), unreadCount: 1 }
     ];
   });
 

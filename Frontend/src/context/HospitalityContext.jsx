@@ -13,6 +13,9 @@ export const HospitalityProvider = ({ children }) => {
       { id: 'RM-102', name: 'ROYAL SUITE', type: 'Suite', price: 12500, capacity: 4, status: 'Occupied', assignedGuest: 'Alexander Wright', notes: 'Private pool, jacuzzi' },
       { id: 'RM-103', name: 'GARDEN TERRACE', type: 'Standard', price: 2800, capacity: 2, status: 'Cleaning', assignedGuest: null, notes: 'Quiet corner' },
       { id: 'RM-104', name: 'EXECUTIVE CABANA', type: 'Suite', price: 8500, capacity: 3, status: 'Available', assignedGuest: null, notes: 'Direct beach access' },
+      { id: 'RM-201', name: 'OCEAN BREEZE', type: 'Deluxe', price: 4800, capacity: 2, status: 'Reserved', assignedGuest: 'Michael Scott', notes: 'Top floor, best view' },
+      { id: 'RM-202', name: 'PALM GARDEN', type: 'Standard', price: 3200, capacity: 2, status: 'Occupied', assignedGuest: 'Sarah Jenkins', notes: 'Near the pool' },
+      { id: 'RM-301', name: 'PRESIDENTIAL', type: 'Presidential', price: 25000, capacity: 6, status: 'Available', assignedGuest: null, notes: 'Ultimate luxury' },
     ];
   });
 
@@ -25,6 +28,8 @@ export const HospitalityProvider = ({ children }) => {
       { id: 4, name: 'T-04', status: 'available', capacity: 4, orders: [], floor: 'Main Lounge' },
       { id: 5, name: 'T-05', status: 'occupied', capacity: 2, orders: [{ name: 'Seafood Grill', price: 3200, status: 'kitchen' }], time: '12m ago', total: 3200, floor: 'Beach Front' },
       { id: 6, name: 'T-06', status: 'available', capacity: 8, orders: [], floor: 'VIP Area' },
+      { id: 7, name: 'T-07', status: 'occupied', capacity: 4, orders: [{ name: 'Greek Salad', price: 650, status: 'kitchen' }], time: '5m ago', total: 650, floor: 'Main Lounge' },
+      { id: 8, name: 'T-08', status: 'reserved', capacity: 2, time: '20:00', reservedBy: 'John Doe', floor: 'Sky Rooftop' },
     ];
   });
 
@@ -33,7 +38,9 @@ export const HospitalityProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [
       { id: 'RES-8821', guestName: 'Alexander Wright', type: 'Room', targetId: 'ROYAL SUITE', date: '2026-05-10', time: '14:00', guests: 2, status: 'Checked In', notes: 'VIP Treatment requested' },
       { id: 'RES-8822', guestName: 'Elena Gilbert', type: 'Table', targetId: 'T-03', date: '2026-05-08', time: '19:30', guests: 4, status: 'Pending', notes: 'Birthday celebration' },
-      { id: 'RES-8823', guestName: 'James Miller', type: 'Room', targetId: 'DELUXE SEAVIEW', date: '2026-05-12', time: '12:00', guests: 1, status: 'Confirmed', notes: 'Business trip' }
+      { id: 'RES-8823', guestName: 'James Miller', type: 'Room', targetId: 'DELUXE SEAVIEW', date: '2026-05-12', time: '12:00', guests: 1, status: 'Confirmed', notes: 'Business trip' },
+      { id: 'RES-8824', guestName: 'Sarah Jenkins', type: 'Room', targetId: 'PALM GARDEN', date: '2026-05-09', time: '11:00', guests: 2, status: 'Checked In', notes: 'Honeymoon' },
+      { id: 'RES-8825', guestName: 'Michael Scott', type: 'Room', targetId: 'OCEAN BREEZE', date: '2026-05-15', time: '14:00', guests: 1, status: 'Confirmed', notes: 'Paper business' }
     ];
   });
 
@@ -49,14 +56,17 @@ export const HospitalityProvider = ({ children }) => {
       { id: 'S2', name: 'Private City Tour', category: 'Transport', price: 3500, icon: '🚗', description: '4-hour private tour of city landmarks' },
       { id: 'S3', name: 'Scuba Diving', category: 'Excursion', price: 5500, icon: '🤿', description: 'Guided diving session with equipment' },
       { id: 'S4', name: 'Sunset Cruise', category: 'Excursion', price: 2800, icon: '⛵', description: 'Evening cruise with drinks and snacks' },
-      { id: 'S5', name: 'Guided Hike', category: 'Excursion', price: 1500, icon: '🥾', description: 'Morning trail hike with local guide' }
+      { id: 'S5', name: 'Guided Hike', category: 'Excursion', price: 1500, icon: '🥾', description: 'Morning trail hike with local guide' },
+      { id: 'S6', name: 'Spa Therapy', category: 'Wellness', price: 4500, icon: '💆', description: 'Full body relaxing spa treatment' },
+      { id: 'S7', name: 'Gym Personal Trainer', category: 'Wellness', price: 2000, icon: '💪', description: '1-hour personalized fitness session' }
     ];
   });
 
   const [serviceBookings, setServiceBookings] = useState(() => {
     const saved = localStorage.getItem('resto-hospitality-service-bookings');
     return saved ? JSON.parse(saved) : [
-      { id: 'SB-101', guestName: 'Sarah Jenkins', serviceId: 'S4', date: '2026-05-11', time: '17:30', guests: 2, status: 'Pending', total: 5600 }
+      { id: 'SB-101', guestName: 'Sarah Jenkins', serviceId: 'S4', date: '2026-05-11', time: '17:30', guests: 2, status: 'Pending', total: 5600 },
+      { id: 'SB-102', guestName: 'Alexander Wright', serviceId: 'S1', date: '2026-05-13', time: '09:00', guests: 1, status: 'Confirmed', total: 1200 }
     ];
   });
 
@@ -64,7 +74,9 @@ export const HospitalityProvider = ({ children }) => {
     const saved = localStorage.getItem('resto-hospitality-activity');
     return saved ? JSON.parse(saved) : [
       { id: 1, message: 'Sarah Jenkins reservation confirmed', time: '5m ago', type: 'success' },
-      { id: 2, message: 'Room LENA status updated to Reserved', time: '10m ago', type: 'info' }
+      { id: 2, message: 'Room LENA status updated to Reserved', time: '10m ago', type: 'info' },
+      { id: 3, message: 'New inventory order for Premium Coffee', time: '1h ago', type: 'warning' },
+      { id: 4, message: 'Staff Vikram Das clocked in', time: '2h ago', type: 'success' }
     ];
   });
 
@@ -77,6 +89,8 @@ export const HospitalityProvider = ({ children }) => {
       { id: 4, name: 'Sneha Patel', role: 'Manager', shift: 'General', status: 'Active', email: 'sneha@example.com', phone: '+00 1234567893', joined: 'Oct 2023', rating: '5.0', avatar: 'SP' },
       { id: 5, name: 'Vikram Das', role: 'Waiter', shift: 'Evening', status: 'Active', email: 'vikram@example.com', phone: '+00 1234567894', joined: 'Apr 2024', rating: '4.7', avatar: 'VD' },
       { id: 6, name: 'Anjali Gupta', role: 'Chef', shift: 'Morning', status: 'Active', email: 'anjali@example.com', phone: '+00 1234567895', joined: 'May 2024', rating: '4.6', avatar: 'AG' },
+      { id: 7, name: 'Karan Mehra', role: 'Housekeeping', shift: 'Morning', status: 'Active', email: 'karan@example.com', phone: '+00 1234567896', joined: 'Jun 2024', rating: '4.4', avatar: 'KM' },
+      { id: 8, name: 'Nisha Verma', role: 'Receptionist', shift: 'General', status: 'Active', email: 'nisha@example.com', phone: '+00 1234567897', joined: 'Jul 2024', rating: '4.9', avatar: 'NV' },
     ];
   });
 
@@ -85,7 +99,9 @@ export const HospitalityProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [
       { id: 1, title: 'Clean Room BAHARI', type: 'Cleaning', priority: 'High', status: 'Pending', assignee: 'Vikram Das', target: 'BAHARI', deadline: 'Today, 2 PM', timestamp: new Date().toISOString() },
       { id: 2, title: 'Check Table T-03', type: 'Service', priority: 'Medium', status: 'In Progress', assignee: 'Rahul Sharma', target: 'T-03', deadline: 'Soon', timestamp: new Date().toISOString() },
-      { id: 3, title: 'Repair AC in LENA', type: 'Maintenance', priority: 'Urgent', status: 'Pending', assignee: 'Sneha Patel', target: 'LENA', deadline: 'Emergency', timestamp: new Date().toISOString() }
+      { id: 3, title: 'Repair AC in LENA', type: 'Maintenance', priority: 'Urgent', status: 'Pending', assignee: 'Sneha Patel', target: 'LENA', deadline: 'Emergency', timestamp: new Date().toISOString() },
+      { id: 4, title: 'Restock Mini-bar RM-102', type: 'Inventory', priority: 'Low', status: 'Pending', assignee: 'Karan Mehra', target: 'RM-102', deadline: 'Today', timestamp: new Date().toISOString() },
+      { id: 5, title: 'Guest Airport Pickup', type: 'Transport', priority: 'High', status: 'Pending', assignee: 'Driver Joe', target: 'Airport', deadline: '4 PM', timestamp: new Date().toISOString() }
     ];
   });
 
@@ -97,7 +113,9 @@ export const HospitalityProvider = ({ children }) => {
       { id: 'INV-003', name: 'White Wine (Chardonnay)', category: 'Bar', stock: 24, unit: 'Bottles', minStock: 12, price: 1200, status: 'In Stock' },
       { id: 'INV-004', name: 'Cotton Towels (Large)', category: 'Rooms', stock: 120, unit: 'pcs', minStock: 50, price: 450, status: 'In Stock' },
       { id: 'INV-005', name: 'Eco Shampoo 50ml', category: 'Rooms', stock: 15, unit: 'pcs', minStock: 100, price: 35, status: 'Out of Stock' },
-      { id: 'INV-006', name: 'LED Light Bulbs (9W)', category: 'Maintenance', stock: 32, unit: 'pcs', minStock: 20, price: 120, status: 'In Stock' }
+      { id: 'INV-006', name: 'LED Light Bulbs (9W)', category: 'Maintenance', stock: 32, unit: 'pcs', minStock: 20, price: 120, status: 'In Stock' },
+      { id: 'INV-007', name: 'Table Linens (White)', category: 'Restaurant', stock: 60, unit: 'pcs', minStock: 20, price: 550, status: 'In Stock' },
+      { id: 'INV-008', name: 'Napkins (Disposable)', category: 'Restaurant', stock: 1200, unit: 'pcs', minStock: 500, price: 2, status: 'In Stock' }
     ];
   });
 

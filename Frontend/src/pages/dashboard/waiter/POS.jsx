@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Search, 
   ShoppingCart, 
@@ -516,17 +517,17 @@ const POS = () => {
 
       {/* History Modal */}
       {showHistory && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div onClick={() => setShowHistory(false)} className="absolute inset-0 bg-slate-900/60" />
-          <div className="relative w-full max-w-[560px] max-h-[90vh] lg:max-h-[85vh] bg-white rounded-t-[2.5rem] lg:rounded-[2.5rem] overflow-hidden self-end lg:self-center">
-             <div className="px-5 py-4 lg:px-6 lg:py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
+         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div onClick={() => setShowHistory(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+          <div className="relative w-full max-w-[95%] md:max-w-[560px] max-h-[90vh] bg-white rounded-[2rem] md:rounded-[2.5rem] overflow-hidden flex flex-col self-center">
+             <div className="px-5 py-4 md:px-6 md:py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
                 <div>
-                  <h3 className="text-xl lg:text-2xl font-black tracking-tight">Order History</h3>
-                  <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Today's Transactions</p>
+                  <h3 className="text-lg md:text-2xl font-black tracking-tight uppercase">Order History</h3>
+                  <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Today's Transactions</p>
                 </div>
-                <button onClick={() => setShowHistory(false)} className="p-2 lg:p-3 hover:bg-white rounded-xl lg:rounded-2xl transition-all shadow-sm"><X className="w-5 h-5 lg:w-6 lg:h-6" /></button>
+                <button onClick={() => setShowHistory(false)} className="p-2 md:p-3 hover:bg-white rounded-xl md:rounded-2xl transition-all shadow-sm"><X className="w-5 h-5 md:w-6 md:h-6" /></button>
              </div>
-             <div className="px-6 py-6 space-y-4 max-h-[60vh] overflow-y-auto">
+             <div className="px-5 md:px-6 py-6 space-y-4 overflow-y-auto scrollbar-hide">
                 {orderHistory.map(order => (
                   <div key={order.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between hover:bg-white transition-all cursor-pointer group">
                      <div className="flex items-center gap-4">
@@ -548,14 +549,14 @@ const POS = () => {
       )}
 
       {/* Compact & Interactive Payment Modal */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 overflow-hidden">
+      {showPaymentModal && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 overflow-hidden">
           <div 
             onClick={() => !isProcessing && setShowPaymentModal(false)} 
             className="absolute inset-0 bg-slate-900/60" 
           />
-          <div 
-            className="relative w-full max-w-[560px] bg-white rounded-3xl shadow-2xl flex flex-col max-h-[85vh] border border-white/20"
+           <div 
+            className="relative w-full max-w-[95%] md:max-w-[560px] bg-white rounded-[2rem] md:rounded-3xl shadow-2xl flex flex-col max-h-[90vh] border border-white/20 self-center"
           >
             {/* Header */}
             <div className="px-5 py-5 sm:px-6 sm:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
@@ -677,7 +678,8 @@ const POS = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Size Selection Modal */}
@@ -688,7 +690,7 @@ const POS = () => {
             className="absolute inset-0 bg-slate-900/60" 
           />
           <div 
-            className="relative w-full max-w-[440px] bg-white rounded-t-[2rem] lg:rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20 self-end lg:self-center"
+            className="relative w-full max-w-[95%] md:max-w-[440px] bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20 self-center"
           >
             <div className="px-8 py-8 flex flex-col items-center text-center">
               <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center text-5xl mb-6 shadow-inner">

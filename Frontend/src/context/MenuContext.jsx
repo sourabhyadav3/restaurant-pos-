@@ -100,13 +100,19 @@ const initialItems = [
       { name: "Large", price: 99 }
     ]
   },
-  { id: 6, name: 'Chocolate Lava', category: 'Desserts', price: 149, image: '🍰', description: 'Molten chocolate center', available: true },
-  { id: 7, name: 'Veggie Pizza', category: 'Pizza', price: 329, image: '🍕', description: 'Garden fresh vegetables', available: true },
-  { id: 8, name: 'Double Patty Burger', category: 'Burgers', price: 249, image: '🍔', description: 'Double meat, double cheese', available: true },
-  { id: 10, name: 'Iced Coffee', category: 'Drinks', price: 129, image: '☕', description: 'Cold brew with milk', available: true },
+  { id: 11, name: 'Paneer Tikka', category: 'Indian', price: 349, image: '🍛', description: 'Grilled cottage cheese with spices', available: true },
+  { id: 12, name: 'Butter Chicken', category: 'Indian', price: 449, image: '🍛', description: 'Creamy tomato gravy with chicken', available: true },
+  { id: 13, name: 'Veg Manchurian', category: 'Chinese', price: 289, image: '🍜', description: 'Fried veg balls in spicy sauce', available: true },
+  { id: 14, name: 'Hakka Noodles', category: 'Chinese', price: 249, image: '🍜', description: 'Stir-fried noodles with veggies', available: true },
+  { id: 15, name: 'Greek Salad', category: 'Salad', price: 229, image: '🥗', description: 'Fresh olives, feta, and greens', available: true },
+  { id: 16, name: 'Tiramisu', category: 'Desserts', price: 199, image: '🍰', description: 'Classic Italian coffee dessert', available: true },
+  { id: 17, name: 'Fresh Lime Soda', category: 'Drinks', price: 89, image: '🥤', description: 'Refreshing sweet and salt lime', available: true },
+  { id: 18, name: 'Club Sandwich', category: 'Sides', price: 179, image: '🥪', description: 'Triple layered veg sandwich', available: true },
+  { id: 19, name: 'Garlic Bread', category: 'Sides', price: 129, image: '🥐', description: 'Toasted with herb butter', available: true },
+  { id: 20, name: 'Fruit Platter', category: 'Breakfast', price: 159, image: '🍎', description: 'Seasonal fresh cut fruits', available: true },
 ];
 
-const initialCategories = ['All', 'Pizza', 'Burgers', 'Pasta', 'Sides', 'Drinks', 'Desserts'];
+const initialCategories = ['All', 'Pizza', 'Burgers', 'Pasta', 'Indian', 'Chinese', 'Salad', 'Sides', 'Drinks', 'Desserts', 'Breakfast'];
 
 export const MenuProvider = ({ children }) => {
   const [items, setItems] = useState(() => {

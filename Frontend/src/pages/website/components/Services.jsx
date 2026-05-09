@@ -4,28 +4,31 @@ import { Utensils, Truck, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
 
 const ecosystem = [
   {
-    title: 'WhatsApp Community',
-    desc: 'Stay connected with Gila House. Get instant updates, exclusive offers, and direct support right on your WhatsApp.',
+    title: 'WhatsApp Support',
+    desc: 'Instant concierge assistance and community updates. Connect with our team directly for any requests or support.',
     img: '/Immagine 2026-04-16 042531.png',
-    tag: 'REVOLUTIONARY',
+    tag: 'CONCIERGE',
     fit: 'object-contain',
-    bgColor: 'bg-white'
+    bgColor: 'bg-white',
+    cta: 'Scan to Connect'
   },
   {
-    title: 'Smart Payments',
-    desc: 'Seamless UPI and Card integrations for lightning-fast checkouts.',
+    title: 'Instagram Social',
+    desc: 'Join the Gila House social community. Follow us for the latest highlights, events, and exclusive lifestyle content.',
     img: '/Immagine 2026-04-16 042508.png',
-    tag: 'SECURE',
+    tag: 'FOLLOW US',
     fit: 'object-contain',
-    bgColor: 'bg-white'
+    bgColor: 'bg-white',
+    cta: 'Join Community'
   },
   {
-    title: 'Ultra Fast Wifi',
-    desc: 'Keep your guests connected with our managed high-speed network throughout the premises.',
+    title: 'Guest Wifi',
+    desc: 'Stay connected with ultra-fast managed internet throughout the premises. Scan to join our high-speed network.',
     img: '/Modern Black and White Wifi Poster (2).jpg',
     tag: 'CONNECTED',
     fit: 'object-contain',
-    bgColor: 'bg-[#f4d5a8]' // Matching the cream background of the poster
+    bgColor: 'bg-[#f4d5a8]', // Matching the cream background of the poster
+    cta: 'Join Network'
   }
 ];
 
@@ -69,7 +72,7 @@ const Services = () => {
                   <p className="text-gray-400 leading-relaxed text-sm font-medium mb-8">{item.desc}</p>
                 </div>
                 <div className="flex items-center gap-4 text-[11px] font-black text-landing-primary uppercase tracking-[0.3em] mt-auto">
-                   Get Started <ArrowRight size={16} className="group-hover:translate-x-3 transition-transform" />
+                   {item.cta} <ArrowRight size={16} className="group-hover:translate-x-3 transition-transform" />
                 </div>
               </div>
             </motion.div>

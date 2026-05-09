@@ -12,10 +12,10 @@ const ecosystem = [
     bgColor: 'bg-white'
   },
   {
-    title: 'Smart Payments',
-    desc: 'Seamless UPI and Card integrations for lightning-fast checkouts.',
+    title: 'Instagram Community',
+    desc: 'Join our digital family. Follow Gila House for behind-the-scenes, daily specials, and tag us in your best moments.',
     img: '/Immagine 2026-04-16 042508.png',
-    tag: 'SECURE',
+    tag: 'SOCIAL',
     fit: 'object-contain',
     bgColor: 'bg-white'
   },

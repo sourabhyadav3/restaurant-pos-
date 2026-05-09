@@ -451,15 +451,7 @@ const POS = () => {
                   <span>- ₹{discountAmount}</span>
                 </div>
               )}
-<<<<<<< HEAD
-              <div className="pt-4 border-t border-slate-800 flex justify-between items-end">
-=======
-              <div className="flex justify-between items-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">
-                <span>Tax (GST 5%)</span>
-                <span className="text-white">₹{gst}</span>
-              </div>
               <div className="pt-4 mt-2 border-t border-white/10 flex justify-between items-end">
->>>>>>> 89c53f285175ed9eca2aa1346604c25f27e7a9d9
                 <div className="flex flex-col">
                   <span className="text-white/40 text-[9px] font-black uppercase tracking-[0.3em] mb-1.5">Grand Total</span>
                   <div className="flex items-baseline gap-2">
@@ -786,7 +778,6 @@ const POS = () => {
             </tbody>
           </table>
 
-<<<<<<< HEAD
           <div className="border-t-2 border-dashed border-slate-900 pt-4 space-y-2">
             <div className="flex justify-between text-[11px] font-bold uppercase">
               <span>Subtotal:</span>
@@ -824,11 +815,6 @@ const POS = () => {
             <p className="text-sm font-black uppercase tracking-[0.2em]">*** THANK YOU ***</p>
             <p className="text-[10px] font-bold uppercase tracking-widest">Visit Again!</p>
             <p className="text-[8px] font-black text-slate-400 mt-8 uppercase tracking-tighter">Powered by Gila House POS</p>
-=======
-          <div className="text-center pt-4 border-t border-slate-200">
-            <p className="text-[9px] font-black uppercase tracking-widest">Thank you for your business!</p>
-            <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Powered by Gila House Systems</p>
->>>>>>> 89c53f285175ed9eca2aa1346604c25f27e7a9d9
           </div>
         </div>
       )}

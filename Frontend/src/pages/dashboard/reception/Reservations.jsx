@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Plus, 
   Search, 
@@ -317,13 +318,21 @@ const Reservations = () => {
       </div>
 
       {/* Modals */}
-      {showAddRes && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+      {showAddRes && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setShowAddRes(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-xl bg-white rounded-[2rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
-            <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
-              <h3 className="text-xl font-black uppercase tracking-tight">New Reservation</h3>
-              <button onClick={() => setShowAddRes(false)} className="p-2 hover:bg-white rounded-xl transition-all"><X className="w-6 h-6" /></button>
+          <div className="relative w-full max-w-[95%] md:max-w-xl bg-white rounded-t-[2rem] sm:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
+            <div className="px-6 py-5 md:px-8 md:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
+               <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                     <CalendarCheck className="w-5 h-5 text-primary stroke-[3]" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none">New Reservation</h3>
+                    <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1 leading-none">Register and schedule guest booking</p>
+                  </div>
+               </div>
+              <button onClick={() => setShowAddRes(false)} className="p-2 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 transition-all shadow-sm"><X className="w-5 h-5 text-slate-400" /></button>
             </div>
             <form 
               onSubmit={(e) => {
@@ -364,107 +373,117 @@ const Reservations = () => {
                   showToast('Failed to create booking', 'error');
                 }
               }}
-              className="p-8 space-y-6 overflow-y-auto scrollbar-hide"
+              className="flex-1 overflow-y-auto scrollbar-hide"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Guest Name</label>
-                  <input name="guestName" required placeholder="Guest full name" className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 transition-all" />
+              <div className="p-6 md:p-8 space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Guest Name</label>
+                    <input name="guestName" required placeholder="Guest full name" className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Guests</label>
+                    <input name="guests" type="number" min="1" required defaultValue={2} className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all" />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Guests</label>
-                  <input name="guests" type="number" min="1" required defaultValue={2} className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 transition-all" />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Booking Type</label>
+                    <div className="relative">
+                      <select name="type" className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all appearance-none">
+                        <option value="Table">Table Reservation</option>
+                        <option value="Room">Room Booking</option>
+                      </select>
+                      <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 rotate-90 pointer-events-none" />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Unit ID / Table Name</label>
+                    <input name="targetId" required placeholder="e.g. RM-101 or T-01" className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Date</label>
+                    <input name="date" type="date" required className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Time</label>
+                    <input name="time" type="time" required className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all" />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Special Notes</label>
+                  <textarea name="notes" placeholder="Any special requests or instructions..." className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white h-24 resize-none transition-all" />
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Booking Type</label>
-                  <select name="type" className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 transition-all">
-                    <option value="Table">Table Reservation</option>
-                    <option value="Room">Room Booking</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Unit ID / Table Name</label>
-                  <input name="targetId" required placeholder="e.g. RM-101 or T-01" className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 transition-all" />
-                </div>
+              
+              <div className="p-6 md:p-8 border-t border-slate-50 bg-white shrink-0 relative z-20">
+                <button type="submit" className="w-full btn-primary py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 active:scale-95 transition-all">
+                  Create Booking
+                </button>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Date</label>
-                  <input name="date" type="date" required className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 transition-all" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Time</label>
-                  <input name="time" type="time" required className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 transition-all" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Special Notes</label>
-                <textarea name="notes" placeholder="Any special requests..." className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 h-24 resize-none transition-all" />
-              </div>
-
-              <button type="submit" className="w-full btn-primary py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 active:scale-95 transition-all">
-                Create Booking
-              </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Detail Modal */}
-      {selectedRes && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+      {selectedRes && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setSelectedRes(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg bg-white rounded-[2rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in slide-in-from-bottom-10 duration-300">
-            <div className="p-6 lg:p-8 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center shrink-0">
+          <div className="relative w-full max-w-[95%] md:max-w-lg bg-white rounded-t-[2rem] sm:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
+            <div className="p-5 md:p-8 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-4">
-                <div className="w-12 lg:w-14 h-12 lg:h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-sm">
-                   {React.createElement(getTypeIcon(selectedRes.type), { className: "w-6 h-6 lg:w-7 lg:h-7" })}
+                <div className="w-12 md:w-14 h-12 md:h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-sm">
+                   {React.createElement(getTypeIcon(selectedRes.type), { className: "w-6 h-6 md:w-7 md:h-7" })}
                 </div>
                 <div>
-                  <h3 className="text-xl lg:text-2xl font-black text-text-primary uppercase tracking-tight">{selectedRes.guestName}</h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{selectedRes.id}</p>
+                  <h3 className="text-xl md:text-2xl font-black text-text-primary uppercase tracking-tight leading-none">{selectedRes.guestName}</h3>
+                  <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1">{selectedRes.id}</p>
                 </div>
               </div>
-              <button onClick={() => setSelectedRes(null)} className="p-3 hover:bg-white rounded-2xl transition-all"><X className="w-6 h-6" /></button>
+              <button onClick={() => setSelectedRes(null)} className="p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 transition-all shadow-sm"><X className="w-5 h-5 text-slate-400" /></button>
             </div>
             
-            <div className="p-6 lg:p-8 space-y-6 lg:space-y-8 overflow-y-auto scrollbar-hide">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
+            <div className="flex-1 overflow-y-auto scrollbar-hide px-6 py-8 md:px-8 md:py-10 space-y-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Badge</p>
-                  <div className="flex mt-2">
-                    <span className={cn("px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border", getStatusBadge(selectedRes.status))}>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Status Lifecycle</p>
+                  <div className="flex mt-2.5">
+                    <span className={cn("px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border shadow-sm", getStatusBadge(selectedRes.status))}>
                       {selectedRes.status}
                     </span>
                   </div>
                 </div>
                 <div className="sm:text-right space-y-1">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Unit Assignment</p>
-                  <p className="text-base lg:text-lg font-black text-text-primary uppercase mt-1">{selectedRes.targetId || 'Unassigned'}</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Unit Assignment</p>
+                  <p className="text-base md:text-lg font-black text-text-primary uppercase mt-1.5">{selectedRes.targetId || 'Unassigned'}</p>
                 </div>
               </div>
 
-              <div className="p-6 bg-slate-50 rounded-[2rem] space-y-4">
-                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+              <div className="p-6 bg-slate-50 rounded-[2.5rem] border border-slate-100/50 space-y-5">
+                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-6">
                     <div className="flex items-center gap-4">
-                       <Calendar className="w-6 h-6 text-primary" />
+                       <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                          <Calendar className="w-5 h-5 text-primary" />
+                       </div>
                        <div>
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Stay Details</p>
-                          <p className="text-sm font-black text-text-primary">{selectedRes.date} at {selectedRes.time}</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Stay Schedule</p>
+                          <p className="text-sm font-black text-text-primary uppercase tracking-tight">{selectedRes.date} • {selectedRes.time}</p>
                        </div>
                     </div>
-                    <div className="sm:text-right">
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Guests</p>
-                       <p className="text-xl font-black text-text-primary">{selectedRes.guests}</p>
+                    <div className="sm:text-right bg-white/50 px-4 py-2 rounded-xl border border-white/50">
+                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Guests</p>
+                       <p className="text-xl font-black text-primary">{selectedRes.guests}</p>
                     </div>
                  </div>
                  {selectedRes.notes && (
-                   <p className="text-xs font-medium text-text-secondary leading-relaxed italic border-t border-slate-100 pt-4 mt-4">
+                   <p className="text-xs font-medium text-text-secondary leading-relaxed italic border-t border-slate-100 pt-5 mt-4">
                       "{selectedRes.notes}"
                    </p>
                  )}
@@ -475,13 +494,13 @@ const Reservations = () => {
                    <>
                      <button 
                        onClick={() => { approveReservation(selectedRes.id); setSelectedRes(null); }}
-                       className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                       className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] shadow-xl shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
                      >
-                       <CheckCircle className="w-4 h-4" /> Approve
+                       <CheckCircle className="w-4 h-4" /> Approve Booking
                      </button>
                      <button 
                        onClick={() => { rejectReservation(selectedRes.id); setSelectedRes(null); }}
-                       className="flex-1 py-4 bg-rose-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-rose-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                       className="flex-1 py-4 bg-rose-500 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] shadow-xl shadow-rose-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
                      >
                        <XCircle className="w-4 h-4" /> Reject
                      </button>
@@ -492,13 +511,13 @@ const Reservations = () => {
                    <>
                      <button 
                        onClick={() => { checkInReservation(selectedRes.id); setSelectedRes(null); }}
-                       className="flex-1 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                       className="flex-1 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2"
                      >
-                       <LogIn className="w-4 h-4" /> Check In
+                       <LogIn className="w-4 h-4" /> Check In Guest
                      </button>
                      <button 
                        onClick={() => { cancelReservation(selectedRes.id); setSelectedRes(null); }}
-                       className="w-full sm:w-auto px-6 py-4 bg-rose-50 text-rose-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-rose-500 hover:text-white transition-all active:scale-95"
+                       className="w-full sm:w-auto px-6 py-4 bg-rose-50 text-rose-500 rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] hover:bg-rose-500 hover:text-white transition-all active:scale-95"
                      >
                        Cancel
                      </button>
@@ -508,9 +527,9 @@ const Reservations = () => {
                  {selectedRes.status === 'Checked In' && (
                    <button 
                      onClick={() => { completeReservation(selectedRes.id); setSelectedRes(null); }}
-                     className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-slate-900/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                     className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] shadow-xl shadow-slate-900/20 active:scale-95 transition-all flex items-center justify-center gap-2"
                    >
-                     <Sparkles className="w-4 h-4" /> Mark Completed
+                     <Sparkles className="w-4 h-4 text-amber-400" /> Mark Stay Completed
                    </button>
                  )}
 
@@ -522,15 +541,25 @@ const Reservations = () => {
                           setSelectedRes(null); 
                         }
                       }}
-                      className="w-full py-4 bg-rose-50 text-rose-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-rose-500 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2"
+                      className="w-full py-4 bg-rose-50 text-rose-500 rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] hover:bg-rose-500 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2"
                     >
-                      <Trash2 className="w-4 h-4" /> Archive Booking
+                      <Trash2 className="w-4 h-4" /> Archive Booking History
                     </button>
                  )}
               </div>
             </div>
+            
+            <div className="p-6 md:p-8 border-t border-slate-50 bg-white shrink-0 relative z-20">
+               <button 
+                 onClick={() => setSelectedRes(null)}
+                 className="w-full py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all active:scale-95"
+               >
+                 Close Detail View
+               </button>
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
       {/* Hidden Printable Reservation */}
       {orderForPrint && (

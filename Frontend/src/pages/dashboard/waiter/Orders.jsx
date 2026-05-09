@@ -331,28 +331,27 @@ const Orders = () => {
                 onClick={() => setSelectedOrder(null)}
                 className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
               />
-              <div 
-                className="relative w-full max-w-[520px] max-h-[90vh] sm:max-h-[85vh] bg-white shadow-2xl z-[201] flex flex-col rounded-t-[2.5rem] sm:rounded-[2.5rem] overflow-hidden self-end sm:self-center"
+               <div 
+                className="relative w-full max-w-[95%] md:max-w-[520px] max-h-[90vh] bg-white shadow-2xl z-[201] flex flex-col rounded-[2rem] md:rounded-[2.5rem] overflow-hidden self-center"
               >
-
-                <div className="px-6 py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl relative group">
-                        <ShoppingBag className="w-6 h-6" />
+                 <div className="px-5 py-4 md:px-6 md:py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="w-12 h-12 md:w-14 md:h-14 bg-primary rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl relative group">
+                        <ShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
                         <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black tracking-tight uppercase">Order Audit</h3>
-                      <p className="text-text-secondary font-black uppercase tracking-widest text-[9px] mt-1 flex items-center gap-2">
+                      <h3 className="text-lg md:text-xl font-black tracking-tight uppercase leading-none">Order Audit</h3>
+                      <p className="text-text-secondary font-black uppercase tracking-widest text-[8px] md:text-[9px] mt-1 flex items-center gap-2">
                           {selectedOrder.id} <span className="w-1 h-1 rounded-full bg-slate-200" /> {selectedOrder.time}
                       </p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setSelectedOrder(null)} 
-                    className="p-3 hover:bg-white rounded-2xl border border-transparent hover:border-slate-100 shadow-sm group"
+                    className="p-2 md:p-3 hover:bg-white rounded-xl md:rounded-2xl border border-transparent hover:border-slate-100 shadow-sm group"
                   >
-                    <X className="w-6 h-6 text-text-secondary" />
+                    <X className="w-5 h-5 md:w-6 md:h-6 text-text-secondary" />
                   </button>
                 </div>
 
@@ -462,26 +461,26 @@ const Orders = () => {
                       </div>
                       <div className="absolute -top-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-[80px]" />
                     </div>
-                </div>
+                  </div>
 
-                  <div className="px-6 py-6 border-t border-slate-50 flex flex-col sm:flex-row gap-4 bg-white shrink-0 relative z-20 mb-0">
+                  <div className="px-5 py-5 md:px-6 md:py-6 border-t border-slate-50 flex flex-col sm:flex-row gap-3 md:gap-4 bg-white shrink-0 relative z-20">
                     <button 
                       onClick={() => handlePrint(selectedOrder)}
-                      className="flex-1 py-4 border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 shadow-sm no-print"
+                      className="flex-1 py-3.5 md:py-4 border-2 border-slate-100 rounded-xl md:rounded-2xl flex items-center justify-center gap-2 md:gap-3 text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 shadow-sm no-print"
                     >
-                      <Printer className="w-5 h-5 text-slate-400" />
+                      <Printer className="w-4 h-4 md:w-5 md:h-5 text-slate-400" />
                       Print Receipt
                     </button>
                     <button 
                       onClick={handleFullAudit}
-                      className="flex-1 btn-primary py-4 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-primary/30"
+                      className="flex-1 btn-primary py-3.5 md:py-4 rounded-xl md:rounded-2xl flex items-center justify-center gap-2 md:gap-3 text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-primary/30"
                     >
-                      <ExternalLink className="w-5 h-5" /> Full Audit
+                      <ExternalLink className="w-4 h-4 md:w-5 md:h-5" /> Full Audit
                     </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
         </>,
         document.body
       )}
@@ -493,7 +492,7 @@ const Orders = () => {
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
           />
           <div 
-            className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+             className="relative w-full max-w-[95%] md:max-w-lg bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] self-center"
           >
             <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
                <div className="flex items-center gap-4">

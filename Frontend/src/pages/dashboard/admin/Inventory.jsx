@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Package, 
   Search, 
@@ -167,36 +168,36 @@ const Inventory = () => {
       )}
 
       {/* Stock Update Modal */}
-      {selectedItem && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+      {selectedItem && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
            <div onClick={() => setSelectedItem(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-           <div className="relative w-full max-w-md bg-white rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
-              <div className="p-6 lg:p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
+           <div className="relative w-full max-w-[95%] md:max-w-md bg-white rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
+              <div className="p-5 md:p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
                  <div className="flex items-center gap-4">
-                    <div className="w-12 lg:w-14 h-12 lg:h-14 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl shadow-xl shadow-primary/20 shrink-0">
-                       <Package className="w-6 lg:w-7 h-6 lg:h-7" />
+                    <div className="w-12 md:w-14 h-12 md:h-14 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl shadow-xl shadow-primary/20 shrink-0">
+                       <Package className="w-6 md:w-7 h-6 md:h-7" />
                     </div>
                     <div>
-                       <h3 className="text-lg lg:text-xl font-black text-text-primary uppercase tracking-tight truncate max-w-[150px] sm:max-w-none">{selectedItem.name}</h3>
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">ID: {selectedItem.id}</p>
+                       <h3 className="text-lg md:text-xl font-black text-text-primary uppercase tracking-tight truncate max-w-[150px] sm:max-w-none">{selectedItem.name}</h3>
+                       <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">ID: {selectedItem.id}</p>
                     </div>
                  </div>
-                 <button onClick={() => setSelectedItem(null)} className="p-2 hover:bg-white rounded-2xl shadow-sm"><X className="w-6 h-6" /></button>
+                 <button onClick={() => setSelectedItem(null)} className="p-2 hover:bg-white rounded-2xl shadow-sm border border-transparent hover:border-slate-100 transition-all"><X className="w-5 h-5 md:w-6 md:h-6 text-slate-400" /></button>
               </div>
 
-              <div className="p-6 lg:p-8 space-y-8 text-center overflow-y-auto scrollbar-hide">
+              <div className="p-6 md:p-8 space-y-8 text-center overflow-y-auto scrollbar-hide">
                  <div className="space-y-2">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Inventory</p>
                     <div className="flex items-baseline justify-center gap-2">
-                       <h4 className="text-4xl lg:text-5xl font-black text-text-primary tracking-tighter">{selectedItem.stock}</h4>
-                       <span className="text-lg lg:text-xl font-black text-slate-300 uppercase tracking-tight">{selectedItem.unit}</span>
+                       <h4 className="text-4xl md:text-5xl font-black text-text-primary tracking-tighter">{selectedItem.stock}</h4>
+                       <span className="text-lg md:text-xl font-black text-slate-300 uppercase tracking-tight">{selectedItem.unit}</span>
                     </div>
                  </div>
 
                  <div className="grid grid-cols-2 gap-4">
                     <button 
                       onClick={() => { updateStock(selectedItem.id, 10); setSelectedItem(null); }}
-                      className="group p-5 lg:p-6 bg-emerald-50 hover:bg-emerald-500 rounded-2xl lg:rounded-3xl border border-emerald-100 transition-all text-center flex flex-col items-center gap-3"
+                      className="group p-5 md:p-6 bg-emerald-50 hover:bg-emerald-500 rounded-2xl md:rounded-3xl border border-emerald-100 transition-all text-center flex flex-col items-center gap-3"
                     >
                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-all shadow-sm">
                           <Plus className="w-5 h-5" />
@@ -205,7 +206,7 @@ const Inventory = () => {
                     </button>
                     <button 
                       onClick={() => { updateStock(selectedItem.id, -10); setSelectedItem(null); }}
-                      className="group p-5 lg:p-6 bg-rose-50 hover:bg-rose-500 rounded-2xl lg:rounded-3xl border border-rose-100 transition-all text-center flex flex-col items-center gap-3"
+                      className="group p-5 md:p-6 bg-rose-50 hover:bg-rose-500 rounded-2xl md:rounded-3xl border border-rose-100 transition-all text-center flex flex-col items-center gap-3"
                     >
                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-rose-500 group-hover:scale-110 transition-all shadow-sm">
                           <Trash2 className="w-5 h-5" />
@@ -215,17 +216,18 @@ const Inventory = () => {
                  </div>
               </div>
 
-              <div className="p-6 border-t border-slate-50 flex flex-col sm:flex-row gap-3 lg:gap-4 bg-white shrink-0">
+              <div className="p-6 md:p-8 border-t border-slate-50 flex flex-col sm:flex-row gap-3 md:gap-4 bg-white shrink-0 relative z-20">
                  <button 
                    onClick={() => { deleteInventoryItem(selectedItem.id); setSelectedItem(null); }}
-                   className="flex-1 py-4 bg-white border border-slate-100 text-rose-500 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-rose-50 transition-all active:scale-95"
+                   className="flex-1 py-4 bg-white border-2 border-slate-100 text-rose-500 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-rose-50 transition-all active:scale-95"
                  >
                     Delete Product
                  </button>
-                 <button onClick={() => setSelectedItem(null)} className="flex-1 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase text-[10px] tracking-widest">Close</button>
+                 <button onClick={() => setSelectedItem(null)} className="flex-1 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-100 transition-all">Close</button>
               </div>
            </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Hidden Printable Inventory */}
@@ -279,97 +281,108 @@ const InventoryModal = ({ onClose, onSave, categories }) => {
     price: 0
   });
 
-  return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
        <div onClick={onClose} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-       <div className="relative w-full max-w-xl bg-white rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
-          <div className="px-6 lg:px-8 py-5 lg:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/20 shrink-0">
-             <div>
-                <h3 className="text-xl font-black uppercase tracking-tight">Onboard Product</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Hospitality asset registration</p>
+       <div className="relative w-full max-w-[95%] md:max-w-xl bg-white rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
+          <div className="px-5 py-4 md:px-8 md:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/20 shrink-0">
+             <div className="flex items-center gap-3 md:gap-4">
+                <div className="w-10 h-10 md:w-14 md:h-14 bg-primary rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl shrink-0">
+                   <Package className="w-5 h-5 md:w-6 md:h-6" />
+                </div>
+                <div>
+                   <h3 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none">Onboard Product</h3>
+                   <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1">Hospitality asset registration</p>
+                </div>
              </div>
-             <button onClick={onClose} className="p-2 hover:bg-white rounded-2xl transition-all shadow-sm"><X className="w-6 h-6" /></button>
+             <button onClick={onClose} className="p-2 md:p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 shadow-sm group">
+                <X className="w-5 h-5 text-slate-400" />
+             </button>
           </div>
+          
           <form 
             onSubmit={(e) => { e.preventDefault(); onSave(formData); onClose(); }} 
-            className="p-6 lg:p-8 space-y-6 overflow-y-auto scrollbar-hide"
+            className="flex-1 overflow-y-auto"
           >
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Name</label>
-                   <input 
-                     type="text" 
-                     value={formData.name}
-                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                     placeholder="e.g. Arabica Coffee"
-                     className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm" 
-                     required 
-                   />
+             <div className="p-6 md:p-8 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                   <div className="space-y-1.5">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Name</label>
+                      <input 
+                        type="text" 
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        placeholder="e.g. Arabica Coffee"
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm transition-all" 
+                        required 
+                      />
+                   </div>
+                   <div className="space-y-1.5">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
+                      <select 
+                        value={formData.category}
+                        onChange={(e) => setFormData({...formData, category: e.target.value})}
+                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-sm appearance-none focus:border-primary/20 transition-all"
+                      >
+                         {categories.map(c => <option key={c}>{c}</option>)}
+                      </select>
+                   </div>
                 </div>
-                <div className="space-y-1.5">
-                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
-                   <select 
-                     value={formData.category}
-                     onChange={(e) => setFormData({...formData, category: e.target.value})}
-                     className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-sm appearance-none"
-                   >
-                      {categories.map(c => <option key={c}>{c}</option>)}
-                   </select>
-                </div>
-             </div>
 
-             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 md:gap-6">
+                   <div className="space-y-1.5">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Stock</label>
+                      <input 
+                        type="number" 
+                        value={formData.stock}
+                        onChange={(e) => setFormData({...formData, stock: parseInt(e.target.value)})}
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm transition-all" 
+                        required 
+                      />
+                   </div>
+                   <div className="space-y-1.5">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit</label>
+                      <input 
+                        type="text" 
+                        value={formData.unit}
+                        onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                        placeholder="kg/pcs/ltr"
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm transition-all" 
+                        required 
+                      />
+                   </div>
+                   <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Threshold</label>
+                      <input 
+                        type="number" 
+                        value={formData.minStock}
+                        onChange={(e) => setFormData({...formData, minStock: parseInt(e.target.value)})}
+                        className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm transition-all" 
+                        required 
+                      />
+                   </div>
+                </div>
+
                 <div className="space-y-1.5">
-                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Stock</label>
+                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit Price (₹)</label>
                    <input 
                      type="number" 
-                     value={formData.stock}
-                     onChange={(e) => setFormData({...formData, stock: parseInt(e.target.value)})}
-                     className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm" 
-                     required 
-                   />
-                </div>
-                <div className="space-y-1.5">
-                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit</label>
-                   <input 
-                     type="text" 
-                     value={formData.unit}
-                     onChange={(e) => setFormData({...formData, unit: e.target.value})}
-                     placeholder="kg/pcs/ltr"
-                     className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm" 
-                     required 
-                   />
-                </div>
-                <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Threshold</label>
-                   <input 
-                     type="number" 
-                     value={formData.minStock}
-                     onChange={(e) => setFormData({...formData, minStock: parseInt(e.target.value)})}
-                     className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm" 
+                     value={formData.price}
+                     onChange={(e) => setFormData({...formData, price: parseInt(e.target.value)})}
+                     className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm transition-all" 
                      required 
                    />
                 </div>
              </div>
 
-             <div className="space-y-1.5">
-                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit Price (₹)</label>
-                <input 
-                  type="number" 
-                  value={formData.price}
-                  onChange={(e) => setFormData({...formData, price: parseInt(e.target.value)})}
-                  className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm" 
-                  required 
-                />
-             </div>
-
-             <div className="pt-4 flex flex-col sm:flex-row gap-4">
-                <button type="button" onClick={onClose} className="flex-1 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black text-[10px] uppercase tracking-widest">Cancel</button>
-                <button type="submit" className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/30 active:scale-95 transition-all">Add to Stock</button>
+             <div className="p-6 md:p-8 border-t border-slate-50 flex flex-col sm:flex-row gap-3 md:gap-4 bg-white shrink-0">
+                <button type="button" onClick={onClose} className="flex-1 py-4 border-2 border-slate-100 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all">Cancel</button>
+                <button type="submit" className="flex-1 btn-primary py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/30 active:scale-95 transition-all">Add to Stock</button>
              </div>
           </form>
        </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

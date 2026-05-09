@@ -39,6 +39,8 @@ import { useHospitality } from "../../../context/HospitalityContext";
 import { useCommunication } from "../../../context/CommunicationContext";
 import { useNotifications } from "../../../context/NotificationContext";
 
+import { createPortal } from 'react-dom';
+
 const Dashboard = () => {
   const { user } = useAuth();
   const { categoriesList, addItem } = useMenu();
@@ -424,20 +426,27 @@ const Dashboard = () => {
       </div>
 
       {/* Add Item Modal (Preserved Functionality) */}
-      {showAddItemModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+      {showAddItemModal && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setShowAddItemModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-[520px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="px-6 py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
-              <div>
-                <h3 className="text-xl font-black tracking-tight uppercase">New POS Item</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">POS Inventory Creation</p>
-              </div>
-              <button onClick={() => setShowAddItemModal(false)} className="p-2 hover:bg-white rounded-2xl transition-all shadow-sm"><X className="w-6 h-6" /></button>
+           <div className="relative w-full max-w-[95%] md:max-w-[520px] bg-white rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center">
+            <div className="px-5 py-4 md:px-8 md:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/20 shrink-0">
+               <div className="flex items-center gap-3 md:gap-4">
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-primary rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl shrink-0">
+                     <Plus className="w-5 h-5 md:w-6 md:h-6" />
+                  </div>
+                  <div>
+                     <h3 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none">New POS Item</h3>
+                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1">POS Inventory Creation</p>
+                  </div>
+               </div>
+               <button onClick={() => setShowAddItemModal(false)} className="p-2 md:p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 shadow-sm group">
+                  <X className="w-5 h-5 text-slate-400" />
+               </button>
             </div>
             
             <form 
-              className="p-8 space-y-6 overflow-y-auto scrollbar-hide"
+              className="flex-1 overflow-y-auto"
               onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target);
@@ -455,62 +464,69 @@ const Dashboard = () => {
                 handleAddItem({ name, category, price, image, description });
               }}
             >
-               <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Item Name *</label>
-                    <input name="name" type="text" placeholder="e.g. Garlic Bread" className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm" required />
+               <div className="p-6 md:p-8 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                     <div className="space-y-1.5">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Item Name *</label>
+                        <input name="name" type="text" placeholder="e.g. Garlic Bread" className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm transition-all" required />
+                     </div>
+                     <div className="space-y-1.5">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Category *</label>
+                        <input 
+                           name="category" 
+                           type="text" 
+                           list="categories" 
+                           value={newItemCategory}
+                           onChange={(e) => {
+                              setNewItemCategory(e.target.value);
+                              updateAutoIcon(e.target.value);
+                           }}
+                           placeholder="e.g. Sides" 
+                           className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm transition-all" 
+                           required 
+                        />
+                        <datalist id="categories">
+                           {categoriesList.filter(c => c !== 'All').map(c => <option key={c} value={c} />)}
+                        </datalist>
+                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category *</label>
-                    <input 
-                      name="category" 
-                      type="text" 
-                      list="categories" 
-                      value={newItemCategory}
-                      onChange={(e) => {
-                        setNewItemCategory(e.target.value);
-                        updateAutoIcon(e.target.value);
-                      }}
-                      placeholder="e.g. Sides" 
-                      className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm" 
-                      required 
-                    />
-                    <datalist id="categories">
-                      {categoriesList.filter(c => c !== 'All').map(c => <option key={c} value={c} />)}
-                    </datalist>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                     <div className="space-y-1.5">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Price (₹) *</label>
+                        <input name="price" type="number" step="0.01" placeholder="99.00" className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm transition-all" required />
+                     </div>
+                     <div className="space-y-1.5">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Emoji / Icon</label>
+                        <input 
+                           name="image" 
+                           type="text" 
+                           value={newItemIcon}
+                           onChange={(e) => setNewItemIcon(e.target.value)}
+                           placeholder="🍟" 
+                           className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm transition-all" 
+                        />
+                     </div>
                   </div>
-               </div>
-               
-               <div className="grid grid-cols-2 gap-4">
+
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Price (₹) *</label>
-                    <input name="price" type="number" step="0.01" placeholder="99.00" className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm" required />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Emoji / Icon</label>
-                    <input 
-                      name="image" 
-                      type="text" 
-                      value={newItemIcon}
-                      onChange={(e) => setNewItemIcon(e.target.value)}
-                      placeholder="🍟" 
-                      className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm" 
-                    />
+                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Description</label>
+                     <textarea name="description" placeholder="Describe the item ingredients or details..." className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm min-h-[100px] md:min-h-[120px] resize-none transition-all" />
                   </div>
                </div>
 
-               <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Description</label>
-                  <textarea name="description" placeholder="Short description..." className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm min-h-[100px] resize-none" />
-               </div>
-
-               <div className="pt-4 flex gap-4">
-                  <button type="button" onClick={() => setShowAddItemModal(false)} className="flex-1 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all">Cancel</button>
-                  <button type="submit" className="flex-1 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/30 active:scale-95 transition-all">Create POS Item</button>
+               <div className="p-6 md:p-8 border-t border-slate-50 flex flex-col sm:flex-row gap-3 md:gap-4 bg-white shrink-0 relative z-20">
+                  <button type="button" onClick={() => setShowAddItemModal(false)} className="flex-1 py-4 border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 shadow-sm transition-all text-slate-400">
+                     Cancel
+                  </button>
+                  <button type="submit" className="flex-1 btn-primary py-4 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-primary/30 active:scale-95 transition-all">
+                     Create POS Item
+                  </button>
                </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

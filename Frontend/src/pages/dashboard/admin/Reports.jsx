@@ -85,6 +85,10 @@ const Reports = () => {
     { name: 'Priya Singh', role: 'Chef', orders: 280, revenue: '₹1,24,000', rating: 4.9 },
     { name: 'Margherita Pizza', role: 'Top Dish', orders: 420, revenue: '₹1,25,580', rating: 4.7 },
     { name: 'Cheese Burger', role: 'Top Dish', orders: 310, revenue: '₹58,590', rating: 4.5 },
+    { name: 'Alexander Wright', role: 'Guest', orders: 12, revenue: '₹45,000', rating: 5.0 },
+    { name: 'Vikram Das', role: 'Waiter', orders: 132, revenue: '₹38,200', rating: 4.6 },
+    { name: 'Butter Chicken', role: 'Top Dish', orders: 215, revenue: '₹96,535', rating: 4.9 },
+    { name: 'Sneha Patel', role: 'Manager', orders: 450, revenue: '₹4,50,000', rating: 5.0 },
   ];
 
   const filteredPerformance = performanceData.filter(item => 
@@ -411,9 +415,9 @@ const Reports = () => {
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 lg:p-6">
           <div onClick={() => setSelectedMetric(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-[200]" />
           <div 
-            className="relative w-full max-w-[520px] max-h-[90vh] lg:max-h-[85vh] bg-white shadow-2xl z-[201] flex flex-col rounded-t-[2.5rem] lg:rounded-[2.5rem] overflow-hidden self-end lg:self-center"
+            className="relative w-full max-w-[95%] md:max-w-[520px] max-h-[90vh] bg-white shadow-2xl z-[201] flex flex-col rounded-[2rem] md:rounded-[2.5rem] overflow-hidden self-center"
           >
-             <div className="px-5 py-4 lg:px-6 lg:py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
+             <div className="px-5 py-4 md:px-6 md:py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
                 <div className="flex items-center gap-3 lg:gap-4">
                   <div className={cn("p-3 lg:p-4 rounded-xl lg:rounded-2xl text-white shadow-xl shrink-0", selectedMetric.color === 'primary' ? 'bg-primary' : 'bg-orange-500')}>
                      <selectedMetric.icon className="w-5 lg:w-6 h-5 lg:h-6" />
@@ -488,7 +492,7 @@ const Reports = () => {
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 lg:p-6">
            <div onClick={() => setShowDateModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
            <div 
-             className="relative w-full max-w-sm bg-white rounded-t-[2.5rem] lg:rounded-[3rem] p-8 lg:p-10 shadow-2xl overflow-hidden self-end lg:self-center"
+             className="relative w-full max-w-[90%] md:max-w-sm bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 shadow-2xl overflow-hidden self-center"
            >
              <div className="w-14 h-14 lg:w-16 lg:h-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shrink-0">
                <Calendar className="w-7 lg:w-8 h-7 lg:h-8" />
@@ -518,7 +522,7 @@ const Reports = () => {
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 lg:p-6">
            <div onClick={() => setShowHeatmap(false)} className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" />
            <div 
-             className="relative w-full max-w-4xl bg-white rounded-t-[2.5rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] lg:max-h-[85vh] self-end lg:self-center"
+             className="relative w-full max-w-[95%] md:max-w-4xl bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] self-center"
            >
               <div className="p-6 lg:p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
                  <div className="flex items-center gap-3 lg:gap-4">

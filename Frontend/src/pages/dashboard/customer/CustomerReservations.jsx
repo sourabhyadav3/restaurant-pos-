@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Calendar, 
   Clock, 
@@ -200,92 +201,100 @@ const CustomerReservations = () => {
       </div>
 
       {/* Add Reservation Modal */}
-      {showAddRes && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-0 sm:p-4">
+      {showAddRes && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setShowAddRes(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg bg-white rounded-t-[3rem] sm:rounded-[3rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
-            <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
-               <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                     <Plus className="w-6 h-6" />
+          <div className="relative w-full max-w-[95%] md:max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
+            <div className="px-6 py-5 md:px-8 md:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
+               <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                     <Plus className="w-5 h-5 text-primary stroke-[3]" />
                   </div>
-                  <h3 className="text-xl font-black uppercase tracking-tight">New Booking</h3>
+                  <div>
+                    <h3 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none">New Booking</h3>
+                    <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1 leading-none">Schedule your hospitality experience</p>
+                  </div>
                </div>
-               <button onClick={() => setShowAddRes(false)} className="p-2 hover:bg-white rounded-xl transition-all"><X className="w-6 h-6" /></button>
+               <button onClick={() => setShowAddRes(false)} className="p-2 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 transition-all shadow-sm"><X className="w-5 h-5 text-slate-400" /></button>
             </div>
-            <form onSubmit={handleCreateRes} className="p-6 lg:p-8 space-y-6 max-h-[85vh] overflow-y-auto scrollbar-hide">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Booking Type</label>
-                  <div className="flex gap-2">
-                     {['Table', 'Room', 'Transport'].map(type => (
-                       <button
-                         key={type}
-                         type="button"
-                         onClick={() => setNewResData({...newResData, type})}
-                         className={cn(
-                           "flex-1 py-3 rounded-xl border-2 transition-all text-center",
-                           newResData.type === type 
-                           ? "bg-primary/5 border-primary text-primary" 
-                           : "bg-slate-50 border-transparent text-slate-400 hover:bg-slate-100"
-                         )}
-                       >
-                          <p className="text-[9px] font-black uppercase tracking-tight">{type}</p>
-                       </button>
-                     ))}
+            <form onSubmit={handleCreateRes} className="flex-1 overflow-y-auto scrollbar-hide">
+              <div className="p-6 md:p-8 space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Booking Type</label>
+                    <div className="flex gap-2">
+                       {['Table', 'Room', 'Transport'].map(type => (
+                         <button
+                           key={type}
+                           type="button"
+                           onClick={() => setNewResData({...newResData, type})}
+                           className={cn(
+                             "flex-1 py-3 rounded-xl border-2 transition-all text-center",
+                             newResData.type === type 
+                             ? "bg-primary/5 border-primary text-primary" 
+                             : "bg-slate-50 border-transparent text-slate-400 hover:bg-slate-100"
+                           )}
+                         >
+                            <p className="text-[9px] font-black uppercase tracking-tight">{type}</p>
+                         </button>
+                       ))}
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Guests</label>
+                    <input 
+                      type="number"
+                      min="1"
+                      value={newResData.guests}
+                      onChange={(e) => setNewResData({...newResData, guests: parseInt(e.target.value)})}
+                      className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-sm"
+                    />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Guests</label>
-                  <input 
-                    type="number"
-                    min="1"
-                    value={newResData.guests}
-                    onChange={(e) => setNewResData({...newResData, guests: parseInt(e.target.value)})}
-                    className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20"
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Preferred Date</label>
+                    <input 
+                      type="date"
+                      required
+                      value={newResData.date}
+                      onChange={(e) => setNewResData({...newResData, date: e.target.value})}
+                      className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-sm"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Preferred Time</label>
+                    <input 
+                      type="time"
+                      required
+                      value={newResData.time}
+                      onChange={(e) => setNewResData({...newResData, time: e.target.value})}
+                      className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Special Notes</label>
+                  <textarea 
+                    value={newResData.notes}
+                    onChange={(e) => setNewResData({...newResData, notes: e.target.value})}
+                    className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white h-24 resize-none transition-all shadow-sm"
+                    placeholder="Any specific requests or requirements..."
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Preferred Date</label>
-                  <input 
-                    type="date"
-                    required
-                    value={newResData.date}
-                    onChange={(e) => setNewResData({...newResData, date: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Preferred Time</label>
-                  <input 
-                    type="time"
-                    required
-                    value={newResData.time}
-                    onChange={(e) => setNewResData({...newResData, time: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20"
-                  />
-                </div>
+              <div className="p-6 md:p-8 border-t border-slate-50 bg-white shrink-0 relative z-20">
+                <button className="w-full btn-primary py-4 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all">
+                  Send Booking Request
+                </button>
               </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Special Notes</label>
-                <textarea 
-                  value={newResData.notes}
-                  onChange={(e) => setNewResData({...newResData, notes: e.target.value})}
-                  className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 h-24 resize-none"
-                  placeholder="Any specific requests?"
-                />
-              </div>
-
-              <button className="w-full btn-primary py-4 rounded-3xl flex items-center justify-center gap-3 text-xs font-black uppercase tracking-widest shadow-2xl shadow-primary/30 active:scale-95 transition-all">
-                Send Booking Request
-              </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
       {/* Hidden Printable Reservation */}
       {selectedResForPrint && (

@@ -70,7 +70,7 @@ const HospitalityService = () => {
             <p className="text-gray-400 leading-relaxed mb-10 max-w-sm">
               Select your room and start ordering — everything goes on your room bill, settled at checkout.
             </p>
-            <Link to="/login" className="w-full btn-premium bg-orange-500 hover:bg-orange-600 border-orange-500 px-8 py-5 text-xs font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3">
+            <Link to="/order" className="w-full btn-premium bg-orange-500 hover:bg-orange-600 border-orange-500 px-8 py-5 text-xs font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3">
               Enter as Hotel Guest <ArrowRight size={18} />
             </Link>
           </motion.div>

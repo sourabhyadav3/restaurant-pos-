@@ -96,8 +96,7 @@ const Hero = () => {
         </div>
       </div>
 
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(12deg); }
           50% { transform: translateY(-20px) rotate(15deg); }

@@ -12,8 +12,8 @@ const ecosystem = [
     bgColor: 'bg-white'
   },
   {
-    title: 'Instagram Vibes',
-    desc: 'Follow our visual journey. Catch the latest behind-the-scenes, new dishes, and events on our official Instagram.',
+    title: 'Smart Payments',
+    desc: 'Seamless UPI and Card integrations for lightning-fast checkouts.',
     img: '/Immagine 2026-04-16 042508.png',
     tag: 'SECURE',
     fit: 'object-contain',

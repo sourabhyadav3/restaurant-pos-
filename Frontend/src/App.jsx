@@ -167,7 +167,6 @@ function App() {
                       <Route path="/kitchen" element={<ModuleRedirect module="kitchen" />} />
                       <Route path="/tasks" element={<ModuleRedirect module="tasks" />} />
                       <Route path="/inventory" element={<ModuleRedirect module="inventory" />} />
-                      <Route path="/menu" element={<ModuleRedirect module="menu" />} />
                       <Route path="/staff" element={<ModuleRedirect module="staff" />} />
                       <Route path="/reports" element={<ModuleRedirect module="reports" />} />
                       <Route path="/rooms" element={<ModuleRedirect module="rooms" />} />

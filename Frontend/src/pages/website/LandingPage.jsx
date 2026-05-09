@@ -27,7 +27,7 @@ const LandingPage = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="bg-dark text-white selection:bg-landing-primary/30 min-h-screen">
+    <div className="bg-dark text-white selection:bg-landing-primary/30 min-h-screen overflow-x-hidden">
       <Navbar />
       <main>
         <Hero />

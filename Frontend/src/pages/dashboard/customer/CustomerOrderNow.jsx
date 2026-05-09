@@ -338,58 +338,7 @@ const CustomerOrderNow = () => {
           </div>
       </div>
 
-      {/* Mobile Cart Toggle */}
-      {cartItems.length > 0 && !showMobileCart && (
-        <div className="fixed bottom-4 inset-x-4 lg:hidden z-[150] animate-in slide-in-from-bottom-10">
-          <button 
-            onClick={() => setShowMobileCart(true)}
-            className="w-full bg-primary text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between font-black uppercase tracking-widest text-[10px]"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                <ShoppingBag className="w-5 h-5 text-white" />
-              </div>
-              <div className="text-left">
-                <p className="leading-none">{cartItems.length} Items</p>
-                <p className="text-white/60 text-[8px] mt-1">View Order Summary</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-lg">₹{total.toFixed(0)}</p>
-            </div>
-          </button>
-        </div>
-      )}
-
-      {/* Mobile Cart Slide-up */}
-      {showMobileCart && (
-        <div className="fixed inset-0 z-[450] lg:hidden">
-          <div onClick={() => setShowMobileCart(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-[3rem] h-[85vh] flex flex-col animate-in slide-in-from-bottom-full duration-300">
-             <div className="flex justify-center py-3" onClick={() => setShowMobileCart(false)}>
-                <div className="w-12 h-1.5 bg-slate-100 rounded-full cursor-pointer" />
-             </div>
-             <div className="flex-1 overflow-hidden">
-               <CartSummary 
-                  isMobile={true}
-                  cartItems={cartItems}
-                  clearCart={clearCart}
-                  removeFromCart={removeFromCart}
-                  updateCartQuantity={updateCartQuantity}
-                  subtotal={subtotal}
-                  tax={tax}
-                  serviceCharge={serviceCharge}
-                  total={total}
-                  onCheckout={() => {
-                    if (cartItems.length === 0) return;
-                    if (isRoomService) handleFinalPlaceOrder('Charged to Room');
-                    else setShowPaymentModal(true);
-                  }}
-               />
-             </div>
-          </div>
-        </div>
-      )}
+      {/* Mobile Cart Toggle & Slide-up removed - now in Header */}
 
 
 

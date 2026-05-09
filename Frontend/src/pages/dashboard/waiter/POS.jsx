@@ -49,6 +49,15 @@ const POS = () => {
   const [selectedGuest, setSelectedGuest] = useState('');
   const [orderForReceipt, setOrderForReceipt] = useState(null);
 
+
+
+  // Listen for header cart click
+  React.useEffect(() => {
+    const handleToggle = () => setIsMobileCartOpen(true);
+    window.addEventListener('toggle-pos-cart', handleToggle);
+    return () => window.removeEventListener('toggle-pos-cart', handleToggle);
+  }, []);
+
   const orderHistory = [
     { id: '#ORD-9901', time: '10:15 AM', items: 3, total: 1240, status: 'Completed' },
     { id: '#ORD-9902', time: '10:45 AM', items: 1, total: 299, status: 'Completed' },
@@ -100,6 +109,14 @@ const POS = () => {
   const discountAmount = Math.round(subtotal * (discount / 100));
   const gst = Math.round((subtotal - discountAmount) * 0.05);
   const total = subtotal - discountAmount + gst;
+
+  // Sync cart info with MainLayout header
+  React.useEffect(() => {
+    const count = cart.reduce((acc, item) => acc + item.qty, 0);
+    window.dispatchEvent(new CustomEvent('pos-cart-updated', { 
+      detail: { count, total } 
+    }));
+  }, [cart, total]);
 
   const showToastMessage = (message, type = 'success') => {
     setToast({ message, type });
@@ -284,6 +301,14 @@ const POS = () => {
           ))}
         </div>
       </div>
+
+      {/* Backdrop for mobile */}
+      {isMobileCartOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-30 lg:hidden transition-opacity duration-300"
+          onClick={() => setIsMobileCartOpen(false)}
+        />
+      )}
 
       {/* Cart & Billing Section */}
       <div className={cn(
@@ -488,27 +513,7 @@ const POS = () => {
       </div>
 
       {/* Mobile Cart Toggle */}
-      {cart.length > 0 && !isMobileCartOpen && (
-        <div className="fixed bottom-4 inset-x-4 lg:hidden z-[45]">
-          <button 
-            onClick={() => setIsMobileCartOpen(true)}
-            className="w-full bg-primary text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between font-black uppercase tracking-widest text-[10px]"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                <ShoppingCart className="w-5 h-5" />
-              </div>
-              <div className="text-left">
-                <p className="leading-none">{cart.reduce((a, b) => a + b.qty, 0)} Items</p>
-                <p className="text-white/60 text-[8px] mt-1">View Order Summary</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-lg">₹{total}</p>
-            </div>
-          </button>
-        </div>
-      )}
+      {/* Floating cart bar removed - now in Header */}
 
       {/* History Modal */}
       {showHistory && (

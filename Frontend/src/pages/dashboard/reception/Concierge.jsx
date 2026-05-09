@@ -18,13 +18,16 @@ const Concierge = () => {
   const [selectedChatId, setSelectedChatId] = useState(activeChats[0]?.guestId || null);
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const messagesContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   const selectedChat = activeChats.find(c => c.guestId === selectedChatId);
   const chatMessages = messages.filter(m => m.guestId === selectedChatId);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
@@ -61,7 +64,7 @@ const Concierge = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[380px_1fr] gap-6">
         {/* Guest List Panel */}
-        <section className="rounded-3xl bg-white border border-slate-100 shadow-sm p-4 min-w-0 flex flex-col gap-4">
+        <section className="rounded-3xl bg-white border border-slate-100 shadow-sm p-4 min-w-0 flex flex-col gap-4 h-[calc(100vh-14rem)] min-h-[500px]">
           <div className="relative group shrink-0">
              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-primary transition-colors" />
              <input 
@@ -73,7 +76,7 @@ const Concierge = () => {
              />
           </div>
 
-          <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1 scrollbar-hide">
+          <div className="space-y-2 flex-1 overflow-y-auto pr-1 scrollbar-hide">
              {filteredChats.map(chat => (
                <button 
                  key={chat.guestId}
@@ -108,7 +111,7 @@ const Concierge = () => {
         </section>
 
         {/* Chat Panel */}
-        <section className="rounded-3xl bg-white border border-slate-100 shadow-sm min-w-0 overflow-hidden flex flex-col h-[600px]">
+        <section className="rounded-3xl bg-white border border-slate-100 shadow-sm min-w-0 overflow-hidden flex flex-col h-[calc(100vh-14rem)] min-h-[500px]">
           {!selectedChat ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-6 opacity-30">
                <MessageSquare className="w-12 h-12 mb-4" />
@@ -137,7 +140,10 @@ const Concierge = () => {
               </div>
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide bg-slate-50/10">
+              <div 
+                ref={messagesContainerRef}
+                className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide bg-slate-50/10"
+              >
                  {chatMessages.map(msg => {
                    const isStaff = msg.sender === 'Staff';
                    return (

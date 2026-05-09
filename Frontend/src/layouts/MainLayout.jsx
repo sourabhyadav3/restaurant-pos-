@@ -60,6 +60,14 @@ const MainLayout = ({ children }) => {
     return () => window.removeEventListener('open-sidebar', handleToggle);
   }, []);
 
+  const [posCartInfo, setPosCartInfo] = React.useState({ count: 0, total: 0 });
+
+  React.useEffect(() => {
+    const handleUpdate = (e) => setPosCartInfo(e.detail);
+    window.addEventListener('pos-cart-updated', handleUpdate);
+    return () => window.removeEventListener('pos-cart-updated', handleUpdate);
+  }, []);
+
   const getRoleModulePath = (moduleName) => {
     if (!user) return `/${moduleName}`;
     if (user.role === roles.CUSTOMER) {
@@ -303,6 +311,21 @@ const MainLayout = ({ children }) => {
                   {cartItems.length > 0 && (
                     <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-white text-[8px] font-black rounded-full border-2 border-white flex items-center justify-center">
                       {cartItems.length}
+                    </span>
+                  )}
+                </button>
+              )}
+
+              {/* POS Mobile Cart Trigger */}
+              {location.pathname.includes('/pos') && (
+                <button 
+                  onClick={() => window.dispatchEvent(new CustomEvent('toggle-pos-cart'))}
+                  className="md:hidden relative p-2 bg-primary/10 text-primary rounded-xl transition-all"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  {posCartInfo.count > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[8px] font-black rounded-full border-2 border-white flex items-center justify-center">
+                      {posCartInfo.count}
                     </span>
                   )}
                 </button>

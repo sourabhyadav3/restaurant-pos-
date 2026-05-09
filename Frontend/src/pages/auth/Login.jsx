@@ -19,9 +19,10 @@ const Login = () => {
     setTimeout(() => {
       let role = roles.ADMIN;
       if (email.includes('manager')) role = roles.MANAGER;
-      if (email.includes('waiter')) role = roles.WAITER;
-      if (email.includes('chef')) role = roles.CHEF;
-      if (email.includes('cashier')) role = roles.CASHIER;
+      else if (email.includes('waiter')) role = roles.WAITER;
+      else if (email.includes('chef')) role = roles.CHEF;
+      else if (email.includes('cashier')) role = roles.CASHIER;
+      else if (email.includes('customer')) role = roles.CUSTOMER;
 
       login(role);
       setLoading(false);
@@ -39,20 +40,17 @@ const Login = () => {
   };
 
   const handleDemoLogin = (role) => {
-    setLoading(true);
-    setTimeout(() => {
-      login(role);
-      setLoading(false);
-      switch (role) {
-        case roles.ADMIN: navigate('/admin/dashboard'); break;
-        case roles.MANAGER: navigate('/manager/dashboard'); break;
-        case roles.WAITER: navigate('/waiter/dashboard'); break;
-        case roles.CHEF: navigate('/chef/dashboard'); break;
-        case roles.CASHIER: navigate('/cashier/dashboard'); break;
-        case roles.CUSTOMER: navigate('/customer/home'); break;
-        default: navigate('/dashboard');
-      }
-    }, 500);
+    const roleEmails = {
+      ADMIN: 'admin@gilahouse.com',
+      MANAGER: 'manager@gilahouse.com',
+      WAITER: 'waiter@gilahouse.com',
+      CHEF: 'chef@gilahouse.com',
+      CASHIER: 'cashier@gilahouse.com',
+      CUSTOMER: 'customer@gilahouse.com'
+    };
+    
+    setEmail(roleEmails[role] || `${role.toLowerCase()}@gilahouse.com`);
+    setPassword('password123');
   };
 
   return (

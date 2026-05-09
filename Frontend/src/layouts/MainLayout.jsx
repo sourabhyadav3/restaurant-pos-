@@ -113,17 +113,10 @@ const MainLayout = ({ children }) => {
       {/* Sidebar */}
       <aside 
         className={cn(
-<<<<<<< HEAD
-          "bg-white border-r border-border flex flex-col relative z-[250] shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-full transition-all duration-300 shrink-0",
-          "md:translate-x-0 fixed md:relative",
-          isCollapsed ? "md:w-[80px]" : "md:w-[200px]",
-          isMobileMenuOpen ? "translate-x-0 w-[240px]" : "-translate-x-full md:translate-x-0"
-=======
           "bg-white border-r border-border flex flex-col relative z-[150] shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-full transition-all duration-300 ease-in-out",
-          "lg:translate-x-0 fixed lg:relative",
+          "lg:translate-x-0 fixed lg:sticky lg:top-0",
           isCollapsed ? "lg:w-[72px]" : "lg:w-[220px]",
           isMobileMenuOpen ? "translate-x-0 w-[260px]" : "-translate-x-full lg:translate-x-0"
->>>>>>> 89c53f285175ed9eca2aa1346604c25f27e7a9d9
         )}
       >
         {/* Logo Area */}
@@ -216,13 +209,8 @@ const MainLayout = ({ children }) => {
         <div className="absolute top-[20%] left-[10%] w-[30rem] h-[30rem] bg-blue-300/[0.02] rounded-full blur-[80px] pointer-events-none" />
                 {/* Header */}
         <header className={cn(
-<<<<<<< HEAD
-          "h-14 bg-white border-b border-border flex items-center justify-between px-3 md:px-4 shrink-0 z-[200] sticky top-0 w-full",
-          "transition-all duration-300"
-=======
           "h-16 bg-white/80 backdrop-blur-md border-b border-border flex items-center justify-between px-4 lg:px-8 shrink-0 z-[140] transition-all",
-          "sticky top-0 left-0 right-0 lg:relative lg:top-auto lg:left-auto lg:right-auto"
->>>>>>> 89c53f285175ed9eca2aa1346604c25f27e7a9d9
+          "sticky top-0 left-0 right-0"
         )}>
           <div className="flex items-center gap-3 lg:gap-6 flex-1">
             <button 

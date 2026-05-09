@@ -21,7 +21,7 @@ const Contact = () => {
             <div className="space-y-8">
               {[
                 { icon: MapPin, title: 'Our Location', text: '123 Gourmet Street, Food City, FC 12345' },
-                { icon: Phone, title: 'Call Us', text: '+1 (234) 567-8900' },
+                { icon: Phone, title: 'Call Us', text: '+00 (000) 000-0000' },
                 { icon: Mail, title: 'Email Us', text: 'hello@restaurantpro.com' }
               ].map((item) => (
                 <div key={item.title} className="flex items-start space-x-4">

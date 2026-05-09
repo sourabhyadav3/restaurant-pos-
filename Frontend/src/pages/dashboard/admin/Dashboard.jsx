@@ -165,7 +165,7 @@ const Dashboard = () => {
         <div className="flex items-center gap-3">
            {!isChef && (
              <button onClick={() => setShowAddItemModal(true)} className="btn-primary h-11 px-6 rounded-xl flex items-center gap-3 font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all">
-                <Plus className="w-4 h-4" /> Add Item
+                <Plus className="w-4 h-4" /> Add Item POS
              </button>
            )}
            <button className="p-3 bg-white rounded-xl border border-slate-100 text-slate-400 hover:text-primary transition-all shadow-sm"><RefreshCw className="w-5 h-5" /></button>
@@ -430,7 +430,7 @@ const Dashboard = () => {
           <div className="relative w-full max-w-[520px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="px-6 py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
               <div>
-                <h3 className="text-xl font-black tracking-tight uppercase">New Menu Item</h3>
+                <h3 className="text-xl font-black tracking-tight uppercase">New POS Item</h3>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">POS Inventory Creation</p>
               </div>
               <button onClick={() => setShowAddItemModal(false)} className="p-2 hover:bg-white rounded-2xl transition-all shadow-sm"><X className="w-6 h-6" /></button>
@@ -506,7 +506,7 @@ const Dashboard = () => {
 
                <div className="pt-4 flex gap-4">
                   <button type="button" onClick={() => setShowAddItemModal(false)} className="flex-1 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all">Cancel</button>
-                  <button type="submit" className="flex-1 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/30 active:scale-95 transition-all">Create Item</button>
+                  <button type="submit" className="flex-1 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/30 active:scale-95 transition-all">Create POS Item</button>
                </div>
             </form>
           </div>

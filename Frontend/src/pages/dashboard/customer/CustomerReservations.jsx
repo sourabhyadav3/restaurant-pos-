@@ -201,9 +201,9 @@ const CustomerReservations = () => {
 
       {/* Add Reservation Modal */}
       {showAddRes && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setShowAddRes(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg bg-white rounded-[3rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+          <div className="relative w-full max-w-lg bg-white rounded-t-[3rem] sm:rounded-[3rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
             <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
                <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
@@ -213,8 +213,8 @@ const CustomerReservations = () => {
                </div>
                <button onClick={() => setShowAddRes(false)} className="p-2 hover:bg-white rounded-xl transition-all"><X className="w-6 h-6" /></button>
             </div>
-            <form onSubmit={handleCreateRes} className="p-8 space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleCreateRes} className="p-6 lg:p-8 space-y-6 max-h-[85vh] overflow-y-auto scrollbar-hide">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Booking Type</label>
                   <div className="flex gap-2">
@@ -247,7 +247,7 @@ const CustomerReservations = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Preferred Date</label>
                   <input 

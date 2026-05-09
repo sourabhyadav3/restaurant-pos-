@@ -4,26 +4,26 @@ import { Utensils, Truck, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
 
 const ecosystem = [
   {
-    title: 'Instant QR Ordering',
-    desc: 'Zero wait time. Guests scan, browse, and order directly from their table.',
+    title: 'WhatsApp Community',
+    desc: 'Stay connected with Gila House. Get instant updates, exclusive offers, and direct support right on your WhatsApp.',
     img: '/Immagine 2026-04-16 042531.png',
-    tag: 'Revolutionary',
+    tag: 'REVOLUTIONARY',
     fit: 'object-contain',
     bgColor: 'bg-white'
   },
   {
-    title: 'Smart Payments',
-    desc: 'Seamless UPI and Card integrations for lightning-fast checkouts.',
+    title: 'Instagram Vibes',
+    desc: 'Follow our visual journey. Catch the latest behind-the-scenes, new dishes, and events on our official Instagram.',
     img: '/Immagine 2026-04-16 042508.png',
-    tag: 'Secure',
+    tag: 'SECURE',
     fit: 'object-contain',
     bgColor: 'bg-white'
   },
   {
     title: 'Ultra Fast Wifi',
-    desc: 'Keep your guests connected with our managed high-speed network.',
+    desc: 'Keep your guests connected with our managed high-speed network throughout the premises.',
     img: '/Modern Black and White Wifi Poster (2).jpg',
-    tag: 'Connected',
+    tag: 'CONNECTED',
     fit: 'object-contain',
     bgColor: 'bg-[#f4d5a8]' // Matching the cream background of the poster
   }

@@ -88,7 +88,7 @@ const CustomerOrders = () => {
       </div>
 
       {/* Orders List */}
-      <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide space-y-4 pb-20 lg:pb-10">
+      <div className="space-y-4 pb-10">
         {filteredOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[50vh] text-center opacity-50">
              <History className="w-16 h-16 text-slate-200 mb-4" />
@@ -109,7 +109,7 @@ const CustomerOrders = () => {
                             </span>
                             <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">• {order.id}</span>
                          </div>
-                         <h4 className="text-base lg:text-lg font-black text-text-primary uppercase tracking-tight leading-tight pt-1">
+                         <h4 className="text-base lg:text-lg font-black text-text-primary uppercase tracking-tight leading-tight pt-1 break-words">
                             {order.itemsList ? order.itemsList.map(i => i.name).join(', ') : 'Custom Order'}
                          </h4>
                          <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-1">
@@ -186,9 +186,9 @@ const CustomerOrders = () => {
 
       {/* Tracking Modal */}
       {selectedTrackOrder && (
-        <div className="fixed inset-0 z-[600] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[600] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setSelectedTrackOrder(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+          <div className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
              <div className="p-8 bg-slate-50 flex justify-between items-center border-b border-slate-100">
                 <div className="flex items-center gap-4">
                    <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/20">
@@ -204,10 +204,10 @@ const CustomerOrders = () => {
                 </button>
              </div>
 
-             <div className="p-8 space-y-10">
+             <div className="p-6 lg:p-8 space-y-8 lg:space-y-10 overflow-y-auto scrollbar-hide">
                 {/* Visual Steps */}
                 <div className="relative flex justify-between items-center px-2">
-                   <div className="absolute left-4 right-4 top-6 h-1 bg-slate-100 -z-10" />
+                   <div className="absolute left-4 right-4 top-5 h-0.5 bg-slate-100 -z-10" />
                    {trackingSteps.map((step, idx) => {
                      const isPast = ['Pending', 'Cooking', 'Ready'].indexOf(selectedTrackOrder.status) >= ['Pending', 'Cooking', 'Cooking', 'Ready'].indexOf(step.status);
                      const isCurrent = selectedTrackOrder.status === step.status && (step.label !== 'Quality Check' || selectedTrackOrder.status === 'Cooking');

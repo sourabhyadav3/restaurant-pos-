@@ -18,10 +18,12 @@ import {
   CheckCircle2,
   AlertCircle,
   Users,
+  Menu,
   ChevronLeft
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useCommunication } from "../../../context/CommunicationContext";
+import { useAuth } from "../../../context/AuthContext";
 
 const Concierge = () => {
   const { messages, activeChats, sendMessage, markAsRead } = useCommunication();
@@ -30,6 +32,8 @@ const Concierge = () => {
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const messagesEndRef = useRef(null);
+
+  const { user } = useAuth();
 
   const selectedChat = activeChats.find(c => c.guestId === selectedChatId);
   const chatMessages = messages.filter(m => m.guestId === selectedChatId);
@@ -45,7 +49,9 @@ const Concierge = () => {
   }, [selectedChatId, messages]);
 
   useEffect(() => {
-    scrollToBottom();
+    if (chatMessages.length > 0) {
+      scrollToBottom();
+    }
   }, [chatMessages]);
 
   const handleSend = (e) => {
@@ -60,24 +66,35 @@ const Concierge = () => {
     c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleBack = () => {
+    const rolePrefix = user?.role?.toLowerCase() || 'admin';
+    navigate(`/${rolePrefix}/dashboard`);
+  };
+
+  const handleOpenSidebar = () => {
+    window.dispatchEvent(new CustomEvent('open-sidebar'));
+  };
+
   return (
-    <div className="h-full flex flex-col lg:flex-row gap-6 overflow-hidden relative">
+    <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-6 relative h-full pt-12 lg:pt-0">
       {/* Sidebar: Chat List */}
       <div className={cn(
         "w-full lg:w-80 xl:w-96 flex flex-col gap-4 shrink-0 overflow-hidden transition-all duration-300",
         selectedChatId && "hidden lg:flex"
       )}>
-        <div className="flex items-center gap-3 shrink-0">
-          <button 
-            onClick={() => navigate('/')}
-            className="lg:hidden p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-slate-400 hover:text-primary transition-all mr-1"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
-            <MessageSquare className="w-5 h-5 stroke-[2.5]" />
+        <div className="flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleBack}
+              className="lg:hidden p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-slate-400 hover:text-primary transition-all mr-1"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+              <MessageSquare className="w-5 h-5 stroke-[2.5]" />
+            </div>
+            <h2 className="text-xl font-black text-text-primary uppercase tracking-tight">Concierge</h2>
           </div>
-          <h2 className="text-xl font-black text-text-primary uppercase tracking-tight">Concierge</h2>
         </div>
 
         <div className="relative group shrink-0">
@@ -132,7 +149,8 @@ const Concierge = () => {
 
       {/* Main Content: Chat View */}
       <div className={cn(
-        "flex-1 flex flex-col bg-white border-none shadow-2xl shadow-slate-200/50 rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden min-w-0 transition-all duration-300",
+        "flex-1 flex flex-col bg-white border-none shadow-2xl shadow-slate-200/50 rounded-2xl lg:rounded-[3rem] overflow-hidden min-w-0 transition-all duration-300",
+        selectedChatId ? "mt-2 lg:mt-0" : "",
         !selectedChatId && "hidden lg:flex"
       )}>
         {!selectedChat ? (
@@ -148,7 +166,7 @@ const Concierge = () => {
         ) : (
           <>
             {/* Chat Header */}
-            <div className="p-4 lg:p-6 lg:px-8 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between shrink-0">
+            <div className="py-6 px-4 lg:p-6 lg:px-8 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between shrink-0">
                <div className="flex items-center gap-3 lg:gap-4">
                   <button 
                     onClick={() => setSelectedChatId(null)}
@@ -167,11 +185,11 @@ const Concierge = () => {
                      </div>
                   </div>
                </div>
-               <div className="flex items-center gap-1.5 lg:gap-3">
-                  <button className="p-2 lg:p-3 bg-white rounded-2xl text-slate-400 hover:text-primary transition-all shadow-sm"><Phone className="w-4 h-4 lg:w-5 lg:h-5" /></button>
-                  <button className="hidden sm:block p-3 bg-white rounded-2xl text-slate-400 hover:text-primary transition-all shadow-sm"><Video className="w-5 h-5" /></button>
-                  <button className="p-2 lg:p-3 bg-white rounded-2xl text-slate-400 hover:text-primary transition-all shadow-sm"><MoreVertical className="w-4 h-4 lg:w-5 lg:h-5" /></button>
-               </div>
+                <div className="flex items-center gap-1.5 lg:gap-3">
+                   <button className="p-2 lg:p-3 bg-white rounded-2xl text-slate-400 hover:text-primary transition-all shadow-sm"><Phone className="w-4 h-4 lg:w-5 lg:h-5" /></button>
+                   <button className="hidden sm:block p-3 bg-white rounded-2xl text-slate-400 hover:text-primary transition-all shadow-sm"><Video className="w-5 h-5" /></button>
+                   <button className="p-2 lg:p-3 bg-white rounded-2xl text-slate-400 hover:text-primary transition-all shadow-sm"><MoreVertical className="w-4 h-4 lg:w-5 lg:h-5" /></button>
+                </div>
             </div>
 
             {/* Chat Messages */}

@@ -18,9 +18,13 @@ import {
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
+import { useOrders } from "../../../context/OrdersContext";
+import { useToast } from "../../../context/ToastContext";
 
 const Tables = () => {
   const { tables, setTables } = useHospitality();
+  const { addOrder } = useOrders();
+  const { showToast } = useToast();
   const [selectedTable, setSelectedTable] = useState(null);
   const [showBilling, setShowBilling] = useState(false);
   const [showAddTable, setShowAddTable] = useState(false);
@@ -79,6 +83,35 @@ const Tables = () => {
       setShowBilling(false);
       setSelectedTable(null);
     }, 1500);
+  };
+
+  const handleSendToKitchen = () => {
+    if (!selectedTable || selectedTable.orders.length === 0) return;
+    
+    const pendingItems = selectedTable.orders.filter(item => item.status === 'pending');
+    if (pendingItems.length === 0) {
+      showToast("All items already sent to kitchen!", "info");
+      return;
+    }
+
+    const orderData = {
+      type: 'Dine-in',
+      table: selectedTable.name,
+      customer: `Table ${selectedTable.name}`,
+      status: 'Pending',
+      amount: `₹${pendingItems.reduce((acc, i) => acc + i.price, 0)}`,
+      items: pendingItems.length,
+      itemsList: pendingItems.map(i => ({ name: i.name, quantity: 1, price: i.price })),
+      priority: 'medium'
+    };
+
+    addOrder(orderData);
+    
+    // Update table items status
+    const updatedOrders = selectedTable.orders.map(i => ({ ...i, status: 'kitchen' }));
+    updateTableStatus(selectedTable.id, 'occupied', { orders: updatedOrders });
+    
+    showToast(`Sent ${pendingItems.length} items to Kitchen!`, "success");
   };
 
   const handleCreateTable = (e) => {
@@ -184,7 +217,7 @@ const Tables = () => {
                     <div className="space-y-1">
                       {table.orders.length > 0 ? (
                         table.orders.slice(0, 2).map((order, i) => (
-                          <p key={i} className="text-[10px] lg:text-[11px] font-bold text-text-primary truncate">{order}</p>
+                          <p key={i} className="text-[10px] lg:text-[11px] font-bold text-text-primary truncate">{order.name}</p>
                         ))
                       ) : (
                         <p className="text-[10px] lg:text-[11px] font-bold text-slate-300 italic">No items yet</p>
@@ -282,13 +315,17 @@ const Tables = () => {
                                 1x
                               </div>
                               <div>
-                                <p className="text-xs lg:text-sm font-bold text-text-primary leading-tight">{item}</p>
-                                <p className="text-[8px] lg:text-[9px] font-bold text-text-secondary uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                                   <UtensilsCrossed className="w-2.5 h-2.5 lg:w-3 lg:h-3" /> Kitchen Confirmed
+                                <p className="text-xs lg:text-sm font-bold text-text-primary leading-tight">{item.name}</p>
+                                <p className={cn(
+                                  "text-[8px] lg:text-[9px] font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5",
+                                  item.status === 'kitchen' ? "text-emerald-500" : "text-amber-500"
+                                )}>
+                                   <UtensilsCrossed className="w-2.5 h-2.5 lg:w-3 lg:h-3" /> 
+                                   {item.status === 'kitchen' ? 'Kitchen Confirmed' : 'Pending Send'}
                                 </p>
                               </div>
                             </div>
-                            <span className="text-xs lg:text-sm font-bold text-text-primary tracking-tight">₹{i === 0 ? 350 : 100}</span>
+                            <span className="text-xs lg:text-sm font-bold text-text-primary tracking-tight">₹{item.price}</span>
                           </div>
                         ))
                       ) : (
@@ -394,7 +431,8 @@ const Tables = () => {
                 </button>
                 <div className="grid grid-cols-2 gap-2 lg:gap-3">
                   <button 
-                    className="btn-secondary flex flex-col items-center justify-center gap-1 py-2.5 lg:py-3 rounded-xl lg:rounded-2xl border transition-all group"
+                    onClick={handleSendToKitchen}
+                    className="btn-secondary flex flex-col items-center justify-center gap-1 py-2.5 lg:py-3 rounded-xl lg:rounded-2xl border transition-all group hover:border-primary/50"
                   >
                     <ChefHat className="w-4 lg:w-5 h-4 lg:h-5 text-slate-400 group-hover:text-primary transition-colors" /> 
                     <span className="text-[8px] lg:text-[9px] font-bold uppercase tracking-widest text-slate-500">To Kitchen</span>
@@ -560,7 +598,7 @@ const Tables = () => {
                   key={item.name}
                   onClick={() => {
                     updateTableStatus(selectedTable.id, 'occupied', { 
-                      orders: [...selectedTable.orders, item.name],
+                      orders: [...selectedTable.orders, { name: item.name, price: item.price, status: 'pending' }],
                       total: selectedTable.total + item.price
                     });
                     setShowAddItems(false);

@@ -14,15 +14,30 @@ import {
   Car,
   Download,
   Plus,
-  RefreshCw
+  RefreshCw,
+  Menu,
+  ChevronLeft
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
+import { useAuth } from "../../../context/AuthContext";
+import { useNavigate } from 'react-router-dom';
 
 const ServiceManager = () => {
   const { services, serviceBookings, updateServiceBookingStatus } = useHospitality();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Pending');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const handleBack = () => {
+    const rolePrefix = user?.role?.toLowerCase() || 'admin';
+    navigate(`/${rolePrefix}/dashboard`);
+  };
+
+  const handleOpenSidebar = () => {
+    window.dispatchEvent(new CustomEvent('open-sidebar'));
+  };
 
   const filteredBookings = serviceBookings.filter(b => {
     const matchesTab = b.status === activeTab;
@@ -67,35 +82,43 @@ const ServiceManager = () => {
   };
 
   return (
-    <div className="h-full flex flex-col gap-6">
+    <div className="h-full flex flex-col gap-4 lg:gap-6">
       {/* Header */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/20">
-            <Compass className="w-6 h-6 stroke-[2.5]" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-black tracking-tight text-text-primary uppercase tracking-wider">Service <span className="text-primary">Manager</span></h2>
-            <p className="text-text-secondary text-sm font-bold mt-1">Coordinate transport and guest excursions</p>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 shrink-0">
+        <div className="flex items-center justify-between w-full lg:w-auto">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleBack}
+              className="lg:hidden p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-slate-400 hover:text-primary transition-all mr-1"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <div className="w-10 h-10 lg:w-12 lg:h-12 bg-primary rounded-xl lg:rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/20">
+              <Compass className="w-5 h-5 lg:w-6 lg:h-6 stroke-[2.5]" />
+            </div>
+            <div>
+              <h2 className="text-lg lg:text-2xl font-black tracking-tight text-text-primary uppercase tracking-wider leading-none">Service <span className="text-primary">Manager</span></h2>
+              <p className="text-text-secondary text-[10px] lg:text-sm font-bold mt-1">Coordinate transport and guest excursions</p>
+            </div>
           </div>
         </div>
         
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative group min-w-[240px]">
+        <div className="flex items-center gap-2 lg:gap-3 w-full lg:w-auto">
+          <div className="relative group flex-1 lg:min-w-[240px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-primary transition-colors" />
             <input 
               type="text" 
               placeholder="Search bookings..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-5 py-3 bg-white border border-slate-100 rounded-2xl outline-none shadow-sm text-sm font-bold focus:ring-4 focus:ring-primary/5 transition-all"
+              className="w-full pl-11 pr-5 py-2.5 lg:py-3 bg-white border border-slate-100 rounded-xl lg:rounded-2xl outline-none shadow-sm text-xs font-bold focus:ring-4 focus:ring-primary/5 transition-all"
             />
           </div>
           <button 
             onClick={handleExportToday}
-            className="btn-primary h-[48px] px-6 rounded-2xl flex items-center gap-3 font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
+            className="btn-primary h-[42px] lg:h-[48px] px-4 lg:px-6 rounded-xl lg:rounded-2xl flex items-center gap-2 lg:gap-3 font-black uppercase text-[9px] lg:text-[10px] tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all shrink-0"
           >
-             <Download className="w-4 h-4" /> Export Today
+             <Download className="w-4 h-4" /> <span className="hidden xs:inline">Export Today</span><span className="xs:hidden">Export</span>
           </button>
         </div>
       </div>
@@ -108,7 +131,7 @@ const ServiceManager = () => {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 whitespace-nowrap transition-all",
+                "px-5 lg:px-8 py-2.5 lg:py-3 rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest border-2 whitespace-nowrap transition-all",
                 activeTab === tab 
                 ? "bg-primary text-white border-primary shadow-lg shadow-primary/10" 
                 : "bg-white text-text-secondary border-transparent hover:bg-slate-50 shadow-sm"
@@ -141,7 +164,7 @@ const ServiceManager = () => {
                      </div>
                   </div>
 
-                  <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-6 px-0 lg:px-6 py-4 lg:py-0 border-y lg:border-y-0 lg:border-x border-slate-50">
+                  <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 px-0 lg:px-6 py-4 lg:py-0 border-y lg:border-y-0 lg:border-x border-slate-50">
                      <div>
                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Guest</p>
                         <p className="text-sm font-black text-text-primary uppercase">{booking.guestName}</p>
@@ -160,7 +183,7 @@ const ServiceManager = () => {
                      </div>
                   </div>
 
-                  <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex flex-col sm:flex-row items-center gap-2 lg:gap-3 shrink-0">
                      {booking.status === 'Pending' ? (
                        <>
                          <button 

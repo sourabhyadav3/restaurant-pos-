@@ -7,7 +7,10 @@ import { CustomerProvider } from './context/CustomerContext';
 import { HospitalityProvider } from './context/HospitalityContext';
 import { CommunicationProvider } from './context/CommunicationContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { ToastProvider } from './context/ToastContext';
 import MainLayout from './layouts/MainLayout';
+import ScrollToTop from './components/common/ScrollToTop';
+
 
 // Website
 import LandingPage from './pages/website/LandingPage';
@@ -55,6 +58,7 @@ import CustomerSupport from './pages/dashboard/customer/CustomerSupport';
 import CustomerReservations from './pages/dashboard/customer/CustomerReservations';
 import CustomerMessages from './pages/dashboard/customer/CustomerMessages';
 import CustomerServices from './pages/dashboard/customer/CustomerServices';
+import CustomerCart from './pages/dashboard/customer/CustomerCart';
 
 // Dashboard - Reception
 import Rooms from './pages/dashboard/reception/Rooms';
@@ -127,13 +131,15 @@ function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
-        <MenuProvider>
+        <ToastProvider>
+          <MenuProvider>
           <OrdersProvider>
             <CustomerProvider>
               <HospitalityProvider>
                 <CommunicationProvider>
                   <ThemeHandler />
                   <Router>
+                    <ScrollToTop />
                     <Routes>
                       {/* Landing Page */}
                       <Route path="/" element={<LandingPage />} />
@@ -360,6 +366,12 @@ function App() {
                         </ProtectedRoute>
                       } />
 
+                      <Route path="/customer/cart" element={
+                        <ProtectedRoute allowedRoles={[roles.CUSTOMER]}>
+                          <MainLayout><CustomerCart /></MainLayout>
+                        </ProtectedRoute>
+                      } />
+
                       <Route path="*" element={<Navigate to="/" />} />
                     </Routes>
                   </Router>
@@ -368,7 +380,8 @@ function App() {
             </CustomerProvider>
           </OrdersProvider>
         </MenuProvider>
-      </NotificationProvider>
+      </ToastProvider>
+    </NotificationProvider>
     </AuthProvider>
   );
 }

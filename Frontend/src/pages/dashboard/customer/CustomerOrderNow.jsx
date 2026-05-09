@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
-  Filter, 
   ChevronLeft, 
   Heart, 
   Plus, 
@@ -14,11 +13,7 @@ import {
   ShoppingBag,
   Trash2,
   CreditCard,
-  Ticket,
-  ChevronRight,
-  ArrowRight,
-  Info,
-  Clock
+  ArrowRight
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useMenu } from "../../../context/MenuContext";
@@ -26,6 +21,109 @@ import { useCustomer } from "../../../context/CustomerContext";
 import { useOrders } from "../../../context/OrdersContext";
 import { useHospitality } from "../../../context/HospitalityContext";
 import { useLocation, useNavigate } from 'react-router-dom';
+
+const CartSummary = ({ 
+  isMobile = false, 
+  cartItems, 
+  clearCart, 
+  removeFromCart, 
+  updateCartQuantity, 
+  subtotal, 
+  tax, 
+  serviceCharge, 
+  total, 
+  onCheckout 
+}) => (
+  <div className={cn(
+    "flex flex-col h-full bg-white",
+    isMobile ? "p-6" : "p-0"
+  )}>
+     <div className="flex items-center justify-between mb-6">
+        <div>
+          <h3 className="text-xl font-black text-text-primary uppercase tracking-tight flex items-center gap-3">
+             <ShoppingBag className="w-6 h-6 text-primary" /> Your Cart
+          </h3>
+          <span className="text-[10px] font-black text-primary bg-primary/5 px-3 py-1 rounded-lg uppercase tracking-widest mt-2 inline-block">{cartItems.length} Items</span>
+        </div>
+        {cartItems.length > 0 && (
+          <button 
+            onClick={clearCart}
+            className="p-2 text-slate-300 hover:text-rose-500 transition-colors"
+            title="Clear Cart"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        )}
+     </div>
+
+     {cartItems.length === 0 ? (
+       <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-slate-100 rounded-[2rem]">
+          <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
+             <ShoppingBag className="w-8 h-8 text-slate-200" />
+          </div>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Cart is empty</p>
+       </div>
+     ) : (
+       <>
+         <div className="flex-1 overflow-y-auto scrollbar-hide space-y-4 mb-6 pr-1">
+            {cartItems.map((item) => (
+              <div key={item.id} className="flex gap-4 p-3 bg-slate-50 rounded-2xl group relative">
+                 <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center text-3xl shadow-sm shrink-0">
+                    {item.image}
+                 </div>
+                 <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <div>
+                       <div className="flex justify-between items-start">
+                          <h4 className="text-[11px] font-black text-text-primary uppercase truncate pr-4">{item.name}</h4>
+                          <button onClick={() => removeFromCart(item.id)} className="p-1 text-slate-300 hover:text-rose-500 transition-colors">
+                             <Trash2 className="w-3 h-3" />
+                          </button>
+                       </div>
+                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{item.size}</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                       <p className="text-xs font-black text-primary tracking-tighter">₹{item.price * item.quantity}</p>
+                       <div className="flex items-center gap-3 bg-white px-2 py-1 rounded-lg shadow-sm">
+                          <button onClick={() => updateCartQuantity(item.id, -1)} className="text-slate-400 hover:text-primary"><Minus className="w-3 h-3" /></button>
+                          <span className="text-[10px] font-black w-2 text-center">{item.quantity}</span>
+                          <button onClick={() => updateCartQuantity(item.id, 1)} className="text-slate-400 hover:text-primary"><Plus className="w-3 h-3" /></button>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+            ))}
+         </div>
+
+         <div className="space-y-4 pt-4 border-t border-slate-100">
+            <div className="space-y-2">
+               <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <span>Subtotal</span>
+                  <span className="text-text-primary font-black">₹{subtotal.toFixed(0)}</span>
+               </div>
+               <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <span>GST (5%)</span>
+                  <span className="text-emerald-500 font-black">₹{tax.toFixed(0)}</span>
+               </div>
+               <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <span>Service Fee</span>
+                  <span className="text-text-primary font-black">₹{serviceCharge}</span>
+               </div>
+            </div>
+            <div className="flex justify-between items-center pt-2">
+               <span className="text-xs font-black text-text-primary uppercase tracking-tight">Total Payable</span>
+               <span className="text-2xl font-black text-primary tracking-tighter">₹{total.toFixed(0)}</span>
+            </div>
+            <button 
+              onClick={onCheckout}
+              className="w-full btn-primary py-4 rounded-2xl flex items-center justify-center gap-3 text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all group"
+            >
+              Checkout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+         </div>
+       </>
+     )}
+  </div>
+);
 
 const CustomerOrderNow = () => {
   const { items, categoriesList } = useMenu();
@@ -94,104 +192,6 @@ const CustomerOrderNow = () => {
   const serviceCharge = cartItems.length > 0 ? 25 : 0;
   const total = subtotal + tax + serviceCharge;
 
-  const CartSummary = ({ isMobile = false }) => (
-    <div className={cn(
-      "flex flex-col h-full bg-white",
-      isMobile ? "p-6" : "p-0"
-    )}>
-       <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-xl font-black text-text-primary uppercase tracking-tight flex items-center gap-3">
-               <ShoppingBag className="w-6 h-6 text-primary" /> Your Cart
-            </h3>
-            <span className="text-[10px] font-black text-primary bg-primary/5 px-3 py-1 rounded-lg uppercase tracking-widest mt-2 inline-block">{cartItems.length} Items</span>
-          </div>
-          {cartItems.length > 0 && (
-            <button 
-              onClick={clearCart}
-              className="p-2 text-slate-300 hover:text-rose-500 transition-colors"
-              title="Clear Cart"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          )}
-       </div>
-
-       {cartItems.length === 0 ? (
-         <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-slate-100 rounded-[2rem]">
-            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
-               <ShoppingBag className="w-8 h-8 text-slate-200" />
-            </div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Cart is empty</p>
-         </div>
-       ) : (
-         <>
-           <div className="flex-1 overflow-y-auto scrollbar-hide space-y-4 mb-6 pr-1">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex gap-4 p-3 bg-slate-50 rounded-2xl group relative">
-                   <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center text-3xl shadow-sm shrink-0">
-                      {item.image}
-                   </div>
-                   <div className="flex-1 min-w-0 flex flex-col justify-between">
-                      <div>
-                         <div className="flex justify-between items-start">
-                            <h4 className="text-[11px] font-black text-text-primary uppercase truncate pr-4">{item.name}</h4>
-                            <button onClick={() => removeFromCart(item.id)} className="p-1 text-slate-300 hover:text-rose-500 transition-colors">
-                               <Trash2 className="w-3 h-3" />
-                            </button>
-                         </div>
-                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{item.size}</p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                         <p className="text-xs font-black text-primary tracking-tighter">₹{item.price * item.quantity}</p>
-                         <div className="flex items-center gap-3 bg-white px-2 py-1 rounded-lg shadow-sm">
-                            <button onClick={() => updateCartQuantity(item.id, -1)} className="text-slate-400 hover:text-primary"><Minus className="w-3 h-3" /></button>
-                            <span className="text-[10px] font-black w-2 text-center">{item.quantity}</span>
-                            <button onClick={() => updateCartQuantity(item.id, 1)} className="text-slate-400 hover:text-primary"><Plus className="w-3 h-3" /></button>
-                         </div>
-                      </div>
-                   </div>
-                </div>
-              ))}
-           </div>
-
-           <div className="space-y-4 pt-4 border-t border-slate-100">
-              <div className="space-y-2">
-                 <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <span>Subtotal</span>
-                    <span className="text-text-primary font-black">₹{subtotal.toFixed(0)}</span>
-                 </div>
-                 <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <span>GST (5%)</span>
-                    <span className="text-emerald-500 font-black">₹{tax.toFixed(0)}</span>
-                 </div>
-                 <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <span>Service Fee</span>
-                    <span className="text-text-primary font-black">₹{serviceCharge}</span>
-                 </div>
-              </div>
-              <div className="flex justify-between items-center pt-2">
-                 <span className="text-xs font-black text-text-primary uppercase tracking-tight">Total Payable</span>
-                 <span className="text-2xl font-black text-primary tracking-tighter">₹{total.toFixed(0)}</span>
-              </div>
-              <button 
-                onClick={() => {
-                  if (cartItems.length === 0) return;
-                  if (isRoomService) {
-                    handleFinalPlaceOrder('Charged to Room');
-                  } else {
-                    setShowPaymentModal(true);
-                  }
-                }}
-                className="w-full btn-primary py-4 rounded-2xl flex items-center justify-center gap-3 text-xs font-black uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all group"
-              >
-                Checkout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-           </div>
-         </>
-       )}
-    </div>
-  );
 
   const handleFinalPlaceOrder = (method) => {
     setPaymentProcessing(true);
@@ -211,11 +211,11 @@ const CustomerOrderNow = () => {
         paymentMethod: method
       };
       
-      addOrder(newOrder);
+      const placedOrder = addOrder(newOrder);
       
       if (isRoomService) {
         addToFolio(profile.name, {
-          description: `Room Service: Order ${newOrder.id}`,
+          description: `Room Service: Order ${placedOrder.id}`,
           amount: total,
           date: new Date().toLocaleDateString(),
           type: 'Food'
@@ -250,33 +250,36 @@ const CustomerOrderNow = () => {
            </div>
         </div>
 
-        {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1 shrink-0">
-          {categoriesList.map(cat => (
+        {/* Categories Scroller */}
+      <div className="sticky top-[56px] lg:top-0 z-[110] bg-background/80 backdrop-blur-md -mx-4 px-4 py-3 lg:py-4">
+        <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide shrink-0">
+          {categoriesList.map((cat) => (
             <button 
               key={cat}
               onClick={() => setActiveCategory(cat)}
               className={cn(
-                "px-5 lg:px-6 py-2.5 rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest border-2 whitespace-nowrap transition-all",
+                "px-5 lg:px-6 py-2 lg:py-2.5 rounded-xl lg:rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all border-2",
                 activeCategory === cat 
-                ? "bg-primary text-white border-primary shadow-lg shadow-primary/10" 
-                : "bg-white text-text-secondary border-transparent hover:bg-slate-50"
+                  ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-105" 
+                  : "bg-white text-text-secondary border-transparent hover:bg-slate-50"
               )}
             >
               {cat}
             </button>
           ))}
         </div>
+      </div>
 
-        {/* Food Items Grid */}
-        <div className="flex-1 overflow-y-auto scrollbar-hide pr-1 min-h-0">
-           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 pb-6 lg:pb-6">
-              {filteredItems.map(item => (
-                <div 
-                  key={item.id} 
-                  onClick={() => openItemModal(item)}
-                  className="card group cursor-pointer border-none shadow-xl shadow-slate-100/50 p-4 bg-white hover:bg-slate-50 transition-all flex flex-col h-full relative active:scale-[0.98]"
-                >
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 flex-1">
+        {/* Main Menu Grid */}
+        <div className="flex-1 space-y-6 lg:space-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 pb-10">
+            {filteredItems.map((item) => (
+              <div 
+                key={item.id} 
+                onClick={() => openItemModal(item)}
+                className="card group cursor-pointer border-none shadow-xl shadow-slate-100/50 p-4 lg:p-5 bg-white hover:bg-slate-50 transition-all active:scale-95 flex flex-col h-full min-w-0"
+              >
                    <div className="absolute top-4 left-4 z-10 w-4 h-4 border-2 border-slate-100 rounded-sm flex items-center justify-center bg-white">
                      <div className={cn("w-2 h-2 rounded-full", item.id % 2 === 0 ? "bg-rose-500" : "bg-emerald-500")} />
                    </div>
@@ -311,53 +314,38 @@ const CustomerOrderNow = () => {
            </div>
         </div>
       </div>
+    </div>
 
       {/* Cart Sidebar (Desktop) */}
       <div className="hidden lg:block w-80 xl:w-96 shrink-0">
-         <div className="sticky top-6 card p-8 bg-white border-none shadow-2xl shadow-slate-200/50 rounded-[3rem] h-[calc(100vh-12rem)] flex flex-col">
-            <CartSummary />
-         </div>
+          <div className="sticky top-6 card p-8 bg-white border-none shadow-2xl shadow-slate-200/50 rounded-[3rem] h-[calc(100vh-12rem)] flex flex-col">
+            <CartSummary 
+              cartItems={cartItems}
+              clearCart={clearCart}
+              removeFromCart={removeFromCart}
+              updateCartQuantity={updateCartQuantity}
+              subtotal={subtotal}
+              tax={tax}
+              serviceCharge={serviceCharge}
+              total={total}
+              onCheckout={() => {
+                if (cartItems.length === 0) return;
+                if (isRoomService) handleFinalPlaceOrder('Charged to Room');
+                else setShowPaymentModal(true);
+              }}
+            />
+          </div>
       </div>
 
-      {/* Mobile Cart Bottom Sheet / Floating Action */}
-      <div className="lg:hidden fixed bottom-20 left-4 right-4 z-[200]">
-         <button 
-           onClick={() => setShowMobileCart(true)}
-           className="w-full h-16 bg-primary text-white rounded-2xl flex items-center justify-between px-6 shadow-2xl shadow-primary/40 active:scale-[0.98] transition-all"
-         >
-            <div className="flex items-center gap-4">
-               <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                  <ShoppingBag className="w-5 h-5" />
-               </div>
-               <div className="text-left">
-                  <p className="text-xs font-black uppercase tracking-widest leading-none mb-1">{cartItems.length} Items</p>
-                  <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest leading-none">View Cart Summary</p>
-               </div>
-            </div>
-            <div className="text-right">
-               <p className="text-lg font-black tracking-tighter">₹{total.toFixed(0)}</p>
-            </div>
-         </button>
-      </div>
 
-      {/* Mobile Cart Drawer Overlay */}
-      {showMobileCart && (
-        <div className="fixed inset-0 z-[300] lg:hidden">
-           <div onClick={() => setShowMobileCart(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[3rem] max-h-[85vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom-full duration-300">
-              <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto my-4 shrink-0" />
-              <div className="flex-1 overflow-y-auto px-6 pb-10 scrollbar-hide">
-                 <CartSummary isMobile={true} />
-              </div>
-           </div>
-        </div>
-      )}
+
+
 
       {/* Customization Modal */}
       {showItemModal && selectedItem && (
         <div className="fixed inset-0 z-[400] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setShowItemModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] animate-in fade-in slide-in-from-bottom-full sm:zoom-in duration-300 self-end sm:self-center">
+          <div className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] animate-in fade-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
              <div className="relative h-40 sm:h-48 lg:h-56 bg-slate-50 flex items-center justify-center text-6xl lg:text-8xl shrink-0">
                 {selectedItem.image}
                 <button onClick={() => setShowItemModal(false)} className="absolute top-4 lg:top-6 right-4 lg:right-6 p-2 lg:p-3 bg-white/80 backdrop-blur-md rounded-2xl text-slate-400 hover:text-rose-500 shadow-xl transition-all">
@@ -377,7 +365,7 @@ const CustomerOrderNow = () => {
                    </div>
                    <div className="sm:text-right shrink-0">
                       <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Total</p>
-                      <p className="text-xl lg:text-2xl font-black text-primary tracking-tighter">₹{selectedSize.price * quantity}</p>
+                      <p className="text-xl lg:text-2xl font-black text-primary tracking-tighter">₹{selectedSize?.price * quantity}</p>
                    </div>
                 </div>
 
@@ -391,7 +379,7 @@ const CustomerOrderNow = () => {
                             onClick={() => setSelectedSize(size)}
                             className={cn(
                               "flex-1 min-w-[100px] px-4 py-3.5 sm:py-3 rounded-2xl border-2 transition-all text-center",
-                              selectedSize.name === size.name 
+                              selectedSize?.name === size.name 
                               ? "bg-primary/5 border-primary text-primary" 
                               : "bg-white border-slate-100 text-slate-400"
                             )}
@@ -439,7 +427,7 @@ const CustomerOrderNow = () => {
       {showPaymentModal && (
         <div className="fixed inset-0 z-[500] flex items-center justify-center p-0 sm:p-4">
            <div onClick={() => !paymentProcessing && setShowPaymentModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-           <div className="relative w-full max-w-md bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-full sm:zoom-in-95 duration-300 self-end sm:self-center">
+           <div className="relative w-full max-w-md bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
               <div className="px-6 sm:px-8 py-5 sm:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
                  <div>
                     <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight">Complete Payment</h3>
@@ -533,7 +521,7 @@ const CustomerOrderNow = () => {
                     <button 
                       disabled={!selectedPaymentMethod}
                       onClick={() => handleFinalPlaceOrder(selectedPaymentMethod)}
-                      className="w-full py-4 sm:py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-slate-900/20 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-4"
+                      className="w-full py-4 sm:py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-slate-900/20 active:scale-95 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-4"
                     >
                        {selectedPaymentMethod === 'Pay at Counter' ? 'Confirm Order' : 'Pay & Place Order'}
                        <ArrowRight className="w-4 h-4" />

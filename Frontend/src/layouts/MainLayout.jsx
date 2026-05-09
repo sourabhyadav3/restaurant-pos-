@@ -36,11 +36,13 @@ import {
 } from 'lucide-react';
 import { useAuth, roles } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
+import { useCustomer } from '../context/CustomerContext';
 import { cn } from '../utils/cn';
 
 const MainLayout = ({ children }) => {
   const { user, login, logout } = useAuth();
   const { notifications, getUnreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { cartItems } = useCustomer();
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -51,6 +53,12 @@ const MainLayout = ({ children }) => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  React.useEffect(() => {
+    const handleToggle = () => setIsMobileMenuOpen(true);
+    window.addEventListener('open-sidebar', handleToggle);
+    return () => window.removeEventListener('open-sidebar', handleToggle);
+  }, []);
 
   const getRoleModulePath = (moduleName) => {
     if (!user) return `/${moduleName}`;
@@ -92,6 +100,7 @@ const MainLayout = ({ children }) => {
     { name: 'Reservations', icon: CalendarCheck, path: '/customer/reservations', roles: [roles.CUSTOMER] },
     { name: 'Excursions', icon: Compass, path: '/customer/services', roles: [roles.CUSTOMER] },
     { name: 'Favorites', icon: Heart, path: '/customer/favorites', roles: [roles.CUSTOMER] },
+    { name: 'Cart', icon: ShoppingCart, path: '/customer/cart', roles: [roles.CUSTOMER] },
     { name: 'Profile', icon: UserIcon, path: '/customer/profile', roles: [roles.CUSTOMER] },
     { name: 'Support', icon: HelpCircle, path: '/customer/support', roles: [roles.CUSTOMER] },
   ];
@@ -103,7 +112,7 @@ const MainLayout = ({ children }) => {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "bg-white border-r border-border flex flex-col relative z-[100] shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-full transition-all duration-300",
+          "bg-white border-r border-border flex flex-col relative z-[150] shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-full transition-all duration-300",
           "lg:translate-x-0 fixed lg:relative",
           isCollapsed ? "lg:w-[80px]" : "lg:w-[200px]",
           isMobileMenuOpen ? "translate-x-0 w-[240px]" : "-translate-x-full lg:translate-x-0"
@@ -190,13 +199,18 @@ const MainLayout = ({ children }) => {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden relative bg-background">
+      <div className={cn(
+        "flex-1 flex flex-col relative bg-background min-w-0"
+      )}>
         {/* Premium SaaS Background Blobs */}
         <div className="absolute top-[-10%] right-[-5%] w-[40rem] h-[40rem] bg-primary/[0.03] rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute bottom-[-10%] left-[-5%] w-[35rem] h-[35rem] bg-indigo-400/[0.03] rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute top-[20%] left-[10%] w-[30rem] h-[30rem] bg-blue-300/[0.02] rounded-full blur-[80px] pointer-events-none" />
                 {/* Header */}
-        <header className="h-14 bg-white border-b border-border flex items-center justify-between px-3 lg:px-4 shrink-0 z-20">
+        <header className={cn(
+          "h-14 bg-white border-b border-border flex items-center justify-between px-3 lg:px-4 shrink-0 z-[140]",
+          "sticky top-0 left-0 right-0 lg:relative lg:top-auto lg:left-auto lg:right-auto"
+        )}>
           <div className="flex items-center gap-3 lg:gap-6 flex-1">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
@@ -234,7 +248,7 @@ const MainLayout = ({ children }) => {
                 <>
                   <div className="fixed inset-0 z-0" onClick={() => setSearchQuery('')} />
                   <div 
-                    className="absolute top-full mt-3 w-full bg-white border border-slate-100 rounded-3xl shadow-2xl overflow-hidden z-10 p-2"
+                    className="absolute top-full mt-3 w-full bg-white border border-slate-100 rounded-3xl shadow-2xl overflow-hidden z-[120] p-2"
                   >
                     <div className="p-2">
                       <div className="px-3 py-2">
@@ -278,6 +292,20 @@ const MainLayout = ({ children }) => {
                   </span>
                 )}
               </button>
+
+              {user?.role === roles.CUSTOMER && (
+                <button 
+                  onClick={() => navigate('/customer/cart')}
+                  className="relative p-2 bg-slate-50 rounded-xl text-text-secondary hover:text-primary transition-all ml-2"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  {cartItems.length > 0 && (
+                    <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-white text-[8px] font-black rounded-full border-2 border-white flex items-center justify-center">
+                      {cartItems.length}
+                    </span>
+                  )}
+                </button>
+              )}
 
               {showNotifications && (
                 <>
@@ -342,38 +370,15 @@ const MainLayout = ({ children }) => {
           </div>
         </header>
 
-        {/* Content */}
-        <main className="flex-1 overflow-y-auto px-4 lg:px-6 pt-4 lg:pt-6 pb-20 lg:pb-8 bg-transparent relative scrollbar-hide">
-          <div className="max-w-[1600px] mx-auto">
+        {/* Content - Fixed Scrolling Hub */}
+        <main className="flex-1 overflow-y-auto px-4 lg:px-6 pt-6 pb-24 lg:pb-8 bg-transparent relative scroll-smooth">
+          <div className="max-w-[1600px] mx-auto w-full">
             {children}
           </div>
         </main>
-      </div>
 
-      {/* Mobile Bottom Navigation (Only for Customers) */}
-      {user?.role === roles.CUSTOMER && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-t border-border z-[100] px-4 flex items-center justify-between shadow-[0_-10px_25px_rgba(0,0,0,0.05)]">
-            {[
-              { name: 'Home', icon: Home, path: '/customer/home' },
-              { name: 'Order Now', icon: UtensilsCrossed, path: '/customer/order-now' },
-              { name: 'Orders', icon: History, path: '/customer/orders' },
-              { name: 'Profile', icon: UserIcon, path: '/customer/profile' },
-            ].map(item => (
-             <NavLink 
-               key={item.name} 
-               to={item.path}
-               end={item.path === '/customer/home'}
-               className={({ isActive }) => cn(
-                 "flex flex-col items-center gap-1 transition-all",
-                 isActive ? "text-primary scale-110" : "text-slate-400"
-               )}
-             >
-                <item.icon className="w-5 h-5 stroke-[2.5]" />
-                <span className="text-[8px] font-black uppercase tracking-widest">{item.name}</span>
-             </NavLink>
-           ))}
-        </div>
-      )}
+
+      </div>
     </div>
   );
 };

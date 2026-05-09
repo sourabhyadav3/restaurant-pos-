@@ -35,7 +35,7 @@ const Settings = () => {
   const [settings, setSettings] = useState({
     businessName: 'The Royal Kitchen',
     email: 'admin@royalkitchen.com',
-    phone: '+91 98765 43210',
+    phone: '+00 12345 67890',
     address: '123, Foodie Street, Bangalore, KA 560001',
     currency: 'INR (₹)',
     timezone: '(GMT+05:30) India Standard Time',
@@ -48,9 +48,6 @@ const Settings = () => {
     kitchenAlerts: true,
     printerIp: '192.168.1.105',
     printerConnected: true,
-    compactMode: false,
-    animations: false,
-    density: 'Default',
     themeColor: localStorage.getItem('pos-theme') || 'indigo',
     motto: 'Serving Excellence Since 2024',
     operatingHours: {
@@ -151,7 +148,7 @@ const Settings = () => {
     { id: 'Billing', icon: Receipt, label: 'Billing' },
     { id: 'Notifications', icon: Bell, label: 'Notifications' },
     { id: 'Printer', icon: Printer, label: 'Printers' },
-    { id: 'System', icon: Cpu, label: 'System' },
+
   ];
 
   const filteredTabs = tabs.filter(tab => 
@@ -295,38 +292,7 @@ const Settings = () => {
                          <textarea name="address" value={settings.address} onChange={handleInputChange} rows="3" className="w-full px-5 lg:px-6 py-3 lg:py-4 bg-slate-50 border-2 border-transparent focus:border-primary focus:bg-white rounded-xl lg:rounded-2xl outline-none text-xs lg:text-sm font-bold resize-none" />
                       </div>
                    </div>
-                    <div className="card p-6 lg:p-10 bg-white rounded-[2rem] lg:rounded-[3rem] shadow-2xl border-none relative overflow-hidden">
-                      <h3 className="text-lg lg:text-xl font-black uppercase tracking-tight mb-2 leading-none">Display Settings</h3>
-                      <p className="text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 lg:mb-8 leading-none">Customize interface density</p>
-                      
-                      <div className="space-y-4 lg:space-y-6">
-                         <div className="flex items-center justify-between p-3 lg:p-4 rounded-xl lg:rounded-2xl active:bg-slate-50" onClick={() => toggleSetting('compactMode')}>
-                            <div className="flex items-center gap-3 lg:gap-4">
-                               <div className="p-2.5 lg:p-3 bg-indigo-50 text-primary rounded-lg lg:rounded-xl shrink-0"><Layout className="w-4 lg:w-5 h-4 lg:h-5" /></div>
-                               <div>
-                                  <p className="text-[11px] lg:text-sm font-black uppercase tracking-tight leading-none">Compact Mode</p>
-                                  <p className="text-[8px] lg:text-[10px] font-bold text-slate-400 mt-1.5 leading-none">Reduce spacing</p>
-                               </div>
-                            </div>
-                            <div className={cn("w-10 lg:w-12 h-5 lg:h-6 rounded-full p-1 transition-colors shrink-0", settings.compactMode ? "bg-primary" : "bg-slate-200")}>
-                               <div className={cn("w-3 lg:w-4 h-3 lg:h-4 bg-white rounded-full shadow-sm transition-transform", settings.compactMode ? "translate-x-5 lg:translate-x-6" : "translate-x-0")} />
-                            </div>
-                         </div>
 
-                         <div className="flex items-center justify-between p-3 lg:p-4 rounded-xl lg:rounded-2xl active:bg-slate-50" onClick={() => toggleSetting('animations')}>
-                            <div className="flex items-center gap-3 lg:gap-4">
-                               <div className="p-2.5 lg:p-3 bg-purple-50 text-purple-600 rounded-lg lg:rounded-xl shrink-0"><Zap className="w-4 lg:w-5 h-4 lg:h-5" /></div>
-                               <div>
-                                  <p className="text-[11px] lg:text-sm font-black uppercase tracking-tight leading-none">System Logic</p>
-                                  <p className="text-[8px] lg:text-[10px] font-bold text-slate-400 mt-1.5 leading-none">High-performance transitions</p>
-                               </div>
-                            </div>
-                            <div className={cn("w-10 lg:w-12 h-5 lg:h-6 rounded-full p-1 transition-colors shrink-0", settings.animations ? "bg-primary" : "bg-slate-200")}>
-                               <div className={cn("w-3 lg:w-4 h-3 lg:h-4 bg-white rounded-full shadow-sm transition-transform", settings.animations ? "translate-x-5 lg:translate-x-6" : "translate-x-0")} />
-                            </div>
-                         </div>
-                      </div>
-                   </div>
                 </div>
               )}
               {activeTab === 'Restaurant' && (
@@ -572,46 +538,7 @@ const Settings = () => {
                    </div>
                 </div>
               )}
-               {activeTab === 'System' && (
-                <div className="space-y-6 lg:space-y-8">
-                   <div className="card p-6 lg:p-10 bg-white rounded-[2rem] lg:rounded-[3rem] shadow-2xl border-none">
-                      <h3 className="text-lg lg:text-xl font-black uppercase tracking-tight mb-6 lg:mb-8 leading-none">Environment</h3>
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-                         {[
-                           { label: 'Uptime', val: '14 Days', icon: Activity },
-                           { label: 'Memory', val: '42%', icon: Cpu },
-                           { label: 'Nodes', val: 'Ready', icon: Globe },
-                           { label: 'Version', val: '4.2.0', icon: ShieldCheck },
-                         ].map(metric => (
-                           <div key={metric.label} className="card p-4 lg:p-5 bg-white flex flex-col justify-between h-28 lg:h-32 border border-slate-50">
-                              <div className="flex justify-between items-start">
-                                 <p className="text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{metric.label}</p>
-                                 <metric.icon className="w-3 lg:w-4 h-3 lg:w-4 text-primary opacity-40 shrink-0" />
-                              </div>
-                              <p className="text-base lg:text-xl font-black text-text-primary uppercase tracking-tight leading-none">{metric.val}</p>
-                           </div>
-                         ))}
-                      </div>
-                      <div className="mt-8 lg:mt-10 flex flex-col sm:flex-row gap-3 lg:gap-4">
-                         <button onClick={() => showToast('Cache cleared successfully')} className="flex-1 py-3.5 lg:py-4 bg-primary text-white rounded-xl lg:rounded-2xl font-black text-[9px] lg:text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-[0.98]">Purge Cache</button>
-                         <button onClick={() => showToast('Database integrity check passed')} className="flex-1 py-3.5 lg:py-4 bg-white border-2 border-slate-100 text-[9px] lg:text-[10px] font-black uppercase tracking-widest rounded-xl lg:rounded-2xl hover:bg-slate-50 active:scale-[0.98]">Verify DB</button>
-                      </div>
-                   </div>
 
-                   <div className="card p-6 lg:p-10 bg-rose-50 border-none rounded-[2rem] lg:rounded-[3rem] shadow-xl">
-                      <div className="flex flex-col sm:flex-row items-center gap-6">
-                         <div className="p-4 lg:p-5 bg-white text-rose-600 rounded-[1.5rem] lg:rounded-[2rem] shadow-rose-100 shadow-xl shrink-0">
-                            <LogOut className="w-6 lg:w-7 h-6 lg:h-7" />
-                         </div>
-                         <div className="text-center sm:text-left shrink-0">
-                            <h4 className="text-lg lg:text-xl font-black text-rose-900 uppercase tracking-tight leading-none">Termination</h4>
-                            <p className="text-[8px] lg:text-[10px] font-bold text-rose-500 uppercase tracking-widest mt-1.5 leading-none">Sign out of POS session</p>
-                         </div>
-                         <button onClick={() => window.location.href = '/login'} className="sm:ml-auto w-full sm:w-auto px-8 py-3.5 bg-rose-600 text-white rounded-xl lg:rounded-2xl font-black text-[9px] lg:text-[10px] uppercase tracking-widest hover:bg-rose-700 shadow-xl shadow-rose-200 active:scale-95 transition-all">Logout</button>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>

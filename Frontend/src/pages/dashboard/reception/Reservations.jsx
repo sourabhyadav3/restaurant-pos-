@@ -28,11 +28,13 @@ import {
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
+import { useToast } from "../../../context/ToastContext";
 import printContent from '../../../utils/printUtil';
 
 const Reservations = () => {
   const { 
     reservations, 
+    addReservation: ctxAddReservation,
     approveReservation, 
     rejectReservation, 
     checkInReservation, 
@@ -42,6 +44,7 @@ const Reservations = () => {
     activityLog 
   } = useHospitality();
   
+  const { showToast } = useToast();
   const [selectedRes, setSelectedRes] = useState(null);
   const [showAddRes, setShowAddRes] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -325,27 +328,41 @@ const Reservations = () => {
             <form 
               onSubmit={(e) => {
                 e.preventDefault();
-                const formData = new FormData(e.target);
-                const guestName = formData.get('guestName');
-                const type = formData.get('type');
-                const targetId = formData.get('targetId');
-                const date = formData.get('date');
-                const time = formData.get('time');
-                const guests = parseInt(formData.get('guests'));
+                try {
+                  const formData = new FormData(e.target);
+                  const guestName = formData.get('guestName');
+                  const type = formData.get('type');
+                  const targetId = formData.get('targetId');
+                  const date = formData.get('date');
+                  const time = formData.get('time');
+                  const guests = parseInt(formData.get('guests'));
 
-                if (!guestName || !targetId || !date || !time) return;
+                  if (!guestName || !targetId || !date || !time) {
+                    showToast('Please fill all required fields', 'error');
+                    return;
+                  }
 
-                addReservation({
-                  guestName,
-                  type,
-                  targetId,
-                  date,
-                  time,
-                  guests,
-                  status: 'Pending',
-                  notes: formData.get('notes')
-                });
-                setShowAddRes(false);
+                  if (ctxAddReservation) {
+                    ctxAddReservation({
+                      guestName,
+                      type,
+                      targetId,
+                      date,
+                      time,
+                      guests,
+                      status: 'Pending',
+                      notes: formData.get('notes') || ''
+                    });
+                    showToast('New booking created successfully!', 'success');
+                    setShowAddRes(false);
+                  } else {
+                    console.error('addReservation function is missing from context');
+                    showToast('Error: System not ready', 'error');
+                  }
+                } catch (err) {
+                  console.error('Booking Error:', err);
+                  showToast('Failed to create booking', 'error');
+                }
               }}
               className="p-8 space-y-6 overflow-y-auto scrollbar-hide"
             >

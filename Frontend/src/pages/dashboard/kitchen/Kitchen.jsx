@@ -24,10 +24,12 @@ import {
 import { createPortal } from 'react-dom';
 import { cn } from "../../../utils/cn";
 import { useOrders } from "../../../context/OrdersContext";
+import { useToast } from "../../../context/ToastContext";
 import printContent from '../../../utils/printUtil';
 
 const Kitchen = () => {
   const { orders, updateOrderStatus, cancelOrder, toggleItemComplete, updateOrderPriority, resetOrders } = useOrders();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('Active');
   const [searchQuery, setSearchQuery] = useState('');
   const [notifications, setNotifications] = useState(3);
@@ -139,7 +141,7 @@ const Kitchen = () => {
                e.stopPropagation();
                if(notifications > 0) {
                  setNotifications(0);
-                 alert('Notifications cleared!');
+                 showToast('Notifications cleared!', 'info');
                }
              }}
              className="p-2.5 bg-white border border-border rounded-xl shadow-sm text-text-secondary hover:text-primary relative group"
@@ -444,7 +446,7 @@ const Kitchen = () => {
                 <button 
                   key={station}
                   onClick={() => {
-                    alert(`Ticket #${transferringOrderId} transferred to ${station}`);
+                    showToast(`Ticket #${transferringOrderId} transferred to ${station}`, 'success');
                     setOrders(prev => prev.filter(o => o.id !== transferringOrderId));
                     setTransferringOrderId(null);
                   }}

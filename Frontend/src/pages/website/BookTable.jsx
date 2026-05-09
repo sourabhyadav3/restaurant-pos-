@@ -159,7 +159,7 @@ const BookTable = () => {
                           </div>
                           <div>
                              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Phone Number</label>
-                             <input type="tel" required placeholder="+1 234..." className="w-full px-6 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-teal-500 focus:bg-white transition-all text-sm font-bold" />
+                             <input type="tel" required placeholder="+00 000..." className="w-full px-6 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-landing-primary focus:bg-white transition-all text-sm font-bold" />
                           </div>
                        </div>
                        <div>

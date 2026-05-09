@@ -63,14 +63,16 @@ const CustomerHome = () => {
       {/* Header / Welcome Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="badge bg-primary/10 text-primary border-none px-3 py-1 font-black text-[10px] uppercase tracking-widest">{profile.diningType} • Table {profile.tableId}</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="flex items-center flex-wrap gap-2 mb-3">
+            <span className="badge bg-primary/10 text-primary border-none px-3 py-1 font-black text-[9px] lg:text-[10px] uppercase tracking-widest leading-none">
+              {profile.diningType} • Table {profile.tableId}
+            </span>
+            <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-emerald-500 animate-pulse" />
           </div>
-          <h1 className="text-2xl lg:text-3xl font-black text-text-primary tracking-tight leading-none uppercase">
-            Good Afternoon, <span className="text-primary">{profile.name.split(' ')[0]}!</span>
+          <h1 className="text-xl lg:text-3xl font-black text-text-primary tracking-tight leading-tight uppercase">
+            Good Afternoon, <br className="xs:hidden" /><span className="text-primary">{profile.name.split(' ')[0]}!</span>
           </h1>
-          <p className="text-text-secondary mt-2 text-xs lg:text-sm font-medium">What's on your mind today? 🍕</p>
+          <p className="text-text-secondary mt-1 lg:mt-2 text-[10px] lg:text-sm font-medium">What's on your mind today? 🍕</p>
         </div>
         <div className="flex items-center gap-3">
           <button className="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 text-text-secondary hover:text-primary relative group">
@@ -100,7 +102,7 @@ const CustomerHome = () => {
                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-widest">
                   <Sparkles className="w-3 h-3" /> Today's Special
                </div>
-               <h2 className="text-3xl lg:text-5xl font-black text-text-primary uppercase tracking-tighter leading-[0.9]">
+               <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-text-primary uppercase tracking-tighter leading-[1] lg:leading-[0.9]">
                   Freshly <span className="text-primary">Prepared</span> <br /> Meals for you.
                </h2>
                <p className="text-xs lg:text-sm text-slate-400 font-medium max-w-sm mx-auto md:mx-0 leading-relaxed">
@@ -125,9 +127,9 @@ const CustomerHome = () => {
                   </div>
                </div>
             </div>
-            <div className="w-48 h-48 lg:w-72 lg:h-72 bg-slate-50 rounded-[3rem] lg:rounded-[4rem] flex items-center justify-center text-8xl lg:text-9xl shadow-inner relative group-hover:scale-105 transition-all duration-700">
+            <div className="w-40 h-40 sm:w-48 sm:h-48 lg:w-72 lg:h-72 bg-slate-50 rounded-[2.5rem] sm:rounded-[3rem] lg:rounded-[4rem] flex items-center justify-center text-7xl sm:text-8xl lg:text-9xl shadow-inner relative group-hover:scale-105 transition-all duration-700">
                🍱
-               <div className="absolute -top-4 -right-4 w-16 h-16 lg:w-20 lg:h-20 bg-white rounded-3xl shadow-xl flex items-center justify-center text-3xl animate-bounce">
+               <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-white rounded-2xl sm:rounded-3xl shadow-xl flex items-center justify-center text-2xl sm:text-3xl animate-bounce">
                   🔥
                </div>
             </div>
@@ -168,12 +170,12 @@ const CustomerHome = () => {
               className={cn("p-6 rounded-[2rem] relative overflow-hidden group cursor-pointer active:scale-[0.98] transition-all bg-gradient-to-br", offer.color)}
             >
                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-               <div className="relative z-10 flex items-center justify-between">
-                 <div>
-                   <h4 className="text-white text-xl font-black uppercase tracking-tight leading-none mb-1">{offer.title}</h4>
-                   <p className="text-white/80 text-[10px] font-bold uppercase tracking-widest">{offer.desc}</p>
+               <div className="relative z-10 flex items-center justify-between gap-4">
+                 <div className="flex-1 min-w-0">
+                   <h4 className="text-white text-lg sm:text-xl font-black uppercase tracking-tight leading-none mb-1 truncate">{offer.title}</h4>
+                   <p className="text-white/80 text-[8px] sm:text-[10px] font-bold uppercase tracking-widest line-clamp-1">{offer.desc}</p>
                  </div>
-                 <div className="text-4xl">{offer.icon}</div>
+                 <div className="text-3xl sm:text-4xl shrink-0">{offer.icon}</div>
                </div>
             </div>
           ))}
@@ -185,7 +187,7 @@ const CustomerHome = () => {
            <h3 className="text-lg font-black uppercase tracking-tight">Chef's Recommendations</h3>
            <button onClick={() => navigate('/customer/order-now')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Full Menu</button>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3 lg:gap-4">
           {recommendedItems.map((item) => (
             <div 
               key={item.id} 

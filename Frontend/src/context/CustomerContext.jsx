@@ -19,7 +19,7 @@ export const CustomerProvider = ({ children }) => {
     const saved = localStorage.getItem('resto-customer-profile');
     return saved ? JSON.parse(saved) : {
       name: 'Guest User',
-      phone: '+91 98765 43210',
+      phone: '+00 12345 67890',
       email: 'guest@example.com',
       tableId: '05',
       diningType: 'Dine-in',

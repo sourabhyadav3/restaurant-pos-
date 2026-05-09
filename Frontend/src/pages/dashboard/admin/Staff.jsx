@@ -97,8 +97,8 @@ const Staff = () => {
           <h2 className="text-xl lg:text-2xl font-black text-text-primary uppercase tracking-tight leading-none">Staff Directory</h2>
           <p className="text-text-secondary mt-1 text-xs lg:text-sm font-medium">Manage your restaurant team.</p>
         </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-           <div className="relative group min-w-[200px]">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+           <div className="relative group flex-1 sm:min-w-[200px]">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-primary" />
               <input 
                 type="text" 
@@ -120,9 +120,9 @@ const Staff = () => {
            </button>
            <button 
              onClick={() => { setEditingStaff(null); setShowAddModal(true); }}
-             className="btn-primary flex items-center justify-center gap-2 h-[42px] px-5 shadow-xl shadow-primary/20 text-[10px] lg:text-xs font-black uppercase tracking-widest shrink-0"
+             className="btn-primary flex items-center justify-center gap-2 h-[42px] px-4 sm:px-5 shadow-xl shadow-primary/20 text-[10px] lg:text-xs font-black uppercase tracking-widest shrink-0"
            >
-             <Plus className="w-4 h-4 stroke-[3]" /> Add Member
+             <Plus className="w-4 h-4 stroke-[3]" /> <span className="hidden sm:inline">Add Member</span><span className="sm:hidden">Add</span>
            </button>
         </div>
       </div>

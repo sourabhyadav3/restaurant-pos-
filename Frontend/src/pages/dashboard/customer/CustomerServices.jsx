@@ -66,13 +66,13 @@ const CustomerServices = () => {
           <h1 className="text-2xl lg:text-3xl font-black text-text-primary tracking-tight uppercase">Services <span className="text-primary">& Excursions</span></h1>
           <p className="text-text-secondary text-xs lg:text-sm font-medium mt-1">Explore and book transport or local adventures</p>
         </div>
-        <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-50">
+        <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-50 overflow-x-auto scrollbar-hide shrink-0">
            {['All', 'Transport', 'Excursion'].map(tab => (
              <button 
                key={tab}
                onClick={() => setActiveTab(tab)}
                className={cn(
-                 "px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                 "px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                  activeTab === tab ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-slate-400 hover:text-primary"
                )}
              >
@@ -149,9 +149,9 @@ const CustomerServices = () => {
 
       {/* Booking Modal */}
       {selectedService && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-0 sm:p-4">
            <div onClick={() => setSelectedService(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-           <div className="relative w-full max-w-md bg-white rounded-[2rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
+           <div className="relative w-full max-w-md bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
               {showSuccess ? (
                 <div className="p-10 lg:p-12 text-center flex flex-col items-center gap-6 overflow-y-auto scrollbar-hide">
                    <div className="w-16 lg:w-20 h-16 lg:h-20 bg-emerald-50 rounded-[2rem] lg:rounded-[2.5rem] flex items-center justify-center text-emerald-500 shadow-inner">

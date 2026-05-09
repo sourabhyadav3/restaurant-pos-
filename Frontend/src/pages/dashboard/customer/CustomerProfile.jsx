@@ -198,7 +198,7 @@ const CustomerProfile = () => {
           
           {/* Edit Profile Modal */}
           {activeModal === 'edit-profile' && (
-            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
+            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
                <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
                   <h3 className="text-xl font-black uppercase tracking-tight">Edit Profile</h3>
                   <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-white rounded-xl transition-all shadow-sm"><X className="w-5 h-5" /></button>
@@ -222,7 +222,7 @@ const CustomerProfile = () => {
                       className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-xs"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
                       <input 
@@ -256,7 +256,7 @@ const CustomerProfile = () => {
 
           {/* Payment Methods Modal */}
           {activeModal === 'payments' && (
-            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
+            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
                <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-indigo-50/50">
                   <h3 className="text-xl font-black uppercase tracking-tight text-indigo-900">Payment Methods</h3>
                   <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-white rounded-xl transition-all shadow-sm"><X className="w-5 h-5 text-indigo-900" /></button>
@@ -328,7 +328,7 @@ const CustomerProfile = () => {
 
           {/* Address Book Modal */}
           {activeModal === 'addresses' && (
-            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
+            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
                <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-rose-50/50">
                   <h3 className="text-xl font-black uppercase tracking-tight text-rose-900">Address Book</h3>
                   <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-white rounded-xl transition-all shadow-sm"><X className="w-5 h-5 text-rose-900" /></button>
@@ -390,7 +390,7 @@ const CustomerProfile = () => {
 
           {/* Notifications Modal */}
           {activeModal === 'notifs' && (
-            <div className="relative w-full max-w-[450px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
+            <div className="relative w-full max-w-[450px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
                <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-orange-50/50">
                   <h3 className="text-xl font-black uppercase tracking-tight text-orange-900">Notifications</h3>
                   <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-white rounded-xl transition-all shadow-sm"><X className="w-5 h-5 text-orange-900" /></button>
@@ -436,7 +436,7 @@ const CustomerProfile = () => {
 
           {/* Privacy & Security Modal */}
           {activeModal === 'privacy' && (
-            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
+            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
                <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-emerald-50/50">
                   <h3 className="text-xl font-black uppercase tracking-tight text-emerald-900">Security Center</h3>
                   <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-white rounded-xl transition-all shadow-sm"><X className="w-5 h-5 text-emerald-900" /></button>
@@ -501,7 +501,7 @@ const CustomerProfile = () => {
 
           {/* Logout Confirmation Modal */}
           {activeModal === 'logout' && (
-            <div className="relative w-full max-w-[400px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl p-8 text-center space-y-6 animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
+            <div className="relative w-full max-w-[400px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl p-8 text-center space-y-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
                <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner">
                   <LogOut className="w-8 h-8" />
                </div>

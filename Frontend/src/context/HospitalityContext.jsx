@@ -20,10 +20,10 @@ export const HospitalityProvider = ({ children }) => {
     const saved = localStorage.getItem('resto-hospitality-tables');
     return saved ? JSON.parse(saved) : [
       { id: 1, name: 'T-01', status: 'available', capacity: 2, orders: [], floor: 'Poolside Deck' },
-      { id: 2, name: 'T-02', status: 'occupied', capacity: 4, orders: ['Mezze Platter', 'Mint Tea'], time: '20m ago', total: 1250, floor: 'Main Lounge' },
+      { id: 2, name: 'T-02', status: 'occupied', capacity: 4, orders: [{ name: 'Mezze Platter', price: 850, status: 'kitchen' }, { name: 'Mint Tea', price: 400, status: 'kitchen' }], time: '20m ago', total: 1250, floor: 'Main Lounge' },
       { id: 3, name: 'T-03', status: 'reserved', capacity: 6, time: '19:30', reservedBy: 'Mrs. Thompson', floor: 'Sky Rooftop' },
       { id: 4, name: 'T-04', status: 'available', capacity: 4, orders: [], floor: 'Main Lounge' },
-      { id: 5, name: 'T-05', status: 'occupied', capacity: 2, orders: ['Seafood Grill'], time: '12m ago', total: 3200, floor: 'Beach Front' },
+      { id: 5, name: 'T-05', status: 'occupied', capacity: 2, orders: [{ name: 'Seafood Grill', price: 3200, status: 'kitchen' }], time: '12m ago', total: 3200, floor: 'Beach Front' },
       { id: 6, name: 'T-06', status: 'available', capacity: 8, orders: [], floor: 'VIP Area' },
     ];
   });
@@ -71,12 +71,12 @@ export const HospitalityProvider = ({ children }) => {
   const [staff, setStaff] = useState(() => {
     const saved = localStorage.getItem('resto-hospitality-staff');
     return saved ? JSON.parse(saved) : [
-      { id: 1, name: 'Rahul Sharma', role: 'Waiter', shift: 'Morning', status: 'Active', email: 'rahul@example.com', phone: '+91 9876543210', joined: 'Mar 2024', rating: '4.8', avatar: 'RS' },
-      { id: 2, name: 'Priya Singh', role: 'Chef', shift: 'Evening', status: 'Active', email: 'priya@example.com', phone: '+91 9876543211', joined: 'Jan 2024', rating: '4.9', avatar: 'PS' },
-      { id: 3, name: 'Amit Kumar', role: 'Cashier', shift: 'Morning', status: 'Inactive', email: 'amit@example.com', phone: '+91 9876543212', joined: 'Feb 2024', rating: '4.5', avatar: 'AK' },
-      { id: 4, name: 'Sneha Patel', role: 'Manager', shift: 'General', status: 'Active', email: 'sneha@example.com', phone: '+91 9876543213', joined: 'Oct 2023', rating: '5.0', avatar: 'SP' },
-      { id: 5, name: 'Vikram Das', role: 'Waiter', shift: 'Evening', status: 'Active', email: 'vikram@example.com', phone: '+91 9876543214', joined: 'Apr 2024', rating: '4.7', avatar: 'VD' },
-      { id: 6, name: 'Anjali Gupta', role: 'Chef', shift: 'Morning', status: 'Active', email: 'anjali@example.com', phone: '+91 9876543215', joined: 'May 2024', rating: '4.6', avatar: 'AG' },
+      { id: 1, name: 'Rahul Sharma', role: 'Waiter', shift: 'Morning', status: 'Active', email: 'rahul@example.com', phone: '+00 1234567890', joined: 'Mar 2024', rating: '4.8', avatar: 'RS' },
+      { id: 2, name: 'Priya Singh', role: 'Chef', shift: 'Evening', status: 'Active', email: 'priya@example.com', phone: '+00 1234567891', joined: 'Jan 2024', rating: '4.9', avatar: 'PS' },
+      { id: 3, name: 'Amit Kumar', role: 'Cashier', shift: 'Morning', status: 'Inactive', email: 'amit@example.com', phone: '+00 1234567892', joined: 'Feb 2024', rating: '4.5', avatar: 'AK' },
+      { id: 4, name: 'Sneha Patel', role: 'Manager', shift: 'General', status: 'Active', email: 'sneha@example.com', phone: '+00 1234567893', joined: 'Oct 2023', rating: '5.0', avatar: 'SP' },
+      { id: 5, name: 'Vikram Das', role: 'Waiter', shift: 'Evening', status: 'Active', email: 'vikram@example.com', phone: '+00 1234567894', joined: 'Apr 2024', rating: '4.7', avatar: 'VD' },
+      { id: 6, name: 'Anjali Gupta', role: 'Chef', shift: 'Morning', status: 'Active', email: 'anjali@example.com', phone: '+00 1234567895', joined: 'May 2024', rating: '4.6', avatar: 'AG' },
     ];
   });
 
@@ -150,7 +150,7 @@ export const HospitalityProvider = ({ children }) => {
   const createFolio = (guestName, roomName) => {
     const room = rooms.find(r => r.name === roomName);
     const newFolio = {
-      id: `FOL-${Date.now().toString().slice(-4)}`,
+      id: `FOL-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}-${Date.now().toString().slice(-4)}`,
       guestName,
       roomName,
       status: 'Open',

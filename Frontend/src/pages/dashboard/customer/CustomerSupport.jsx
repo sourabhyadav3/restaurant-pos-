@@ -326,7 +326,7 @@ const CustomerSupport = () => {
           
           {/* Create Ticket Modal */}
           {activeModal === 'ticket' && (
-            <div className="relative w-full max-w-[500px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
                <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
                   <div>
                     <h3 className="text-xl font-black uppercase tracking-tight">Open New Ticket</h3>
@@ -346,7 +346,7 @@ const CustomerSupport = () => {
                       className="w-full px-5 py-3 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-xs"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
                       <select 
@@ -394,7 +394,7 @@ const CustomerSupport = () => {
 
           {/* Live Chat Modal */}
           {activeModal === 'chat' && (
-            <div className="relative w-full max-w-[450px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col h-[85vh] sm:h-[600px] animate-in slide-in-from-bottom-10 duration-300 self-end sm:self-center">
+            <div className="relative w-full max-w-[450px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col h-[85vh] sm:h-[600px] animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 duration-300 self-end sm:self-center">
                <div className="px-6 py-5 border-b border-slate-50 flex justify-between items-center bg-primary text-white">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
@@ -443,7 +443,7 @@ const CustomerSupport = () => {
 
           {/* Call Support Modal */}
           {activeModal === 'call' && (
-            <div className="relative w-full max-w-[400px] bg-white rounded-[2.5rem] shadow-2xl p-8 text-center space-y-6 animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-[400px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl p-8 text-center space-y-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
                <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner">
                   <Phone className="w-8 h-8" />
                </div>
@@ -453,11 +453,11 @@ const CustomerSupport = () => {
                </div>
                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
                   <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Support Number</p>
-                  <p className="text-2xl font-black text-text-primary tracking-tighter">+91 98765 43210</p>
+                  <p className="text-2xl font-black text-text-primary tracking-tighter">+00 12345 67890</p>
                </div>
                <div className="flex flex-col gap-3">
                   <a 
-                    href="tel:+919876543210"
+                    href="tel:+001234567890"
                     className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 flex items-center justify-center gap-3"
                   >
                     <Phone className="w-4 h-4" /> Start Call
@@ -474,7 +474,7 @@ const CustomerSupport = () => {
 
           {/* Email Support Modal */}
           {activeModal === 'email' && (
-            <div className="relative w-full max-w-[400px] bg-white rounded-[2.5rem] shadow-2xl p-8 text-center space-y-6 animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-[400px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl p-8 text-center space-y-6 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
                <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner">
                   <Mail className="w-8 h-8" />
                </div>
@@ -505,7 +505,7 @@ const CustomerSupport = () => {
 
           {/* Ticket Detail Modal */}
           {activeModal === 'detail' && selectedTicket && (
-            <div className="relative w-full max-w-[500px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
                <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center shadow-inner">

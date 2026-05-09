@@ -22,7 +22,10 @@ import {
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 
+import { useMenu } from "../../../context/MenuContext";
+
 const Menu = () => {
+  const { items, addItem, updateItem, deleteItem } = useMenu();
   const [activeCategory, setActiveCategory] = useState('All Items');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
@@ -30,15 +33,6 @@ const Menu = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
   const [toast, setToast] = useState(null);
-
-  // Initial Mock Data
-  const [menuItems, setMenuItems] = useState([
-    { id: 1, name: 'Margherita Pizza', category: 'Pizza', price: '299', status: 'In Stock', rating: '4.8', image: '🍕', description: 'Classic tomato, mozzarella, basil' },
-    { id: 2, name: 'Cheese Burger', category: 'Burgers', price: '189', status: 'In Stock', rating: '4.5', image: '🍔', description: 'Juicy patty with cheddar' },
-    { id: 3, name: 'Chicken Pasta', category: 'Pasta', price: '349', status: 'Low Stock', rating: '4.7', image: '🍝', description: 'Creamy alfredo with grilled chicken' },
-    { id: 4, name: 'Iced Americano', category: 'Drinks', price: '129', status: 'In Stock', rating: '4.2', image: '☕', description: 'Double shot cold brew' },
-    { id: 5, name: 'Chocolate Brownie', category: 'Desserts', price: '149', status: 'Out of Stock', rating: '4.9', image: '🍰', description: 'Warm with vanilla scoop' },
-  ]);
 
   const categories = [
     { name: 'All Items', icon: Layers },
@@ -58,17 +52,10 @@ const Menu = () => {
 
   const handleSaveItem = (itemData) => {
     if (editingItem) {
-      setMenuItems(prev => prev.map(item => item.id === editingItem.id ? { ...item, ...itemData } : item));
+      updateItem(editingItem.id, itemData);
       showToast('Item updated successfully');
     } else {
-      const newItem = {
-        ...itemData,
-        id: Date.now(),
-        rating: '5.0',
-        image: itemData.image || '🍽️',
-        status: itemData.status || 'In Stock'
-      };
-      setMenuItems(prev => [newItem, ...prev]);
+      addItem(itemData);
       showToast('New item added to menu');
     }
     setShowAddModal(false);
@@ -76,25 +63,24 @@ const Menu = () => {
   };
 
   const handleDelete = (id) => {
-    setMenuItems(prev => prev.filter(item => item.id !== id));
+    deleteItem(id);
     setShowDeleteConfirm(null);
     showToast('Item removed from menu', 'error');
   };
 
   const toggleAvailability = (id) => {
-    setMenuItems(prev => prev.map(item => {
-      if (item.id !== id) return item;
-      const newStatus = item.status === 'Out of Stock' ? 'In Stock' : 'Out of Stock';
-      return { ...item, status: newStatus };
-    }));
-    showToast('Availability status updated');
+    const item = items.find(i => i.id === id);
+    if (item) {
+      updateItem(id, { available: !item.available, status: !item.available ? 'In Stock' : 'Out of Stock' });
+      showToast('Availability status updated');
+    }
   };
 
-  const processedItems = menuItems
+  const processedItems = items
     .filter(item => activeCategory === 'All Items' || item.category === activeCategory)
     .filter(item => 
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
       item.category.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -192,8 +178,12 @@ const Menu = () => {
                         >
                           <td className="px-8 py-5">
                             <div className="flex items-center gap-4">
-                              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-3xl shadow-lg border border-slate-50">
-                                {item.image}
+                            <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center overflow-hidden shadow-lg border border-slate-50">
+                                {item.image.length > 2 ? (
+                                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                ) : (
+                                  <span className="text-3xl">{item.image}</span>
+                                )}
                               </div>
                               <div>
                                  <span className="font-black text-text-primary text-base tracking-tight leading-none">{item.name}</span>
@@ -272,8 +262,12 @@ const Menu = () => {
                         item.status === 'Out of Stock' && "opacity-60 bg-slate-50/50"
                       )}
                     >
-                      <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner shrink-0">
-                        {item.image}
+                      <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner shrink-0">
+                        {item.image.length > 2 ? (
+                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-3xl">{item.image}</span>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
@@ -353,8 +347,12 @@ const Menu = () => {
            <div 
              className="relative w-full max-w-[520px] max-h-[90vh] lg:max-h-[85vh] bg-white rounded-t-[2.5rem] lg:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col self-end lg:self-center"
            >
-              <div className="h-48 bg-primary flex items-center justify-center relative overflow-hidden group">
-                <div className="text-7xl">{selectedItem.image}</div>
+              <div className="h-48 bg-slate-100 flex items-center justify-center relative overflow-hidden group">
+                {selectedItem.image && selectedItem.image.length > 2 ? (
+                  <img src={selectedItem.image} alt={selectedItem.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="text-7xl">{selectedItem.image || '🍽️'}</div>
+                )}
                 <div className="absolute top-6 right-6">
                   <button onClick={() => setSelectedItem(null)} className="p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white"><X className="w-5 h-5" /></button>
                 </div>
@@ -408,8 +406,21 @@ const Menu = () => {
 };
 
 const AddItemModal = ({ item, onClose, onSave, categories }) => {
-  const [formData, setFormData] = useState(item || { name: '', category: categories[0].name, price: '', description: '', status: 'In Stock', image: '🍕' });
+  const [formData, setFormData] = useState(item || { name: '', category: categories[0].name, price: '', description: '', status: 'In Stock', image: '' });
   const [errors, setErrors] = useState({});
+  const [previewUrl, setPreviewUrl] = useState(item?.image || '');
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+        setFormData({ ...formData, image: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const validate = () => {
     const newErrors = {};
@@ -450,13 +461,24 @@ const AddItemModal = ({ item, onClose, onSave, categories }) => {
            <div className="flex flex-col sm:flex-row gap-5 lg:gap-6">
               <div className="w-24 h-24 sm:w-32 sm:h-32 bg-slate-50 rounded-[1.5rem] sm:rounded-[2rem] border-2 sm:border-4 border-dashed border-slate-200 flex flex-col items-center justify-center gap-1.5 lg:gap-2 group cursor-pointer hover:border-primary shrink-0 overflow-hidden relative self-center">
                  <input 
-                   type="text" 
-                   value={formData.image} 
-                   onChange={(e) => setFormData({...formData, image: e.target.value})}
-                   className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                   type="file" 
+                   accept="image/*"
+                   onChange={handleImageChange}
+                   className="absolute inset-0 opacity-0 cursor-pointer z-20"
                  />
-                 <div className="text-3xl lg:text-4xl">{formData.image}</div>
-                 <span className="text-[7px] lg:text-[8px] font-black text-slate-300 uppercase tracking-[0.2em]">Icon</span>
+                 {previewUrl ? (
+                   <img src={previewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover z-10" />
+                 ) : (
+                   <>
+                     <Camera className="w-6 h-6 lg:w-8 lg:h-8 text-slate-300 group-hover:text-primary transition-colors" />
+                     <span className="text-[7px] lg:text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] group-hover:text-primary transition-colors">Upload Image</span>
+                   </>
+                 )}
+                 {previewUrl && (
+                   <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity z-15 flex items-center justify-center">
+                      <Camera className="w-6 h-6 text-white" />
+                   </div>
+                 )}
               </div>
               <div className="flex-1 space-y-5 lg:space-y-6">
                  <div className="space-y-1.5">

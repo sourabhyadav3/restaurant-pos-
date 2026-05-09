@@ -109,8 +109,19 @@ const initialItems = [
 const initialCategories = ['All', 'Pizza', 'Burgers', 'Pasta', 'Sides', 'Drinks', 'Desserts'];
 
 export const MenuProvider = ({ children }) => {
-  const [items, setItems] = useState(initialItems);
-  const [categoriesList, setCategoriesList] = useState(initialCategories);
+  const [items, setItems] = useState(() => {
+    const saved = localStorage.getItem('pos-menu-items');
+    return saved ? JSON.parse(saved) : initialItems;
+  });
+  const [categoriesList, setCategoriesList] = useState(() => {
+    const saved = localStorage.getItem('pos-menu-categories');
+    return saved ? JSON.parse(saved) : initialCategories;
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem('pos-menu-items', JSON.stringify(items));
+    localStorage.setItem('pos-menu-categories', JSON.stringify(categoriesList));
+  }, [items, categoriesList]);
 
   const addItem = (newItem) => {
     const id = Date.now();
@@ -122,8 +133,16 @@ export const MenuProvider = ({ children }) => {
     }
   };
 
+  const updateItem = (id, data) => {
+    setItems(prev => prev.map(item => item.id === id ? { ...item, ...data } : item));
+  };
+
+  const deleteItem = (id) => {
+    setItems(prev => prev.filter(item => item.id !== id));
+  };
+
   return (
-    <MenuContext.Provider value={{ items, categoriesList, addItem }}>
+    <MenuContext.Provider value={{ items, categoriesList, addItem, updateItem, deleteItem }}>
       {children}
     </MenuContext.Provider>
   );

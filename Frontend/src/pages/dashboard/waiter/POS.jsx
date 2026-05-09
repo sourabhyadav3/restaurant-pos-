@@ -241,8 +241,12 @@ const POS = () => {
               className="card group cursor-pointer border-2 border-transparent hover:border-primary/20 p-3 lg:p-5 flex flex-col relative overflow-hidden bg-gradient-to-br from-white to-slate-50/30 aspect-[1/1.2] lg:aspect-[3.5/4]"
             >
               <div className="flex justify-between items-start mb-2 lg:mb-4 relative z-10">
-                 <div className="w-9 h-9 lg:w-12 lg:h-12 bg-white rounded-lg lg:rounded-2xl flex items-center justify-center text-xl lg:text-3xl shadow-xl shadow-slate-200 shrink-0">
-                    {item.image}
+                 <div className="w-9 h-9 lg:w-12 lg:h-12 bg-white rounded-lg lg:rounded-2xl flex items-center justify-center overflow-hidden text-xl lg:text-3xl shadow-xl shadow-slate-200 shrink-0">
+                    {item.image && item.image.length > 2 ? (
+                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      item.image
+                    )}
                  </div>
                  <div className="flex flex-col items-end gap-1">
                     <span className="badge bg-emerald-50 text-emerald-600 border border-emerald-100 text-[6px] lg:text-[8px] py-0 px-1 lg:px-1.5 font-black uppercase tracking-widest">
@@ -337,8 +341,12 @@ const POS = () => {
                     className="flex flex-col gap-3 group bg-slate-50/30 p-2.5 rounded-2xl hover:bg-slate-50"
                   >
                   <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-sm">
-                        {item.image}
+                     <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center overflow-hidden text-2xl shrink-0 shadow-sm">
+                        {item.image && item.image.length > 2 ? (
+                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          item.image
+                        )}
                      </div>
                      <div className="flex-1 min-w-0">
                         <h5 className="font-bold text-text-primary text-sm truncate leading-tight">{item.name}</h5>

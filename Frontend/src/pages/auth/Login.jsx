@@ -88,11 +88,11 @@ const Login = () => {
           <div className="relative z-20 h-full flex flex-col justify-between p-8 md:p-12">
             <div>
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/40">
-                  <CookingPot className="w-7 h-7 stroke-[2.5]" />
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center p-1.5 shadow-xl shadow-black/20">
+                  <img src="/1000464407-removebg-preview.png" alt="Logo" className="w-full h-full object-contain" />
                 </div>
-                <span className="text-3xl font-black tracking-tighter text-white drop-shadow-2xl">
-                  Resto<span className="text-primary">OS</span>
+                <span className="text-3xl font-black tracking-tighter text-white drop-shadow-2xl uppercase">
+                  Gila<span className="text-primary">House</span>
                 </span>
               </div>
             </div>
@@ -108,11 +108,11 @@ const Login = () => {
         <div className="w-full md:w-[420px] p-8 md:pl-6 md:pr-14 flex flex-col justify-center">
           <div className="flex justify-center mb-8">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/30">
-                <CookingPot className="w-5 h-5 stroke-[2.5]" />
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center p-1 shadow-lg shadow-black/10">
+                <img src="/1000464407-removebg-preview.png" alt="Logo" className="w-full h-full object-contain" />
               </div>
-              <span className="text-xl font-black tracking-tight text-white">
-                Resto<span className="text-primary">OS</span>
+              <span className="text-xl font-black tracking-tight text-white uppercase">
+                Gila<span className="text-primary">House</span>
               </span>
             </div>
           </div>

@@ -657,7 +657,7 @@ const Reports = () => {
           </div>
           <div className="text-right">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">System Signature</p>
-            <p className="text-xs font-bold text-slate-900 uppercase italic">RestoOS Analytics Hub</p>
+            <p className="text-xs font-bold text-slate-900 uppercase italic">Gila House Analytics Hub</p>
           </div>
         </div>
       </div>

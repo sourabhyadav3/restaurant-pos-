@@ -224,6 +224,7 @@ const CustomerOrderNow = () => {
 
       setPaymentProcessing(false);
       setShowPaymentModal(false);
+      setShowMobileCart(false);
       clearCart();
       navigate('/customer/orders');
     }, 2000);
@@ -233,35 +234,35 @@ const CustomerOrderNow = () => {
     <div className="flex flex-col lg:flex-row min-h-[calc(100vh-8rem)] lg:h-full gap-8 relative pb-24 lg:pb-0">
       {/* Menu Side */}
       <div className="flex-1 flex flex-col gap-6 min-w-0">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-           <div>
-              <h2 className="text-2xl lg:text-3xl font-black text-text-primary uppercase tracking-tight leading-none">Order <span className="text-primary">Now</span></h2>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">{profile.diningType} • Table {profile.tableId}</p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
+           <div className="shrink-0">
+              <h2 className="text-3xl lg:text-4xl font-black text-text-primary uppercase tracking-tight leading-none italic">Order <span className="text-primary">Now</span></h2>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 bg-slate-100 w-fit px-2 py-1 rounded-md">{profile.diningType} • Table {profile.tableId}</p>
            </div>
-           <div className="flex-1 max-w-md relative group w-full">
+           <div className="flex-1 max-w-lg relative group w-full">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-primary transition-colors" />
               <input 
                 type="text" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search food items..." 
-                className="w-full pl-11 pr-5 py-3.5 lg:py-3 bg-white border border-slate-100 rounded-2xl outline-none shadow-sm text-sm font-bold focus:ring-4 focus:ring-primary/5 transition-all"
+                className="w-full pl-11 pr-5 py-3 lg:py-3.5 bg-white border border-slate-100 rounded-2xl outline-none shadow-sm text-xs font-bold focus:ring-4 focus:ring-primary/5 transition-all"
               />
            </div>
         </div>
 
-        {/* Categories Scroller */}
-      <div className="sticky top-[56px] lg:top-0 z-[110] bg-background/80 backdrop-blur-md -mx-4 px-4 py-3 lg:py-4">
+        {/* Categories Scroller - Fixed Sticky Top to match Layout Header */}
+      <div className="sticky top-16 lg:top-0 z-[110] bg-background/95 backdrop-blur-md -mx-4 px-4 py-3 lg:py-4 border-b border-slate-100">
         <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide shrink-0">
           {categoriesList.map((cat) => (
             <button 
               key={cat}
               onClick={() => setActiveCategory(cat)}
               className={cn(
-                "px-5 lg:px-6 py-2 lg:py-2.5 rounded-xl lg:rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all border-2",
+                "px-5 lg:px-6 py-2 lg:py-2.5 rounded-xl lg:rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all border-2 active:scale-95",
                 activeCategory === cat 
                   ? "bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-105" 
-                  : "bg-white text-text-secondary border-transparent hover:bg-slate-50"
+                  : "bg-white text-text-secondary border-transparent hover:bg-slate-50 hover:border-slate-100"
               )}
             >
               {cat}
@@ -273,17 +274,17 @@ const CustomerOrderNow = () => {
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 flex-1">
         {/* Main Menu Grid */}
         <div className="flex-1 space-y-6 lg:space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 pb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-6 pb-20">
             {filteredItems.map((item) => (
               <div 
                 key={item.id} 
                 onClick={() => openItemModal(item)}
-                className="card group cursor-pointer border-none shadow-xl shadow-slate-100/50 p-4 lg:p-5 bg-white hover:bg-slate-50 transition-all active:scale-95 flex flex-col h-full min-w-0"
+                className="card group cursor-pointer border-none shadow-xl shadow-slate-100/50 p-4 lg:p-5 bg-white hover:bg-slate-50 transition-all active:scale-95 flex flex-col relative overflow-hidden aspect-[1/1.3] lg:aspect-[3/4]"
               >
-                   <div className="absolute top-4 left-4 z-10 w-4 h-4 border-2 border-slate-100 rounded-sm flex items-center justify-center bg-white">
-                     <div className={cn("w-2 h-2 rounded-full", item.id % 2 === 0 ? "bg-rose-500" : "bg-emerald-500")} />
+                   <div className="absolute top-3 left-3 z-20 w-3.5 h-3.5 border-2 border-white rounded-sm flex items-center justify-center bg-white shadow-sm">
+                     <div className={cn("w-1.5 h-1.5 rounded-full", item.id % 2 === 0 ? "bg-rose-500" : "bg-emerald-500")} />
                    </div>
-                   <div className="h-32 sm:h-40 bg-slate-50 rounded-[2rem] flex items-center justify-center text-5xl sm:text-6xl mb-4 shadow-inner relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-500">
+                   <div className="flex-1 min-h-0 bg-slate-50 rounded-[2rem] flex items-center justify-center text-5xl sm:text-6xl mb-4 shadow-inner relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-500">
                       {item.image}
                       <button 
                         onClick={(e) => handleToggleFavorite(item.id, e)}
@@ -295,17 +296,17 @@ const CustomerOrderNow = () => {
                          <Heart className={cn("w-4 h-4", favorites.includes(item.id) && "fill-current")} />
                       </button>
                    </div>
-                   <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-1.5 mb-1.5">
+                   <div className="space-y-1 mb-2">
+                      <div className="flex items-center gap-1.5 mb-1">
                          <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
-                         <span className="text-[9px] font-black text-slate-400 uppercase">4.8 • {item.category}</span>
+                         <span className="text-[9px] font-black text-slate-400 uppercase">{item.category}</span>
                       </div>
-                      <h4 className="font-black text-text-primary text-sm uppercase tracking-tight leading-tight group-hover:text-primary transition-colors">{item.name}</h4>
+                      <h4 className="font-black text-text-primary text-xs lg:text-sm uppercase tracking-tight leading-tight group-hover:text-primary transition-colors line-clamp-2">{item.name}</h4>
                       <p className="text-[10px] font-medium text-slate-400 line-clamp-2 leading-relaxed">{item.description}</p>
                    </div>
-                   <div className="mt-5 flex items-center justify-between">
-                      <p className="text-xl font-black text-text-primary tracking-tighter">₹{item.price}</p>
-                      <button className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                   <div className="mt-auto pt-3 border-t border-slate-50 flex items-center justify-between shrink-0">
+                      <p className="text-lg lg:text-xl font-black text-text-primary tracking-tighter">₹{item.price}</p>
+                      <button className="w-9 h-9 lg:w-10 lg:h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
                          <Plus className="w-5 h-5" />
                       </button>
                    </div>
@@ -317,8 +318,8 @@ const CustomerOrderNow = () => {
     </div>
 
       {/* Cart Sidebar (Desktop) */}
-      <div className="hidden lg:block w-80 xl:w-96 shrink-0">
-          <div className="sticky top-6 card p-8 bg-white border-none shadow-2xl shadow-slate-200/50 rounded-[3rem] h-[calc(100vh-12rem)] flex flex-col">
+      <div className="hidden lg:block w-80 xl:w-[400px] shrink-0">
+          <div className="sticky top-6 card p-0 bg-white border-none shadow-2xl shadow-slate-200/50 rounded-[3rem] h-[calc(100vh-12rem)] flex flex-col overflow-hidden">
             <CartSummary 
               cartItems={cartItems}
               clearCart={clearCart}
@@ -336,6 +337,59 @@ const CustomerOrderNow = () => {
             />
           </div>
       </div>
+
+      {/* Mobile Cart Toggle */}
+      {cartItems.length > 0 && !showMobileCart && (
+        <div className="fixed bottom-4 inset-x-4 lg:hidden z-[150] animate-in slide-in-from-bottom-10">
+          <button 
+            onClick={() => setShowMobileCart(true)}
+            className="w-full bg-primary text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between font-black uppercase tracking-widest text-[10px]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="leading-none">{cartItems.length} Items</p>
+                <p className="text-white/60 text-[8px] mt-1">View Order Summary</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-lg">₹{total.toFixed(0)}</p>
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* Mobile Cart Slide-up */}
+      {showMobileCart && (
+        <div className="fixed inset-0 z-[450] lg:hidden">
+          <div onClick={() => setShowMobileCart(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+          <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-[3rem] h-[85vh] flex flex-col animate-in slide-in-from-bottom-full duration-300">
+             <div className="flex justify-center py-3" onClick={() => setShowMobileCart(false)}>
+                <div className="w-12 h-1.5 bg-slate-100 rounded-full cursor-pointer" />
+             </div>
+             <div className="flex-1 overflow-hidden">
+               <CartSummary 
+                  isMobile={true}
+                  cartItems={cartItems}
+                  clearCart={clearCart}
+                  removeFromCart={removeFromCart}
+                  updateCartQuantity={updateCartQuantity}
+                  subtotal={subtotal}
+                  tax={tax}
+                  serviceCharge={serviceCharge}
+                  total={total}
+                  onCheckout={() => {
+                    if (cartItems.length === 0) return;
+                    if (isRoomService) handleFinalPlaceOrder('Charged to Room');
+                    else setShowPaymentModal(true);
+                  }}
+               />
+             </div>
+          </div>
+        </div>
+      )}
 
 
 

@@ -67,6 +67,7 @@ import GuestFolio from './pages/dashboard/reception/GuestFolio';
 import GuestBills from './pages/dashboard/reception/GuestBills';
 import Concierge from './pages/dashboard/reception/Concierge';
 
+
 // Dashboard - Common
 import Settlements from './pages/dashboard/common/Settlements';
 import Transactions from './pages/dashboard/common/Transactions';
@@ -176,6 +177,7 @@ function App() {
                       <Route path="/settlements" element={<ModuleRedirect module="settlements" />} />
                       <Route path="/transactions" element={<ModuleRedirect module="transactions" />} />
                       <Route path="/concierge" element={<ModuleRedirect module="concierge" />} />
+
                       <Route path="/services" element={<ModuleRedirect module="services" />} />
                       <Route path="/qr-manager" element={<ModuleRedirect module="qr-manager" />} />
                       <Route path="/notifications" element={<ModuleRedirect module="notifications" />} />
@@ -283,6 +285,8 @@ function App() {
                           <MainLayout><Concierge /></MainLayout>
                         </ProtectedRoute>
                       } />
+
+
 
                       <Route path="/:role/services" element={
                         <ProtectedRoute allowedRoles={[roles.ADMIN, roles.MANAGER, roles.WAITER]}>

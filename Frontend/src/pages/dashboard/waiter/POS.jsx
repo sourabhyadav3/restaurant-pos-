@@ -23,12 +23,14 @@ import {
   Bed
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
+import { useAuth } from "../../../context/AuthContext";
 import { useMenu } from "../../../context/MenuContext";
 import { useHospitality } from "../../../context/HospitalityContext";
 import { useOrders } from "../../../context/OrdersContext";
 import printContent from '../../../utils/printUtil';
 
 const POS = () => {
+  const { user } = useAuth();
   const { items, categoriesList } = useMenu();
   const { rooms, reservations, addToFolio } = useHospitality();
   const { addOrder } = useOrders();
@@ -411,6 +413,11 @@ const POS = () => {
                 <span className="text-white">₹{subtotal}</span>
               </div>
               
+              <div className="flex justify-between items-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">
+                <span>Tax (GST 5%)</span>
+                <span className="text-white">₹{gst}</span>
+              </div>
+
               {/* Discount Selector */}
               <div className="py-2">
                 <div className="flex items-center gap-2 mb-2">
@@ -440,10 +447,6 @@ const POS = () => {
                   <span>- ₹{discountAmount}</span>
                 </div>
               )}
-              <div className="flex justify-between items-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">
-                <span>Tax (GST 5%)</span>
-                <span className="text-white">₹{gst}</span>
-              </div>
               <div className="pt-4 border-t border-slate-800 flex justify-between items-end">
                 <div className="flex flex-col">
                   <span className="text-slate-500 text-[8px] font-bold uppercase tracking-[0.3em] mb-1.5">Grand Total</span>
@@ -719,54 +722,95 @@ const POS = () => {
           </div>
         </div>
       )}
-      {/* Hidden Printable Receipt */}
+      {/* Hidden Printable Receipt - 80mm Thermal Style */}
       {orderForReceipt && (
-        <div id="printable-area" className="hidden print:block printable-area receipt-print">
-          <div className="text-center border-b-2 border-slate-900 pb-4 mb-4">
-            <h1 className="text-xl font-black uppercase tracking-tighter">The Luxe Grande</h1>
-            <p className="text-[10px] font-bold uppercase tracking-widest mt-1">POS Sales Receipt</p>
+        <div id="printable-area" className="hidden print:block printable-area receipt-print active-print">
+          <div className="text-center space-y-1 mb-4">
+            <h1 className="text-2xl font-black uppercase tracking-tight">Gila House</h1>
+            <p className="text-[10px] font-bold">Main Branch</p>
+            <p className="text-[10px] font-bold">GST: 22AAAAA0000A1Z5</p>
+            <p className="text-[10px] font-bold">Ph: +91 12345 67890</p>
           </div>
           
-          <div className="flex justify-between text-[10px] font-bold mb-4">
-            <div>
-              <p>ORDER: {Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
-              <p>CUSTOMER: {orderForReceipt.customer}</p>
-              <p>DATE: {new Date().toLocaleDateString()}</p>
+          <div className="border-b-2 border-dashed border-slate-900 my-4"></div>
+          
+          <div className="space-y-1.5 text-[11px] font-bold uppercase">
+            <div className="flex justify-between">
+              <span>Bill No:</span>
+              <span className="font-black">{orderForReceipt.id?.split('-').pop() || `INV${Math.floor(Math.random()*1000)}`}</span>
             </div>
-            <div className="text-right">
-              <p>TIME: {new Date().toLocaleTimeString()}</p>
-              <p>TYPE: {orderForReceipt.type}</p>
+            <div className="flex justify-between">
+              <span>Date:</span>
+              <span>{new Date().toLocaleDateString()} {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Cashier:</span>
+              <span>{user?.name || 'Admin'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Customer:</span>
+              <span>{orderForReceipt.customer || 'Walk-in'}</span>
             </div>
           </div>
 
-          <table className="w-full text-[10px] mb-4">
+          <div className="border-b-2 border-dashed border-slate-900 my-4"></div>
+
+          <table className="w-full text-[11px] font-bold uppercase mb-4">
             <thead>
-              <tr className="border-b border-slate-300">
-                <th className="text-left py-2">ITEM</th>
-                <th className="text-center py-2">QTY</th>
-                <th className="text-right py-2">PRICE</th>
+              <tr className="border-b-2 border-slate-900">
+                <th className="text-left py-2">Item Description</th>
+                <th className="text-center py-2 px-2">Qty</th>
+                <th className="text-right py-2">Price</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-dashed divide-slate-200">
               {orderForReceipt.itemsList?.map((item, i) => (
-                <tr key={i} className="border-b border-slate-100">
-                  <td className="py-2 uppercase font-medium">{item.name}</td>
-                  <td className="py-2 text-center">{item.quantity}</td>
-                  <td className="py-2 text-right">₹{item.price.toLocaleString()}</td>
+                <tr key={i}>
+                  <td className="py-3 pr-2 leading-tight">{item.name}</td>
+                  <td className="py-3 text-center px-2">{item.quantity}</td>
+                  <td className="py-3 text-right">{item.price.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
-            <tfoot>
-              <tr>
-                <td colSpan="2" className="py-4 font-black uppercase text-right pr-4">Total Amount</td>
-                <td className="py-4 text-right font-black text-sm">{orderForReceipt.amount}</td>
-              </tr>
-            </tfoot>
           </table>
 
-          <div className="text-center pt-4 border-t border-slate-200">
-            <p className="text-[9px] font-black uppercase tracking-widest">Thank you for your business!</p>
-            <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Powered by RestoOS</p>
+          <div className="border-t-2 border-dashed border-slate-900 pt-4 space-y-2">
+            <div className="flex justify-between text-[11px] font-bold uppercase">
+              <span>Subtotal:</span>
+              <span>{subtotal.toLocaleString()}</span>
+            </div>
+            {discount > 0 && (
+              <div className="flex justify-between text-[11px] font-bold uppercase text-slate-500">
+                <span>Discount ({discount}%):</span>
+                <span>-{discountAmount.toLocaleString()}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-[11px] font-bold uppercase">
+              <span>Tax (GST 5%):</span>
+              <span>{gst.toLocaleString()}</span>
+            </div>
+            
+            <div className="flex justify-between items-center pt-4 mt-2 border-t-2 border-slate-900">
+              <span className="text-lg font-black uppercase tracking-tighter">Grand Total:</span>
+              <span className="text-xl font-black tracking-tighter">Rs.{total.toLocaleString()}</span>
+            </div>
+          </div>
+
+          <div className="mt-8 space-y-1.5 text-[11px] font-bold uppercase">
+            <div className="flex justify-between">
+              <span>Payment Mode:</span>
+              <span>{orderForReceipt.payment || 'CASH'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Total Items:</span>
+              <span>{orderForReceipt.itemsList?.length || 0}</span>
+            </div>
+          </div>
+
+          <div className="text-center pt-12 space-y-2">
+            <p className="text-sm font-black uppercase tracking-[0.2em]">*** THANK YOU ***</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest">Visit Again!</p>
+            <p className="text-[8px] font-black text-slate-400 mt-8 uppercase tracking-tighter">Powered by Gila House POS</p>
           </div>
         </div>
       )}

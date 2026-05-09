@@ -85,6 +85,7 @@ const MainLayout = ({ children }) => {
     { name: 'Rooms', icon: Bed, path: getRoleModulePath('rooms'), roles: [roles.ADMIN, roles.MANAGER] },
     { name: 'Reservations', icon: CalendarCheck, path: getRoleModulePath('reservations'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
     { name: 'Concierge', icon: MessageSquare, path: getRoleModulePath('concierge'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
+
     { name: 'Services', icon: Compass, path: getRoleModulePath('services'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
     { name: 'QR Manager', icon: QrCode, path: getRoleModulePath('qr-manager'), roles: [roles.ADMIN, roles.MANAGER] },
     { name: 'Guest Billing', icon: Receipt, path: getRoleModulePath('folio'), roles: [roles.ADMIN, roles.MANAGER] },
@@ -112,16 +113,16 @@ const MainLayout = ({ children }) => {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "bg-white border-r border-border flex flex-col relative z-[150] shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-full transition-all duration-300",
-          "lg:translate-x-0 fixed lg:relative",
-          isCollapsed ? "lg:w-[80px]" : "lg:w-[200px]",
-          isMobileMenuOpen ? "translate-x-0 w-[240px]" : "-translate-x-full lg:translate-x-0"
+          "bg-white border-r border-border flex flex-col relative z-[250] shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-full transition-all duration-300 shrink-0",
+          "md:translate-x-0 fixed md:relative",
+          isCollapsed ? "md:w-[80px]" : "md:w-[200px]",
+          isMobileMenuOpen ? "translate-x-0 w-[240px]" : "-translate-x-full md:translate-x-0"
         )}
       >
         {/* Logo Area */}
         <div 
           onClick={() => navigate(getRoleModulePath('dashboard'))}
-          className="h-16 flex items-center px-6 shrink-0 border-b border-slate-50 cursor-pointer group/logo"
+          className="h-16 flex items-center px-6 shrink-0 border-b border-slate-50 cursor-pointer group/logo relative z-[260] bg-white"
         >
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm shrink-0 group-hover/logo:scale-110 transition-transform">
@@ -184,7 +185,7 @@ const MainLayout = ({ children }) => {
         {/* Toggle Button (Hidden on Mobile) */}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-4 top-10 w-8 h-8 bg-white border border-border rounded-full hidden lg:flex items-center justify-center text-text-secondary hover:text-primary shadow-xl z-30"
+          className="absolute -right-4 top-10 w-8 h-8 bg-white border border-border rounded-full hidden md:flex items-center justify-center text-text-secondary hover:text-primary shadow-xl z-30"
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>
@@ -193,7 +194,7 @@ const MainLayout = ({ children }) => {
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[90] lg:hidden"
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[90] md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
@@ -208,13 +209,13 @@ const MainLayout = ({ children }) => {
         <div className="absolute top-[20%] left-[10%] w-[30rem] h-[30rem] bg-blue-300/[0.02] rounded-full blur-[80px] pointer-events-none" />
                 {/* Header */}
         <header className={cn(
-          "h-14 bg-white border-b border-border flex items-center justify-between px-3 lg:px-4 shrink-0 z-[140]",
-          "sticky top-0 left-0 right-0 lg:relative lg:top-auto lg:left-auto lg:right-auto"
+          "h-14 bg-white border-b border-border flex items-center justify-between px-3 md:px-4 shrink-0 z-[200] sticky top-0 w-full",
+          "transition-all duration-300"
         )}>
           <div className="flex items-center gap-3 lg:gap-6 flex-1">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 text-text-secondary hover:text-primary"
+              className="md:hidden p-2 text-text-secondary hover:text-primary"
             >
               <MenuIcon className="w-6 h-6" />
             </button>
@@ -371,7 +372,7 @@ const MainLayout = ({ children }) => {
         </header>
 
         {/* Content - Fixed Scrolling Hub */}
-        <main className="flex-1 overflow-y-auto px-4 lg:px-6 pt-6 pb-24 lg:pb-8 bg-transparent relative scroll-smooth">
+        <main className="flex-1 overflow-y-auto px-4 md:px-6 pt-6 pb-6 bg-transparent relative scroll-smooth z-0">
           <div className="max-w-[1600px] mx-auto w-full">
             {children}
           </div>

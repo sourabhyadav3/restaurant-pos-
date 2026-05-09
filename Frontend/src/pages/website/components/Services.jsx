@@ -13,17 +13,10 @@ const ecosystem = [
     cta: 'Scan to Connect'
   },
   {
-<<<<<<< HEAD
     title: 'Instagram Community',
     desc: 'Join our digital family. Follow Gila House for behind-the-scenes, daily specials, and tag us in your best moments.',
     img: '/Immagine 2026-04-16 042508.png',
     tag: 'SOCIAL',
-=======
-    title: 'Instagram Social',
-    desc: 'Join the Gila House social community. Follow us for the latest highlights, events, and exclusive lifestyle content.',
-    img: '/Immagine 2026-04-16 042508.png',
-    tag: 'FOLLOW US',
->>>>>>> cc7e27fbcf4d9885f2c2d84202e7890c5a8e4ff8
     fit: 'object-contain',
     bgColor: 'bg-white',
     cta: 'Join Community'

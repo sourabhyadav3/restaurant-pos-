@@ -130,7 +130,7 @@ const MainLayout = ({ children }) => {
         {/* Logo Area */}
         <div 
           onClick={() => navigate(getRoleModulePath('dashboard'))}
-          className="h-16 flex items-center px-6 shrink-0 border-b border-slate-50 cursor-pointer group/logo relative z-[260] bg-white"
+          className="h-16 flex items-center px-4 shrink-0 border-b border-slate-50 cursor-pointer group/logo relative z-[260] bg-white"
         >
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm shrink-0 group-hover/logo:scale-110 transition-transform">
@@ -138,7 +138,7 @@ const MainLayout = ({ children }) => {
             </div>
             {!isCollapsed && (
               <span 
-                className="text-lg font-black tracking-tight text-text-primary whitespace-nowrap uppercase italic"
+                className="text-base font-black tracking-tight text-text-primary whitespace-nowrap uppercase italic"
               >
                 Gila<span className="text-primary">House</span>
               </span>

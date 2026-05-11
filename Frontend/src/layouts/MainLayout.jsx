@@ -395,7 +395,7 @@ const MainLayout = ({ children }) => {
         </header>
 
         {/* Content - Fixed Scrolling Hub */}
-        <main className="flex-1 overflow-y-auto px-4 md:px-6 pt-6 pb-6 bg-transparent relative scroll-smooth z-0">
+        <main className="flex-1 overflow-y-auto px-4 md:px-6 pt-6 pb-6 bg-transparent relative scroll-smooth">
           <div className="max-w-[1600px] mx-auto w-full">
             {children}
           </div>

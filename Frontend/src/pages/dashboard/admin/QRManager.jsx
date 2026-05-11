@@ -29,6 +29,9 @@ const QRManager = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [isChangingScanner, setIsChangingScanner] = useState(null);
+  const [customQrs, setCustomQrs] = useState({});
+  const fileInputRef = React.useRef(null);
 
   const filteredItems = (activeTab === 'Tables' ? tables : rooms).filter(item => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -41,9 +44,28 @@ const QRManager = () => {
   };
 
   const getQRUrl = (item) => {
+    if (!item) return '';
     const baseUrl = window.location.origin;
     const param = activeTab === 'Tables' ? `table=${item.name}` : `room=${item.name}`;
     return `${baseUrl}/customer?${param}`;
+  };
+
+  const getQRImage = (item) => {
+    if (!item) return '';
+    if (customQrs[item.id]) return customQrs[item.id];
+    return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getQRUrl(item))}`;
+  };
+
+  const handleFileUpload = (e, itemId) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomQrs(prev => ({ ...prev, [itemId]: reader.result }));
+        setIsChangingScanner(null);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handlePrint = () => {
@@ -85,7 +107,7 @@ const QRManager = () => {
             <div className="flex flex-col items-center gap-8">
                <div className="qr-image-container">
                   <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getQRUrl(selectedItem || {name: 'DEFAULT'}))}`} 
+                    src={getQRImage(selectedItem || {name: 'DEFAULT'})} 
                     alt="QR Code" 
                     className="qr-image" 
                   />
@@ -196,23 +218,31 @@ const QRManager = () => {
 
                   <div className="relative aspect-square bg-slate-50 rounded-2xl flex flex-col items-center justify-center gap-3 group-hover:bg-slate-100 transition-all border border-slate-100/50 overflow-hidden">
                      <img 
-                       src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(getQRUrl(item))}`} 
+                       src={getQRImage(item)} 
                        alt="QR Code" 
                        className="w-16 h-16 group-hover:scale-110 transition-all duration-500" 
                      />
                      <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400">Scan for Guest Experience</p>
                   </div>
 
-                  <div className="mt-6 flex items-center gap-2">
-                     <button className="flex-1 py-3 bg-slate-50 hover:bg-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-600 transition-all flex items-center justify-center gap-2">
-                        <Download className="w-3 h-3" /> PNG
-                     </button>
+                  <div className="mt-6 flex flex-col gap-2">
                      <button 
-                       onClick={(e) => { e.stopPropagation(); handleCopy(getQRUrl(item)); }}
-                       className="w-11 h-11 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 transition-all"
+                       onClick={(e) => { e.stopPropagation(); setIsChangingScanner(item); }}
+                       className="w-full py-3 bg-primary/5 hover:bg-primary/10 rounded-xl text-[9px] font-black uppercase tracking-widest text-primary transition-all flex items-center justify-center gap-2 border border-primary/10"
                      >
-                        <Copy className="w-4 h-4" />
+                        <RefreshCw className="w-3.5 h-3.5" /> Change Scanner
                      </button>
+                     <div className="flex items-center gap-2">
+                        <button className="flex-1 py-3 bg-slate-50 hover:bg-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-600 transition-all flex items-center justify-center gap-2">
+                           <Download className="w-3 h-3" /> PNG
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleCopy(getQRUrl(item)); }}
+                          className="w-11 h-11 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 transition-all"
+                        >
+                           <Copy className="w-4 h-4" />
+                        </button>
+                     </div>
                   </div>
                </div>
              ))}
@@ -242,7 +272,7 @@ const QRManager = () => {
                <div className="p-4 lg:p-6 bg-white border-2 border-slate-50 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl shadow-slate-200/50 group relative shrink-0">
                   <div className="absolute inset-0 bg-primary/5 rounded-[2rem] lg:rounded-[2.5rem] scale-105 blur-2xl opacity-0 group-hover:opacity-100 transition-all no-print" />
                   <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getQRUrl(selectedItem))}`} 
+                    src={getQRImage(selectedItem)} 
                     alt="QR Code" 
                     className="w-32 lg:w-48 h-32 lg:h-48 relative z-10 mx-auto" 
                   />
@@ -253,17 +283,6 @@ const QRManager = () => {
                </div>
 
               <div className="w-full space-y-4">
-                 <div className="p-4 lg:p-5 bg-slate-50 rounded-2xl text-left relative group overflow-hidden">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Smart URL</p>
-                    <p className="text-[10px] lg:text-xs font-bold text-text-primary break-all pr-12">{getQRUrl(selectedItem)}</p>
-                    <button 
-                      onClick={() => handleCopy(getQRUrl(selectedItem))}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 text-slate-400 hover:text-primary transition-all flex items-center justify-center no-print"
-                    >
-                       {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                    </button>
-                 </div>
-
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 shrink-0 no-print">
                     <button 
                       onClick={handlePrint}
@@ -283,6 +302,68 @@ const QRManager = () => {
               <p className="text-[9px] font-bold text-slate-400 leading-relaxed uppercase tracking-widest mb-4 no-print">
                 Guests can scan this QR to automatically set their <br className="hidden sm:block" /> room/table context and start ordering or messaging.
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Change Scanner Modal */}
+      {isChangingScanner && (
+        <div className="fixed inset-0 z-[600] flex items-center justify-center p-4">
+          <div onClick={() => setIsChangingScanner(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+          <div className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300">
+            <div className="p-6 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                  <RefreshCw className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-black uppercase tracking-tight">Manage Scanner</h3>
+              </div>
+              <button onClick={() => setIsChangingScanner(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-all">
+                <Plus className="w-5 h-5 rotate-45 text-slate-400" />
+              </button>
+            </div>
+            
+            <div className="p-8 space-y-6">
+              <div className="space-y-4 pt-4">
+                <button 
+                  onClick={() => {
+                    const newQrs = {...customQrs};
+                    delete newQrs[isChangingScanner.id];
+                    setCustomQrs(newQrs);
+                    setIsChangingScanner(null);
+                  }}
+                  className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-slate-900/20 active:scale-95 transition-all flex items-center justify-center gap-3"
+                >
+                  <RefreshCw className="w-4 h-4" /> Reset to Default
+                </button>
+                
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-100"></div>
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="px-4 bg-white text-[9px] font-black text-slate-300 uppercase tracking-widest">or upload custom asset</span>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, isChangingScanner.id)}
+                  />
+                  <button 
+                    onClick={() => fileInputRef.current.click()}
+                    className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-3"
+                  >
+                     <Download className="w-4 h-4 rotate-180" /> Upload QR Image
+                  </button>
+                  <p className="text-[8px] font-bold text-slate-400 text-center uppercase tracking-widest">Supports PNG, JPG, or SVG</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

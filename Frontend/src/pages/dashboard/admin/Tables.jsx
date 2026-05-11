@@ -261,7 +261,7 @@ const Tables = () => {
 
       {/* Table Side Drawer */}
       {selectedTable && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6">
           <div 
             onClick={() => setSelectedTable(null)}
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
@@ -538,7 +538,7 @@ const Tables = () => {
 
       {/* History Modal */}
       {showHistory && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 lg:p-6">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 lg:p-6">
           <div 
             onClick={() => setShowHistory(false)}
             className="absolute inset-0 bg-slate-900/60"
@@ -580,7 +580,7 @@ const Tables = () => {
 
       {/* Add Items Quick Modal */}
       {showAddItems && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 lg:p-6">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 lg:p-6">
           <div 
             onClick={() => setShowAddItems(false)}
             className="absolute inset-0 bg-slate-900/60"
@@ -621,7 +621,7 @@ const Tables = () => {
 
       {/* Compact & Interactive Billing Modal */}
       {showBilling && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 overflow-hidden">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 overflow-hidden">
           <div 
             onClick={() => !isProcessing && setShowBilling(false)}
             className="absolute inset-0 bg-slate-900/60"

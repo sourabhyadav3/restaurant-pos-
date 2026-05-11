@@ -173,7 +173,7 @@ const CustomerMenu = () => {
 
       {/* Item Detail Modal */}
       {showItemModal && selectedItem && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
           <div 
             onClick={() => setShowItemModal(false)}
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"

@@ -202,8 +202,8 @@ const POS = () => {
       {toast && (
         <div 
           className={cn(
-            "fixed top-4 left-1/2 -translate-x-1/2 z-[300] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border text-white",
-            toast.type === 'success' ? "bg-emerald-500 border-emerald-400" : "bg-red-500 border-red-400"
+            "fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border text-white",
+            toast.type === 'success' ? "bg-emerald-500 border-emerald-500/20" : "bg-rose-500 border-rose-500/20"
           )}
         >
           {toast.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-white" /> : <AlertCircle className="w-4 h-4 text-white" />}
@@ -306,14 +306,14 @@ const POS = () => {
       {/* Backdrop for mobile */}
       {isMobileCartOpen && (
         <div 
-          className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-30 lg:hidden transition-opacity duration-300"
+          className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[300] lg:hidden transition-opacity duration-300"
           onClick={() => setIsMobileCartOpen(false)}
         />
       )}
 
       {/* Cart & Billing Section */}
       <div className={cn(
-        "fixed inset-x-0 bottom-0 lg:relative lg:inset-auto z-40 transition-transform duration-300 lg:translate-y-0 shadow-2xl lg:shadow-none",
+        "fixed inset-x-0 bottom-0 lg:relative lg:inset-auto z-[400] transition-transform duration-300 lg:translate-y-0 shadow-2xl lg:shadow-none",
         "w-full lg:w-[320px] xl:w-[380px] flex flex-col shrink-0 h-[85vh] lg:h-full",
         isMobileCartOpen ? "translate-y-0" : "translate-y-full lg:translate-y-0",
         cart.length === 0 ? "opacity-95" : "opacity-100"
@@ -518,7 +518,7 @@ const POS = () => {
 
       {/* History Modal */}
       {showHistory && (
-         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+         <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
           <div onClick={() => setShowHistory(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
           <div className="relative w-full max-w-[95%] md:max-w-[560px] max-h-[90vh] bg-white rounded-[2rem] md:rounded-[2.5rem] overflow-hidden flex flex-col self-center">
              <div className="px-5 py-4 md:px-6 md:py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
@@ -685,7 +685,7 @@ const POS = () => {
 
       {/* Size Selection Modal */}
       {selectedItemForSize && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
           <div 
             onClick={() => setSelectedItemForSize(null)} 
             className="absolute inset-0 bg-slate-900/60" 

@@ -144,7 +144,7 @@ const Dashboard = () => {
     <div className="space-y-6 relative pb-10">
       {/* Toast Feedback */}
       {toast && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[300] px-6 py-3 bg-primary text-white rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border border-primary/20">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 bg-primary text-white rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border border-primary/20">
           {toast.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {toast.message}
         </div>

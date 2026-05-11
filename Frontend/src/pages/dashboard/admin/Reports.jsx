@@ -102,8 +102,8 @@ const Reports = () => {
       {toast && (
         <div 
           className={cn(
-            "fixed top-4 left-1/2 -translate-x-1/2 z-[300] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border",
-            toast.type === 'success' ? "bg-primary border-primary/20 text-white" : "bg-rose-600 border-rose-500 text-white"
+            "fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border",
+            toast.type === 'success' ? "bg-primary border-primary/20 text-white" : "bg-primary border-primary/20 text-white"
           )}
         >
           {toast.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-white" /> : <AlertCircle className="w-4 h-4 text-white" />}
@@ -412,7 +412,7 @@ const Reports = () => {
 
       {/* Detail Drawer */}
       {selectedMetric && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 lg:p-6">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 lg:p-6">
           <div onClick={() => setSelectedMetric(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-[200]" />
           <div 
             className="relative w-full max-w-[95%] md:max-w-[520px] max-h-[90vh] bg-white shadow-2xl z-[201] flex flex-col rounded-[2rem] md:rounded-[2.5rem] overflow-hidden self-center"
@@ -489,7 +489,7 @@ const Reports = () => {
 
       {/* Date Range Modal */}
       {showDateModal && (
-        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 lg:p-6">
+        <div className="fixed inset-0 z-[550] flex items-center justify-center p-4 lg:p-6">
            <div onClick={() => setShowDateModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
            <div 
              className="relative w-full max-w-[90%] md:max-w-sm bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 shadow-2xl overflow-hidden self-center"
@@ -519,7 +519,7 @@ const Reports = () => {
 
       {/* Heatmap Modal */}
       {showHeatmap && (
-        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 lg:p-6">
+        <div className="fixed inset-0 z-[550] flex items-center justify-center p-4 lg:p-6">
            <div onClick={() => setShowHeatmap(false)} className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" />
            <div 
              className="relative w-full max-w-[95%] md:max-w-4xl bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] self-center"

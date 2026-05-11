@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { 
   Bell, 
   Search, 
@@ -17,9 +17,9 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { cn } from "../../../utils/cn";
-import { useNotifications } from "../../../context/NotificationContext";
-import { useAuth, roles } from "../../../context/AuthContext";
+import { cn } from '@/utils/cn';
+import { useNotifications } from '@/context/NotificationContext';
+import { useAuth, roles } from '@/context/AuthContext';
 
 const NotificationsPage = () => {
   const { notifications, markAsRead, clearNotifications, markAllAsRead, deleteNotification } = useNotifications();
@@ -28,7 +28,7 @@ const NotificationsPage = () => {
   const [activeTab, setActiveTab] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const myNotifications = notifications.filter(n => n.targetRole === user?.role || n.targetRole === 'ALL');
+  const myNotifications = notifications.filter(n => n.targetRole === user?.role?.toUpperCase() || n.targetRole === 'ALL');
   
   const filteredNotifications = myNotifications.filter(n => {
     const matchesTab = activeTab === 'All' || n.type === activeTab;

@@ -207,18 +207,18 @@ const CustomerReservations = () => {
           <div className="relative w-full max-w-[95%] md:max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
             <div className="px-6 py-5 md:px-8 md:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                     <Plus className="w-5 h-5 text-primary stroke-[3]" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none">New Booking</h3>
-                    <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1 leading-none">Schedule your hospitality experience</p>
-                  </div>
+                   <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                      <Plus className="w-5 h-5 text-primary stroke-[3]" />
+                   </div>
+                   <div className="min-w-0">
+                     <h3 className="text-base sm:text-lg md:text-xl font-black uppercase tracking-tight leading-tight truncate">New Booking</h3>
+                     <p className="text-[8px] sm:text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 leading-none truncate">Hospitality Experience</p>
+                   </div>
                </div>
                <button onClick={() => setShowAddRes(false)} className="p-2 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 transition-all shadow-sm"><X className="w-5 h-5 text-slate-400" /></button>
             </div>
             <form onSubmit={handleCreateRes} className="flex-1 overflow-y-auto scrollbar-hide">
-              <div className="p-6 md:p-8 space-y-6">
+               <div className="p-5 md:p-8 space-y-5 md:space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
                   <div className="space-y-1.5">
                     <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Booking Type</label>
@@ -247,7 +247,7 @@ const CustomerReservations = () => {
                       min="1"
                       value={newResData.guests}
                       onChange={(e) => setNewResData({...newResData, guests: parseInt(e.target.value)})}
-                      className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-sm"
+                      className="w-full px-5 py-3 bg-slate-50 rounded-xl sm:rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-sm"
                     />
                   </div>
                 </div>
@@ -260,7 +260,7 @@ const CustomerReservations = () => {
                       required
                       value={newResData.date}
                       onChange={(e) => setNewResData({...newResData, date: e.target.value})}
-                      className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-sm"
+                      className="w-full px-5 py-3 bg-slate-50 rounded-xl sm:rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-sm"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -270,7 +270,7 @@ const CustomerReservations = () => {
                       required
                       value={newResData.time}
                       onChange={(e) => setNewResData({...newResData, time: e.target.value})}
-                      className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-sm"
+                      className="w-full px-5 py-3 bg-slate-50 rounded-xl sm:rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-sm"
                     />
                   </div>
                 </div>
@@ -280,15 +280,15 @@ const CustomerReservations = () => {
                   <textarea 
                     value={newResData.notes}
                     onChange={(e) => setNewResData({...newResData, notes: e.target.value})}
-                    className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white h-24 resize-none transition-all shadow-sm"
-                    placeholder="Any specific requests or requirements..."
+                    className="w-full px-5 py-3 bg-slate-50 rounded-xl sm:rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white h-20 sm:h-24 resize-none transition-all shadow-sm"
+                    placeholder="Any specific requests..."
                   />
                 </div>
               </div>
 
-              <div className="p-6 md:p-8 border-t border-slate-50 bg-white shrink-0 relative z-20">
+              <div className="p-5 md:p-8 border-t border-slate-50 bg-white shrink-0 relative z-20">
                 <button className="w-full btn-primary py-4 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all">
-                  Send Booking Request
+                   Book Experience
                 </button>
               </div>
             </form>

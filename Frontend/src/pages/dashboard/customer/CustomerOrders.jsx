@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { 
   History, 
   ChevronRight, 
@@ -14,11 +14,12 @@ import {
   X,
   Printer
 } from 'lucide-react';
-import { cn } from "../../../utils/cn";
-import { useOrders } from "../../../context/OrdersContext";
-import { useCustomer } from "../../../context/CustomerContext";
+import { cn } from '@/utils/cn';
+import { useOrders } from '@/context/OrdersContext';
+import { useCustomer } from '@/context/CustomerContext';
 import { useNavigate } from 'react-router-dom';
-import printContent from '../../../utils/printUtil';
+import { createPortal } from 'react-dom';
+import printContent from '@/utils/printUtil';
 
 const CustomerOrders = () => {
   const navigate = useNavigate();
@@ -102,19 +103,19 @@ const CustomerOrders = () => {
                       <div className="w-14 h-14 lg:w-16 lg:h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner group-hover:scale-105 transition-transform">
                         {['Cooking', 'Ready'].includes(order.status) ? '🍳' : order.status === 'Delivered' ? '✅' : order.status === 'Cancelled' ? '❌' : '⏳'}
                       </div>
-                      <div className="space-y-1">
-                         <div className="flex items-center gap-2">
-                            <span className={cn("px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border", getStatusColor(order.status))}>
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                         <div className="flex flex-wrap items-center gap-2">
+                            <span className={cn("px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border shrink-0", getStatusColor(order.status))}>
                                {order.status}
                             </span>
-                            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">• {order.id}</span>
+                            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest truncate">• {order.id}</span>
                          </div>
-                         <h4 className="text-base lg:text-lg font-black text-text-primary uppercase tracking-tight leading-tight pt-1 break-words">
+                         <h4 className="text-base lg:text-lg font-black text-text-primary uppercase tracking-tight leading-tight pt-0.5 break-words line-clamp-2">
                             {order.itemsList ? order.itemsList.map(i => i.name).join(', ') : 'Custom Order'}
                          </h4>
-                         <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-1">
-                            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {order.time || 'Recent'}</span>
-                            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {order.table}</span>
+                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-0.5">
+                            <span className="flex items-center gap-1 shrink-0"><Clock className="w-3 h-3" /> {order.time || 'Recent'}</span>
+                            <span className="flex items-center gap-1 shrink-0"><MapPin className="w-3 h-3" /> {order.table}</span>
                          </div>
                       </div>
                   </div>
@@ -128,31 +129,31 @@ const CustomerOrders = () => {
                      </div>
                      <div className="flex items-center gap-2">
                         {activeTab === 'History' ? (
-                          <button 
-                            onClick={() => handleReorder(order)}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm"
-                          >
-                             <RotateCcw className="w-3.5 h-3.5" /> Reorder
-                          </button>
+                             <button 
+                               onClick={() => handleReorder(order)}
+                               className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm flex-1 md:flex-none"
+                             >
+                                <RotateCcw className="w-3.5 h-3.5" /> Reorder
+                             </button>
                         ) : (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 w-full md:w-auto">
                              {order.status === 'Pending' && (
                                <button 
                                  onClick={() => cancelOrder(order.id)}
-                                 className="px-4 py-2.5 bg-rose-50 text-rose-500 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                                 className="px-4 py-2.5 bg-rose-50 text-rose-500 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all shadow-sm flex-1 md:flex-none"
                                >
                                   Cancel
                                </button>
                              )}
                               <button 
                                onClick={() => { setSelectedTrackOrder(order); setTimeout(() => printContent('printable-area'), 200); }}
-                               className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:text-primary transition-all shadow-sm border border-slate-100"
+                               className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:text-primary transition-all shadow-sm border border-slate-100 shrink-0"
                               >
                                  <Printer className="w-4 h-4" />
                               </button>
                               <button 
                                onClick={() => setSelectedTrackOrder(order)}
-                               className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                               className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all flex-1 md:flex-none whitespace-nowrap"
                               >
                                  Track Order <ChevronRight className="w-3.5 h-3.5" />
                               </button>
@@ -185,43 +186,43 @@ const CustomerOrders = () => {
       </div>
 
       {/* Tracking Modal */}
-      {selectedTrackOrder && (
-        <div className="fixed inset-0 z-[600] flex items-center justify-center p-0 sm:p-4">
+      {selectedTrackOrder && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setSelectedTrackOrder(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
-             <div className="p-8 bg-slate-50 flex justify-between items-center border-b border-slate-100">
-                <div className="flex items-center gap-4">
-                   <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/20">
-                      <Clock className="w-7 h-7" />
+          <div className="relative w-full max-w-lg bg-white rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center max-h-[90vh] flex flex-col">
+             <div className="p-5 sm:p-8 bg-slate-50 flex justify-between items-center border-b border-slate-100 shrink-0">
+                <div className="flex items-center gap-3 sm:gap-4">
+                   <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/20">
+                      <Clock className="w-6 h-6 sm:w-7 sm:h-7" />
                    </div>
                    <div>
-                      <h3 className="text-xl font-black text-text-primary uppercase tracking-tight">Order Tracker</h3>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Ticket #{selectedTrackOrder.id}</p>
+                      <h3 className="text-lg sm:text-xl font-black text-text-primary uppercase tracking-tight">Order Tracker</h3>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Ticket #{selectedTrackOrder.id}</p>
                    </div>
                 </div>
                 <button onClick={() => setSelectedTrackOrder(null)} className="p-2 bg-white rounded-xl text-slate-300 hover:text-text-primary transition-all">
-                   <X className="w-6 h-6" />
+                   <X className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
              </div>
 
-             <div className="p-6 lg:p-8 space-y-8 lg:space-y-10 overflow-y-auto scrollbar-hide">
+             <div className="p-6 sm:p-8 space-y-6 sm:space-y-10 overflow-y-auto scrollbar-hide">
                 {/* Visual Steps */}
-                <div className="relative flex justify-between items-center px-2">
-                   <div className="absolute left-4 right-4 top-5 h-0.5 bg-slate-100 -z-10" />
+                <div className="relative flex justify-between items-start px-0 sm:px-2">
+                   <div className="absolute left-6 right-6 top-6 h-0.5 bg-slate-100 -z-10" />
                    {trackingSteps.map((step, idx) => {
                      const isPast = ['Pending', 'Cooking', 'Ready'].indexOf(selectedTrackOrder.status) >= ['Pending', 'Cooking', 'Cooking', 'Ready'].indexOf(step.status);
                      const isCurrent = selectedTrackOrder.status === step.status && (step.label !== 'Quality Check' || selectedTrackOrder.status === 'Cooking');
 
                      return (
-                       <div key={idx} className="flex flex-col items-center gap-3">
+                       <div key={idx} className="flex flex-col items-center gap-2 sm:gap-3 flex-1">
                           <div className={cn(
-                            "w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-lg transition-all duration-500",
+                            "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-4 border-white shadow-lg transition-all duration-500",
                             isPast ? step.color + " text-white" : "bg-white text-slate-200"
                           )}>
-                             <step.icon className={cn("w-5 h-5", isCurrent && "animate-pulse")} />
+                             <step.icon className={cn("w-4 h-4 sm:w-5 sm:h-5", isCurrent && "animate-pulse")} />
                           </div>
                           <span className={cn(
-                            "text-[8px] font-black uppercase tracking-widest text-center",
+                            "text-[7px] sm:text-[8px] md:text-[9px] font-black uppercase tracking-[0.05em] sm:tracking-widest text-center leading-tight px-1",
                             isPast ? "text-text-primary" : "text-slate-300"
                           )}>{step.label}</span>
                        </div>
@@ -229,35 +230,36 @@ const CustomerOrders = () => {
                    })}
                 </div>
 
-                <div className="card p-6 bg-slate-50 border-none space-y-4">
-                   <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <div className="card p-4 sm:p-6 bg-slate-50 border-none space-y-3 sm:space-y-4">
+                   <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">
                       <span>Order Items</span>
                       <span>{selectedTrackOrder.amount?.startsWith('₹') ? selectedTrackOrder.amount : `₹${selectedTrackOrder.amount || 0}`}</span>
                    </div>
-                   <div className="space-y-3">
+                   <div className="space-y-2.5 sm:space-y-3">
                       {selectedTrackOrder.itemsList?.map((item, i) => (
-                        <div key={i} className="flex justify-between items-center">
-                           <p className="text-sm font-black text-text-primary uppercase">{item.name}</p>
-                           <p className="text-xs font-bold text-slate-400">x{item.quantity || 1}</p>
+                        <div key={i} className="flex justify-between items-center gap-4">
+                           <p className="text-xs sm:text-sm font-black text-text-primary uppercase truncate flex-1">{item.name}</p>
+                           <p className="text-[10px] sm:text-xs font-bold text-slate-400 shrink-0">x{item.quantity || 1}</p>
                         </div>
                       ))}
                    </div>
                 </div>
 
-                <div className="text-center space-y-2">
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estimated Time</p>
-                   <h4 className="text-3xl font-black text-text-primary tracking-tighter">12-15 MINS</h4>
+                <div className="text-center space-y-1 sm:space-y-2">
+                   <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Estimated Time</p>
+                   <h4 className="text-2xl sm:text-3xl font-black text-text-primary tracking-tighter">12-15 MINS</h4>
                 </div>
 
                 <button 
                   onClick={() => setSelectedTrackOrder(null)}
-                  className="w-full py-5 bg-primary text-white rounded-3xl font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-primary/30 active:scale-95 transition-all"
+                  className="w-full py-4 sm:py-5 bg-primary text-white rounded-2xl sm:rounded-3xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] shadow-2xl shadow-primary/30 active:scale-95 transition-all mt-4"
                 >
                    Continue Shopping
                 </button>
              </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Reward Ad */}

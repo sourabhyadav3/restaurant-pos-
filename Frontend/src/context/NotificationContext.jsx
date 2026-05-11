@@ -6,54 +6,61 @@ export const useNotifications = () => useContext(NotificationContext);
 
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState(() => {
-    const saved = localStorage.getItem('resto-notifications');
-    return saved ? JSON.parse(saved) : [
-      {
-        id: 1,
-        type: 'Reservation',
-        title: 'VIP Reservation',
-        message: 'Alexander Wright requested ROYAL SUITE for May 10.',
-        targetRole: 'Admin',
-        timestamp: new Date(Date.now() - 3600000).toISOString(),
-        read: false
-      },
-      {
-        id: 2,
-        type: 'Message',
-        title: 'Priority Request',
-        message: 'Elena Gilbert: "Need late checkout for Room 102."',
-        targetRole: 'Manager',
-        timestamp: new Date(Date.now() - 7200000).toISOString(),
-        read: true
-      },
-      {
-        id: 3,
-        type: 'Inventory',
-        title: 'Stock Alert',
-        message: 'Seafood Grill is running low in stock (Kitchen).',
-        targetRole: 'Chef',
-        timestamp: new Date(Date.now() - 10000000).toISOString(),
-        read: false
-      },
-      {
-        id: 4,
-        type: 'System',
-        title: 'Payroll Processed',
-        message: 'Monthly payroll for staff has been finalized.',
-        targetRole: 'Admin',
-        timestamp: new Date(Date.now() - 86400000).toISOString(),
-        read: true
-      },
-      {
-        id: 5,
-        type: 'Service',
-        title: 'New Service Booking',
-        message: 'Sarah Jenkins booked a "Sunset Cruise" for tomorrow.',
-        targetRole: 'Waiter',
-        timestamp: new Date(Date.now() - 1800000).toISOString(),
-        read: false
-      }
-    ];
+    try {
+      const saved = localStorage.getItem('resto-notifications');
+      if (!saved) return [
+        {
+          id: 1,
+          type: 'Reservation',
+          title: 'VIP Reservation',
+          message: 'Alexander Wright requested ROYAL SUITE for May 10.',
+          targetRole: 'ADMIN',
+          timestamp: new Date(Date.now() - 3600000).toISOString(),
+          read: false
+        },
+        {
+          id: 2,
+          type: 'Message',
+          title: 'Priority Request',
+          message: 'Elena Gilbert: "Need late checkout for Room 102."',
+          targetRole: 'MANAGER',
+          timestamp: new Date(Date.now() - 7200000).toISOString(),
+          read: true
+        },
+        {
+          id: 3,
+          type: 'Inventory',
+          title: 'Stock Alert',
+          message: 'Seafood Grill is running low in stock (Kitchen).',
+          targetRole: 'CHEF',
+          timestamp: new Date(Date.now() - 10000000).toISOString(),
+          read: false
+        },
+        {
+          id: 4,
+          type: 'System',
+          title: 'Payroll Processed',
+          message: 'Monthly payroll for staff has been finalized.',
+          targetRole: 'ADMIN',
+          timestamp: new Date(Date.now() - 86400000).toISOString(),
+          read: true
+        },
+        {
+          id: 5,
+          type: 'Service',
+          title: 'New Service Booking',
+          message: 'Sarah Jenkins booked a "Sunset Cruise" for tomorrow.',
+          targetRole: 'WAITER',
+          timestamp: new Date(Date.now() - 1800000).toISOString(),
+          read: false
+        }
+      ];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error("Error parsing notifications:", e);
+      return [];
+    }
   });
 
   useEffect(() => {
@@ -65,14 +72,10 @@ export const NotificationProvider = ({ children }) => {
       id: Date.now(),
       timestamp: new Date().toISOString(),
       read: false,
-      ...notif
+      ...notif,
+      targetRole: notif.targetRole?.toUpperCase() || 'ALL'
     };
     setNotifications(prev => [newNotif, ...prev].slice(0, 50));
-    
-    // Play sound or show toast here if needed
-    if (window.Notification && Notification.permission === 'granted') {
-       // Browser notification
-    }
   };
 
   const markAsRead = (id) => {
@@ -80,7 +83,8 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const markAllAsRead = (role) => {
-    setNotifications(prev => prev.map(n => n.targetRole === role ? { ...n, read: true } : n));
+    const roleUpper = role?.toUpperCase();
+    setNotifications(prev => prev.map(n => (n.targetRole === roleUpper || n.targetRole === 'ALL') ? { ...n, read: true } : n));
   };
 
   const clearNotifications = () => {
@@ -92,7 +96,8 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const getUnreadCount = (role) => {
-    return notifications.filter(n => !n.read && (n.targetRole === role || n.targetRole === 'ALL')).length;
+    const roleUpper = role?.toUpperCase();
+    return notifications.filter(n => !n.read && (n.targetRole === roleUpper || n.targetRole === 'ALL')).length;
   };
 
   return (
@@ -109,3 +114,5 @@ export const NotificationProvider = ({ children }) => {
     </NotificationContext.Provider>
   );
 };
+
+

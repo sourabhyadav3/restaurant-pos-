@@ -173,7 +173,7 @@ const Menu = () => {
                           key={item.id} 
                           className={cn(
                             "text-xs hover:bg-slate-50/50 group cursor-pointer",
-                            item.status === 'Out of Stock' && "opacity-60 bg-slate-50/30"
+                            item.status === 'Out of Stock' && "bg-slate-50/30"
                           )}
                           onClick={() => setSelectedItem(item)}
                         >
@@ -203,16 +203,16 @@ const Menu = () => {
                               onClick={(e) => { e.stopPropagation(); toggleAvailability(item.id); }}
                               className={cn(
                                 "badge font-black border-2 py-1 px-3 text-[8px] uppercase tracking-widest",
-                                item.status === 'In Stock' ? "bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100" :
-                                item.status === 'Low Stock' ? "bg-orange-50 text-orange-600 border-orange-100" :
-                                "bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100"
+                                item.status === 'In Stock' ? "bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-100" :
+                                item.status === 'Low Stock' ? "bg-amber-500 text-white border-amber-500 shadow-lg shadow-amber-100" :
+                                "bg-rose-500 text-white border-rose-500 shadow-lg shadow-rose-100"
                               )}
                             >
                               {item.status}
                             </button>
                           </td>
                           <td className="px-8 py-5 text-right">
-                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100">
+                            <div className="flex items-center justify-end gap-2">
                               <button 
                                 onClick={(e) => { e.stopPropagation(); setEditingItem(item); setShowAddModal(true); }}
                                 className="p-2.5 bg-white text-slate-400 hover:text-primary hover:shadow-xl rounded-xl border border-slate-100"

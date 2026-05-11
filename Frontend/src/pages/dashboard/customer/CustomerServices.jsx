@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Car, 
   Map, 
@@ -13,11 +14,12 @@ import {
   CheckCircle2,
   Plane,
   Camera,
-  Waves
+  Waves,
+  X
 } from 'lucide-react';
-import { cn } from "../../../utils/cn";
-import { useHospitality } from "../../../context/HospitalityContext";
-import { useCustomer } from "../../../context/CustomerContext";
+import { cn } from '@/utils/cn';
+import { useHospitality } from '@/context/HospitalityContext';
+import { useCustomer } from '@/context/CustomerContext';
 
 const CustomerServices = () => {
   const { services, addServiceBooking, serviceBookings } = useHospitality();
@@ -148,8 +150,8 @@ const CustomerServices = () => {
       )}
 
       {/* Booking Modal */}
-      {selectedService && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-0 sm:p-4">
+      {selectedService && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
            <div onClick={() => setSelectedService(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
            <div className="relative w-full max-w-md bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
               {showSuccess ? (
@@ -163,21 +165,23 @@ const CustomerServices = () => {
                    </div>
                 </div>
               ) : (
-                <div className="flex flex-col max-h-[90vh]">
-                   <div className="p-6 lg:p-8 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center shrink-0">
-                      <div className="flex items-center gap-4">
-                         <div className="w-12 lg:w-14 h-12 lg:h-14 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl lg:text-3xl shadow-xl shadow-primary/20 shrink-0">
+                <div className="flex flex-col flex-1 min-h-0">
+                   <div className="p-4 sm:p-6 lg:p-8 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center shrink-0">
+                      <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                         <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-primary rounded-xl sm:rounded-2xl flex items-center justify-center text-white text-xl sm:text-2xl lg:text-3xl shadow-xl shadow-primary/20 shrink-0">
                             {selectedService.icon}
                          </div>
-                         <div>
-                            <h3 className="text-lg lg:text-xl font-black text-text-primary uppercase tracking-tight truncate max-w-[150px] sm:max-w-none">{selectedService.name}</h3>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{selectedService.category}</p>
+                         <div className="min-w-0">
+                            <h3 className="text-base sm:text-lg lg:text-xl font-black text-text-primary uppercase tracking-tight truncate">{selectedService.name}</h3>
+                            <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{selectedService.category}</p>
                          </div>
                       </div>
+                      <button onClick={() => setSelectedService(null)} className="p-2 hover:bg-white rounded-xl text-slate-300 transition-all shrink-0">
+                         <X className="w-5 h-5 sm:w-6 sm:h-6" />
+                      </button>
                    </div>
-
-                   <form onSubmit={handleBook} className="p-6 lg:p-8 space-y-6 overflow-y-auto scrollbar-hide">
-                      <div className="space-y-4">
+                   <form onSubmit={handleBook} className="p-4 sm:p-6 lg:p-8 space-y-5 sm:space-y-6 overflow-y-auto scrollbar-hide flex-1">
+                      <div className="space-y-5">
                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date</label>
@@ -185,7 +189,7 @@ const CustomerServices = () => {
                                  type="date" 
                                  value={bookingDate}
                                  onChange={(e) => setBookingDate(e.target.value)}
-                                 className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm" 
+                                 className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm shadow-sm transition-all" 
                                  required 
                                />
                             </div>
@@ -195,7 +199,7 @@ const CustomerServices = () => {
                                  type="time" 
                                  value={bookingTime}
                                  onChange={(e) => setBookingTime(e.target.value)}
-                                 className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm" 
+                                 className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm shadow-sm transition-all" 
                                  required 
                                />
                             </div>
@@ -223,28 +227,28 @@ const CustomerServices = () => {
                          </div>
                       </div>
 
-                      <div className="pt-4 border-t border-slate-50 shrink-0">
-                         <div className="flex justify-between items-end mb-6">
+                      <div className="pt-5 border-t border-slate-50 shrink-0">
+                         <div className="flex flex-wrap justify-between items-end gap-4 mb-6">
                             <div>
                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estimated Total</p>
                                <p className="text-xl lg:text-2xl font-black text-text-primary mt-1">₹{selectedService.price * guests}</p>
                             </div>
-                            <div className="text-right hidden sm:block">
-                               <p className="text-[10px] font-black text-primary uppercase tracking-widest">Safe & Secure</p>
-                               <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase">Payment via Folio</p>
+                            <div className="text-right">
+                               <p className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">Safe & Secure</p>
+                               <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Payment via Folio</p>
                             </div>
                          </div>
                          <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
                             <button 
                               type="button" 
                               onClick={() => setSelectedService(null)}
-                              className="flex-1 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[10px] active:scale-95 transition-all"
+                              className="flex-1 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] active:scale-95 transition-all order-2 sm:order-1"
                             >
                                Cancel
                             </button>
                             <button 
                               type="submit"
-                              className="flex-[2] py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/30 active:scale-95 transition-all"
+                              className="flex-[2] py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] shadow-xl shadow-primary/30 active:scale-95 transition-all order-1 sm:order-2"
                             >
                                Confirm Request
                             </button>
@@ -254,7 +258,8 @@ const CustomerServices = () => {
                 </div>
               )}
            </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

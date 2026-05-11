@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Search, 
   Filter, 
@@ -13,8 +13,9 @@ import {
   Check,
   ShoppingBag
 } from 'lucide-react';
-import { cn } from "../../../utils/cn";
-import { useMenu } from "../../../context/MenuContext";
+import { cn } from '@/utils/cn';
+import { useMenu } from '@/context/MenuContext';
+import { useCustomer } from '@/context/CustomerContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const CustomerMenu = () => {

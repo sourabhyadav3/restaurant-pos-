@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   User, 
   ChevronLeft, 
@@ -28,10 +28,10 @@ import {
   DollarSign,
   Clock
 } from 'lucide-react';
-import { cn } from "../../../utils/cn";
+import { cn } from '@/utils/cn';
 import { useNavigate } from 'react-router-dom';
-import { useAuth, roles } from "../../../context/AuthContext";
-import { useCustomer } from "../../../context/CustomerContext";
+import { useAuth, roles } from '@/context/AuthContext';
+import { useCustomer } from '@/context/CustomerContext';
 import { createPortal } from 'react-dom';
 
 const CustomerProfile = () => {
@@ -198,12 +198,12 @@ const CustomerProfile = () => {
           
           {/* Edit Profile Modal */}
           {activeModal === 'edit-profile' && (
-            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
-               <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-                  <h3 className="text-xl font-black uppercase tracking-tight">Edit Profile</h3>
+            <div className="relative w-full max-w-[95%] sm:max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center flex flex-col max-h-[90vh]">
+               <div className="px-6 py-5 sm:px-8 sm:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50 shrink-0">
+                  <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight">Edit Profile</h3>
                   <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-white rounded-xl transition-all shadow-sm"><X className="w-5 h-5" /></button>
                </div>
-               <form onSubmit={handleProfileSave} className="p-8 space-y-5">
+               <form onSubmit={handleProfileSave} className="p-6 sm:p-8 space-y-5 overflow-y-auto scrollbar-hide">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
                     <input 
@@ -256,12 +256,12 @@ const CustomerProfile = () => {
 
           {/* Payment Methods Modal */}
           {activeModal === 'payments' && (
-            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
-               <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-indigo-50/50">
-                  <h3 className="text-xl font-black uppercase tracking-tight text-indigo-900">Payment Methods</h3>
+            <div className="relative w-full max-w-[95%] sm:max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center flex flex-col max-h-[90vh]">
+               <div className="px-6 py-5 sm:px-8 sm:py-6 border-b border-slate-50 flex justify-between items-center bg-indigo-50/50 shrink-0">
+                  <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-indigo-900">Payment Methods</h3>
                   <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-white rounded-xl transition-all shadow-sm"><X className="w-5 h-5 text-indigo-900" /></button>
                </div>
-               <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto scrollbar-hide">
+               <div className="p-6 sm:p-8 space-y-6 overflow-y-auto scrollbar-hide">
                   <div className="space-y-3">
                      {paymentMethods.map(card => (
                        <div key={card.id} className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm flex items-center justify-between group">
@@ -328,12 +328,12 @@ const CustomerProfile = () => {
 
           {/* Address Book Modal */}
           {activeModal === 'addresses' && (
-            <div className="relative w-full max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
-               <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-rose-50/50">
-                  <h3 className="text-xl font-black uppercase tracking-tight text-rose-900">Address Book</h3>
+            <div className="relative w-full max-w-[95%] sm:max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center flex flex-col max-h-[90vh]">
+               <div className="px-6 py-5 sm:px-8 sm:py-6 border-b border-slate-50 flex justify-between items-center bg-rose-50/50 shrink-0">
+                  <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-rose-900">Address Book</h3>
                   <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-white rounded-xl transition-all shadow-sm"><X className="w-5 h-5 text-rose-900" /></button>
                </div>
-               <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto scrollbar-hide">
+               <div className="p-6 sm:p-8 space-y-6 overflow-y-auto scrollbar-hide">
                   <div className="space-y-3">
                      {addresses.map(addr => (
                        <div key={addr.id} className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm flex items-start justify-between group">
@@ -390,12 +390,12 @@ const CustomerProfile = () => {
 
           {/* Notifications Modal */}
           {activeModal === 'notifs' && (
-            <div className="relative w-full max-w-[450px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
-               <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-orange-50/50">
-                  <h3 className="text-xl font-black uppercase tracking-tight text-orange-900">Notifications</h3>
+            <div className="relative w-full max-w-[95%] sm:max-w-[450px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center flex flex-col max-h-[90vh]">
+               <div className="px-6 py-5 sm:px-8 sm:py-6 border-b border-slate-50 flex justify-between items-center bg-orange-50/50 shrink-0">
+                  <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-orange-900">Notifications</h3>
                   <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-white rounded-xl transition-all shadow-sm"><X className="w-5 h-5 text-orange-900" /></button>
                </div>
-               <div className="p-8 space-y-6">
+               <div className="p-6 sm:p-8 space-y-6 overflow-y-auto scrollbar-hide">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Push Preference</p>
                   <div className="space-y-4">
                      {[

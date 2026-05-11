@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Table2, 
-  Calculator, 
-  ClipboardList, 
-  CookingPot, 
-  UtensilsCrossed, 
-  Users, 
-  BarChart3, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Table2,
+  Calculator,
+  ClipboardList,
+  CookingPot,
+  UtensilsCrossed,
+  Users,
+  BarChart3,
+  Settings,
   LogOut,
   Bell,
   Search,
@@ -34,10 +35,10 @@ import {
   Package,
   CreditCard
 } from 'lucide-react';
-import { useAuth, roles } from '../context/AuthContext';
-import { useNotifications } from '../context/NotificationContext';
-import { useCustomer } from '../context/CustomerContext';
-import { cn } from '../utils/cn';
+import { useAuth, roles } from '@/context/AuthContext';
+import { useNotifications } from '@/context/NotificationContext';
+import { useCustomer } from '@/context/CustomerContext';
+import { cn } from '@/utils/cn';
 
 const MainLayout = ({ children }) => {
   const { user, login, logout } = useAuth();
@@ -47,9 +48,10 @@ const MainLayout = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const unreadCount = getUnreadCount(user?.role);
-  const myNotifications = notifications.filter(n => n.targetRole === user?.role || n.targetRole === 'ALL');
+  const myNotifications = notifications.filter(n => n.targetRole === user?.role?.toUpperCase() || n.targetRole === 'ALL');
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -78,7 +80,7 @@ const MainLayout = ({ children }) => {
     { name: 'Kitchen', icon: CookingPot, path: getRoleModulePath('kitchen'), roles: [roles.ADMIN, roles.MANAGER, roles.CHEF] },
     { name: 'Tasks', icon: ClipboardCheck, path: getRoleModulePath('tasks'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF] },
     { name: 'Inventory', icon: Package, path: getRoleModulePath('inventory'), roles: [roles.ADMIN, roles.MANAGER, roles.CHEF] },
-    { name: 'Notifications', icon: Bell, path: getRoleModulePath('notifications'), roles: [roles.CHEF] },
+    { name: 'Notifications', icon: Bell, path: getRoleModulePath('notifications'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF, roles.CASHIER, roles.CUSTOMER] },
     { name: 'Menu', icon: UtensilsCrossed, path: getRoleModulePath('menu'), roles: [roles.ADMIN, roles.MANAGER] },
     { name: 'Staff', icon: Users, path: getRoleModulePath('staff'), roles: [roles.ADMIN] },
     { name: 'Reports', icon: BarChart3, path: getRoleModulePath('reports'), roles: [roles.ADMIN, roles.MANAGER] },
@@ -93,7 +95,7 @@ const MainLayout = ({ children }) => {
     { name: 'Settlements', icon: CreditCard, path: getRoleModulePath('settlements'), roles: [roles.CASHIER] },
     { name: 'Transactions', icon: History, path: getRoleModulePath('transactions'), roles: [roles.CASHIER] },
     { name: 'Settings', icon: Settings, path: getRoleModulePath('settings'), roles: [roles.ADMIN] },
-    
+
     // Customer Specific Items
     { name: 'Home', icon: Home, path: '/customer/home', roles: [roles.CUSTOMER] },
     { name: 'Order Now', icon: UtensilsCrossed, path: '/customer/order-now', roles: [roles.CUSTOMER] },
@@ -111,7 +113,7 @@ const MainLayout = ({ children }) => {
   return (
     <div className="fixed inset-0 flex bg-background overflow-hidden font-['Inter']">
       {/* Sidebar */}
-      <aside 
+      <aside
         className={cn(
           "bg-white border-r border-border flex flex-col relative z-[150] shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-full transition-all duration-300 ease-in-out",
           "lg:translate-x-0 fixed lg:sticky lg:top-0",
@@ -120,7 +122,7 @@ const MainLayout = ({ children }) => {
         )}
       >
         {/* Logo Area */}
-        <div 
+        <div
           onClick={() => navigate(getRoleModulePath('dashboard'))}
           className="h-16 flex items-center px-6 shrink-0 border-b border-slate-50 cursor-pointer group/logo relative z-[260] bg-white"
         >
@@ -129,7 +131,7 @@ const MainLayout = ({ children }) => {
               <img src="/1000464407-removebg-preview.png" alt="Logo" className="w-8 h-8 object-contain" />
             </div>
             {!isCollapsed && (
-              <span 
+              <span
                 className="text-lg font-black tracking-tight text-text-primary whitespace-nowrap uppercase italic"
               >
                 Gila<span className="text-primary">House</span>
@@ -148,14 +150,14 @@ const MainLayout = ({ children }) => {
               onClick={() => setIsMobileMenuOpen(false)}
               className={({ isActive }) => cn(
                 "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl",
-                isActive 
-                  ? "bg-primary text-white shadow-xl shadow-primary/20" 
+                isActive
+                  ? "bg-primary text-white shadow-xl shadow-primary/20"
                   : "text-text-secondary hover:bg-slate-50 hover:text-text-primary"
               )}
             >
               <item.icon className={cn("w-5 h-5 shrink-0 transition-transform group-hover:scale-110", !isCollapsed && "stroke-[2]")} />
               {!isCollapsed && (
-                <span 
+                <span
                   className="font-bold text-xs tracking-wide truncate"
                 >
                   {item.name}
@@ -173,7 +175,7 @@ const MainLayout = ({ children }) => {
         {/* Sidebar Footer */}
         <div className="p-2.5 space-y-0.5 border-t border-slate-50">
 
-          <button 
+          <button
             onClick={() => { logout(); navigate('/login'); }}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-text-secondary hover:bg-danger/5 hover:text-danger group"
           >
@@ -183,7 +185,7 @@ const MainLayout = ({ children }) => {
         </div>
 
         {/* Toggle Button (Hidden on Mobile) */}
-        <button 
+        <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="absolute -right-4 top-10 w-8 h-8 bg-white border border-border rounded-full hidden md:flex items-center justify-center text-text-secondary hover:text-primary shadow-xl z-30"
         >
@@ -193,7 +195,7 @@ const MainLayout = ({ children }) => {
 
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[90] md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
@@ -207,19 +209,19 @@ const MainLayout = ({ children }) => {
         <div className="absolute top-[-10%] right-[-5%] w-[40rem] h-[40rem] bg-primary/[0.03] rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute bottom-[-10%] left-[-5%] w-[35rem] h-[35rem] bg-indigo-400/[0.03] rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute top-[20%] left-[10%] w-[30rem] h-[30rem] bg-blue-300/[0.02] rounded-full blur-[80px] pointer-events-none" />
-                {/* Header */}
+        {/* Header */}
         <header className={cn(
           "h-16 bg-white/80 backdrop-blur-md border-b border-border flex items-center justify-between px-4 lg:px-8 shrink-0 z-[140] transition-all",
           "sticky top-0 left-0 right-0"
         )}>
           <div className="flex items-center gap-3 lg:gap-6 flex-1">
-            <button 
+            <button
               onClick={() => setIsMobileMenuOpen(true)}
               className="md:hidden p-2 text-text-secondary hover:text-primary"
             >
               <MenuIcon className="w-6 h-6" />
             </button>
-            <div 
+            <div
               className="relative w-full max-w-[420px] group z-[100]"
             >
               <div
@@ -230,44 +232,44 @@ const MainLayout = ({ children }) => {
               >
                 <Search className="w-4 h-4" />
               </div>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={searchQuery}
                 onFocus={() => setIsSearchFocused(true)}
                 onBlur={() => setIsSearchFocused(false)}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search anything..." 
+                placeholder="Search anything..."
                 className={cn(
                   "w-full pl-10 pr-4 py-2.5 bg-slate-50 lg:bg-white border-2 rounded-xl lg:rounded-2xl outline-none text-xs font-bold relative z-10 transition-all",
-                  isSearchFocused 
-                    ? "border-primary ring-4 ring-primary/10 shadow-lg shadow-primary/5" 
+                  isSearchFocused
+                    ? "border-primary ring-4 ring-primary/10 shadow-lg shadow-primary/5"
                     : "border-slate-100 hover:border-primary/20"
                 )}
               />
-              
+
               {searchQuery.length > 0 && (
                 <>
                   <div className="fixed inset-0 z-0" onClick={() => setSearchQuery('')} />
-                  <div 
+                  <div
                     className="absolute top-full mt-3 w-full bg-white border border-slate-100 rounded-3xl shadow-2xl overflow-hidden z-[120] p-2"
                   >
                     <div className="p-2">
                       <div className="px-3 py-2">
                         <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Orders</p>
                         <button onClick={() => { setSearchQuery(''); navigate(getRoleModulePath('orders')); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
-                           Order #124 <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
+                          Order #124 <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
                         </button>
                       </div>
                       <div className="px-3 py-2 border-t border-slate-50">
                         <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Tables</p>
                         <button onClick={() => { setSearchQuery(''); navigate(getRoleModulePath('tables')); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
-                           Table T-03 <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
+                          Table T-03 <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
                         </button>
                       </div>
                       <div className="px-3 py-2 border-t border-slate-50">
                         <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Menu</p>
                         <button onClick={() => { setSearchQuery(''); navigate(getRoleModulePath('menu')); }} className="w-full text-left px-3 py-2 hover:bg-slate-50 rounded-xl text-xs font-bold flex justify-between items-center group">
-                           Margherita Pizza <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
+                          Margherita Pizza <ChevronRight className="w-3 h-3 text-slate-300 group-hover:text-primary" />
                         </button>
                       </div>
                     </div>
@@ -279,7 +281,7 @@ const MainLayout = ({ children }) => {
 
           <div className="flex items-center gap-4">
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 className={cn(
                   "relative p-2 bg-slate-50 rounded-xl transition-all",
@@ -295,7 +297,7 @@ const MainLayout = ({ children }) => {
               </button>
 
               {user?.role === roles.CUSTOMER && (
-                <button 
+                <button
                   onClick={() => navigate('/customer/cart')}
                   className="relative p-2 bg-slate-50 rounded-xl text-text-secondary hover:text-primary transition-all ml-2"
                 >
@@ -308,65 +310,92 @@ const MainLayout = ({ children }) => {
                 </button>
               )}
 
-              {showNotifications && (
+              {showNotifications && typeof document !== 'undefined' && createPortal(
                 <>
-                  <div className="fixed inset-0 z-[100]" onClick={() => setShowNotifications(false)} />
-                  <div className="absolute top-full right-0 mt-3 w-[320px] bg-white border border-slate-100 rounded-[2rem] shadow-2xl overflow-hidden z-[110] animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="fixed inset-0 z-[500]" onClick={() => setShowNotifications(false)} />
+                  <div className="fixed top-16 right-4 sm:right-24 w-[calc(100vw-2rem)] sm:w-[320px] bg-white border border-slate-100 rounded-3xl shadow-2xl overflow-hidden z-[510] animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
-                       <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Notifications</h4>
-                       <button onClick={() => markAllAsRead(user?.role)} className="text-[9px] font-black text-primary uppercase tracking-widest hover:underline">Mark all as read</button>
+                      <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Notifications</h4>
+                      <button onClick={() => markAllAsRead(user?.role)} className="text-[9px] font-black text-primary uppercase tracking-widest hover:underline">Clear All</button>
                     </div>
-                    <div className="max-h-[380px] overflow-y-auto scrollbar-hide">
-                       {myNotifications.length === 0 ? (
-                         <div className="p-8 text-center opacity-40">
-                            <Bell className="w-8 h-8 mx-auto mb-2" />
-                            <p className="text-[10px] font-black uppercase tracking-widest">No notifications</p>
-                         </div>
-                       ) : (
-                         myNotifications.map((n) => (
-                           <div 
-                             key={n.id} 
-                             onClick={() => { markAsRead(n.id); setShowNotifications(false); }}
-                             className={cn(
-                               "p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer relative",
-                               !n.read && "bg-primary/[0.02]"
-                             )}
-                           >
-                              {!n.read && <div className="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-full" />}
-                              <p className="text-[10px] font-black text-text-primary uppercase tracking-tight leading-tight">{n.title}</p>
-                              <p className="text-[11px] font-medium text-slate-500 mt-1 line-clamp-2">{n.message}</p>
-                              <p className="text-[8px] font-black text-slate-300 mt-2 uppercase tracking-widest">{new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                           </div>
-                         ))
-                       )}
+                    <div className="max-h-[320px] overflow-y-auto scrollbar-hide">
+                      {myNotifications.length === 0 ? (
+                        <div className="py-10 text-center opacity-40">
+                          <Bell className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                          <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">No new alerts</p>
+                        </div>
+                      ) : (
+                        myNotifications.map((n) => (
+                          <div
+                            key={n.id}
+                            onClick={() => { markAsRead(n.id); setShowNotifications(false); }}
+                            className={cn(
+                              "p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer relative group",
+                              !n.read && "bg-primary/[0.02]"
+                            )}
+                          >
+                            {!n.read && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />}
+                            <div className="flex justify-between items-start gap-2 mb-1">
+                              <p className="text-[10px] font-black text-text-primary uppercase tracking-tight leading-tight flex-1 line-clamp-1">{n.title}</p>
+                              <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest shrink-0">{new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                            </div>
+                            <p className="text-[10px] font-medium text-slate-500 line-clamp-1 leading-relaxed">{n.message}</p>
+                          </div>
+                        ))
+                      )}
                     </div>
-                    <button 
+                    <button
                       onClick={() => { setShowNotifications(false); navigate(getRoleModulePath('notifications')); }}
-                      className="w-full py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-primary transition-colors border-t border-slate-50"
+                      className="w-full py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-primary transition-colors border-t border-slate-50 bg-slate-50/10"
                     >
                       View All Activity
                     </button>
                   </div>
-                </>
+                </>,
+                document.body
               )}
             </div>
-            
+
             <div className="h-8 w-[1px] bg-border mx-1"></div>
 
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-xs font-black text-text-primary leading-none">{user?.name}</p>
-                <div className="mt-1 flex justify-end">
-                   <span className="badge bg-primary-light text-primary border-none text-[8px] py-0 font-bold uppercase tracking-wider">
-                      {user?.role}
-                   </span>
-                </div>
-              </div>
-              <div 
-                className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-primary border-2 border-white shadow-lg cursor-pointer overflow-hidden"
+            <div className="relative">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className={cn(
+                  "flex items-center gap-3 hover:bg-slate-50 p-1.5 rounded-2xl transition-all group",
+                  showProfileMenu && "bg-slate-100"
+                )}
               >
-                <UserIcon className="w-5 h-5 stroke-[2.5]" />
-              </div>
+                <div className="text-right hidden sm:block pl-2">
+                  <p className="text-xs font-black text-text-primary leading-none uppercase">{user?.name}</p>
+                  <div className="mt-1 flex justify-end">
+                    <span className="badge bg-primary-light text-primary border-none text-[8px] py-0 font-bold uppercase tracking-wider">
+                      {user?.role}
+                    </span>
+                  </div>
+                </div>
+                <div
+                  className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-primary border-2 border-white shadow-lg cursor-pointer overflow-hidden group-hover:scale-105 transition-transform"
+                >
+                  <UserIcon className="w-5 h-5 stroke-[2.5]" />
+                </div>
+              </button>
+
+              {showProfileMenu && typeof document !== 'undefined' && createPortal(
+                <>
+                  <div className="fixed inset-0 z-[500]" onClick={() => setShowProfileMenu(false)} />
+                  <div className="fixed top-16 right-4 sm:right-8 w-40 bg-white border border-slate-100 rounded-2xl shadow-2xl overflow-hidden z-[510] animate-in fade-in slide-in-from-top-2 duration-200 p-1">
+                    <button
+                      onClick={() => { setShowProfileMenu(false); logout(); navigate('/login'); }}
+                      className="w-full flex items-center gap-3 p-3 hover:bg-rose-50 rounded-xl transition-all text-slate-400 hover:text-rose-600 group"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Logout</span>
+                    </button>
+                  </div>
+                </>,
+                document.body
+              )}
             </div>
           </div>
         </header>

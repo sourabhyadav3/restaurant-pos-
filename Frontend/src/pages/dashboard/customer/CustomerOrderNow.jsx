@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Search, 
   ChevronLeft, 
@@ -396,8 +397,8 @@ const CustomerOrderNow = () => {
 
 
       {/* Customization Modal */}
-      {showItemModal && selectedItem && (
-        <div className="fixed inset-0 z-[400] flex items-center justify-center p-0 sm:p-4">
+      {showItemModal && selectedItem && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setShowItemModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
           <div className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] animate-in fade-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
              <div className="relative h-40 sm:h-48 lg:h-56 bg-slate-50 flex items-center justify-center text-6xl lg:text-8xl shrink-0">
@@ -406,8 +407,8 @@ const CustomerOrderNow = () => {
                    <X className="w-5 h-5 lg:w-6 lg:h-6" />
                 </button>
              </div>
-             <div className="p-6 lg:p-10 space-y-6 lg:space-y-8 overflow-y-auto scrollbar-hide">
-                <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4">
+             <div className="p-5 sm:p-8 lg:p-10 space-y-6 lg:space-y-8 overflow-y-auto scrollbar-hide">
+                <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-3 sm:gap-4">
                    <div>
                       <div className="flex items-center gap-2 mb-2">
                          <span className="px-2 py-0.5 bg-primary/10 text-primary text-[8px] font-black uppercase tracking-widest rounded-md">{selectedItem.category}</span>
@@ -415,7 +416,7 @@ const CustomerOrderNow = () => {
                             <Star className="w-3 h-3 fill-current" /> 4.8 Ratings
                          </div>
                       </div>
-                      <h3 className="text-xl lg:text-2xl font-black text-text-primary uppercase tracking-tight">{selectedItem.name}</h3>
+                      <h3 className="text-xl lg:text-2xl font-black text-text-primary uppercase tracking-tight leading-tight">{selectedItem.name}</h3>
                    </div>
                    <div className="sm:text-right shrink-0">
                       <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Total</p>
@@ -468,18 +469,19 @@ const CustomerOrderNow = () => {
 
                 <button 
                   onClick={handleAddToCartAction}
-                  className="w-full btn-primary py-4 lg:py-5 rounded-2xl lg:rounded-3xl flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest shadow-2xl shadow-primary/30 active:scale-95 transition-all"
+                  className="w-full btn-primary py-4 lg:py-5 rounded-2xl lg:rounded-3xl flex items-center justify-center gap-3 text-[10px] sm:text-[11px] lg:text-sm font-black uppercase tracking-[0.1em] shadow-2xl shadow-primary/30 active:scale-95 transition-all shrink-0"
                 >
-                   <Plus className="w-5 h-5" /> Add to Order
+                   <Plus className="w-4 h-4 sm:w-5 sm:h-5" /> Add to Order
                 </button>
              </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Payment Modal */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-0 sm:p-4">
+      {showPaymentModal && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
            <div onClick={() => !paymentProcessing && setShowPaymentModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
            <div className="relative w-full max-w-md bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
               <div className="px-6 sm:px-8 py-5 sm:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
@@ -584,7 +586,8 @@ const CustomerOrderNow = () => {
                  )}
               </div>
            </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

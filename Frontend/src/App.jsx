@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
-import { AuthProvider, useAuth, roles } from './context/AuthContext';
-import { MenuProvider } from './context/MenuContext';
-import { OrdersProvider } from './context/OrdersContext';
-import { CustomerProvider } from './context/CustomerContext';
-import { HospitalityProvider } from './context/HospitalityContext';
-import { CommunicationProvider } from './context/CommunicationContext';
-import { NotificationProvider } from './context/NotificationContext';
-import { ToastProvider } from './context/ToastContext';
-import MainLayout from './layouts/MainLayout';
-import ScrollToTop from './components/common/ScrollToTop';
+import { AuthProvider, useAuth, roles } from '@/context/AuthContext';
+import { MenuProvider } from '@/context/MenuContext';
+import { OrdersProvider } from '@/context/OrdersContext';
+import { CustomerProvider } from '@/context/CustomerContext';
+import { HospitalityProvider } from '@/context/HospitalityContext';
+import { CommunicationProvider } from '@/context/CommunicationContext';
+import { NotificationProvider } from '@/context/NotificationContext';
+import { ToastProvider } from '@/context/ToastContext';
+import MainLayout from '@/layouts/MainLayout';
+import ScrollToTop from '@/components/common/ScrollToTop';
 
 
 // Website

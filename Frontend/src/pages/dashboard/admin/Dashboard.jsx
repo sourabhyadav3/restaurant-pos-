@@ -41,6 +41,8 @@ import { useNotifications } from "../../../context/NotificationContext";
 
 import { createPortal } from 'react-dom';
 
+import api from "../../../services/api";
+
 const Dashboard = () => {
   const { user } = useAuth();
   const { categoriesList, addItem } = useMenu();
@@ -49,6 +51,8 @@ const Dashboard = () => {
   const { activeChats } = useCommunication();
   const { notifications } = useNotifications();
 
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('All');
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [newItemIcon, setNewItemIcon] = useState('🍽️');
@@ -57,62 +61,54 @@ const Dashboard = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [revenueViewMode, setRevenueViewMode] = useState('Weekly');
 
-  const weeklyData = [
-    { label: 'Mon', value: 4500 },
-    { label: 'Tue', value: 6500 },
-    { label: 'Wed', value: 3500 },
-    { label: 'Thu', value: 8500 },
-    { label: 'Fri', value: 4500 },
-    { label: 'Sat', value: 9500 },
-    { label: 'Sun', value: 7500 },
+  const fetchStats = async () => {
+    try {
+      const response = await api.get('/dashboard/stats');
+      setDashboardData(response.data.data);
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const isChef = user?.role_name === 'chef';
+
+  const stats = dashboardData ? (isChef ? [
+    { id: 'pending', name: 'Pending Orders', value: dashboardData.stats?.pending_orders?.toString() || '0', icon: Clock, change: 'Urgent', isUp: false, color: 'bg-orange-50 text-orange-600' },
+    { id: 'cooking', name: 'Cooking Orders', value: dashboardData.stats?.cooking_orders?.toString() || '0', icon: CookingPot, change: 'In Progress', isUp: true, color: 'bg-indigo-50 text-primary' },
+    { id: 'ready', name: 'Ready Orders', value: dashboardData.stats?.ready_orders?.toString() || '0', icon: CheckCircle2, change: 'Completed', isUp: true, color: 'bg-emerald-50 text-emerald-600' },
+    { id: 'stock', name: 'Low Stock Alerts', value: dashboardData.stats?.low_stock?.toString() || '0', icon: Package, change: 'Action Needed', isUp: false, color: 'bg-rose-50 text-rose-600' },
+  ] : [
+    { id: 'revenue', name: 'Total Revenue', value: `₹${(dashboardData.stats?.total_revenue || 0).toLocaleString()}`, icon: TrendingUp, change: '+12.5%', isUp: true, color: 'bg-indigo-50 text-primary' },
+    { id: 'occupancy', name: 'Total Orders', value: dashboardData.stats?.total_orders?.toString() || '0', icon: Bed, change: `Live Feed`, isUp: true, color: 'bg-emerald-50 text-emerald-600' },
+    { id: 'guests', name: 'Active Staff', value: dashboardData.stats?.active_staff?.toString() || '0', icon: Users, change: 'On Duty', isUp: true, color: 'bg-orange-50 text-orange-600' },
+    { id: 'kitchen', name: 'Pending Resv', value: dashboardData.stats?.pending_reservations?.toString() || '0', icon: Activity, change: 'High Demand', isUp: false, color: 'bg-rose-50 text-rose-600' },
+  ]) : [];
+
+  const currentRevenueData = dashboardData?.charts?.monthlyRevenue?.map(d => ({
+    label: d.month,
+    value: parseFloat(d.revenue)
+  })) || [
+    { label: 'Mon', value: 0 },
+    { label: 'Tue', value: 0 },
+    { label: 'Wed', value: 0 },
+    { label: 'Thu', value: 0 },
+    { label: 'Fri', value: 0 },
+    { label: 'Sat', value: 0 },
+    { label: 'Sun', value: 0 },
   ];
 
-  const monthlyData = [
-    { label: 'Week 1', value: 32000 },
-    { label: 'Week 2', value: 45000 },
-    { label: 'Week 3', value: 28000 },
-    { label: 'Week 4', value: 54000 },
-  ];
-
-  const currentRevenueData = revenueViewMode === 'Weekly' ? weeklyData : monthlyData;
   const maxRevenue = Math.max(...currentRevenueData.map(d => d.value), 1);
-
-  const isChef = user?.role === roles.CHEF;
-
-  // Analytics Calculations
-  const totalRestaurantRevenue = orders
-    .filter(o => o.status !== 'Cancelled')
-    .reduce((acc, curr) => acc + parseInt(curr.amount.replace('₹', '') || 0), 0);
-  
-  const totalRoomRevenue = reservations
-    .filter(r => r.status === 'Confirmed' || r.status === 'Checked In' || r.status === 'Completed')
-    .reduce((acc, curr) => acc + (curr.price || 0), 0);
-
+  const totalRestaurantRevenue = dashboardData?.stats?.total_revenue || 0;
+  const totalRoomRevenue = 0; // To be implemented with room stats
   const totalRevenue = totalRestaurantRevenue + totalRoomRevenue;
-  const activeGuests = reservations.filter(r => r.status === 'Checked In').length;
-  const occupiedRooms = rooms.filter(r => r.status === 'Occupied').length;
-  const occupancyRate = ((occupiedRooms / rooms.length) * 100).toFixed(1);
-  const kitchenLoad = orders.filter(o => ['Pending', 'Cooking'].includes(o.status)).length;
   const activeChatsCount = activeChats.length;
   const unreadNotifications = notifications.filter(n => !n.read).length;
-  
-  // Kitchen Specific Metrics
-  const pendingOrders = orders.filter(o => o.status === 'Pending').length;
-  const cookingOrders = orders.filter(o => o.status === 'Cooking').length;
-  const readyOrders = orders.filter(o => o.status === 'Ready').length;
-  const lowStockAlerts = inventory.filter(i => i.status === 'Low Stock' || i.status === 'Out of Stock').length;
-
-  const stats = isChef ? [
-    { id: 'pending', name: 'Pending Orders', value: pendingOrders.toString(), icon: Clock, change: 'Urgent', isUp: false, color: 'bg-orange-50 text-orange-600' },
-    { id: 'cooking', name: 'Cooking Orders', value: cookingOrders.toString(), icon: CookingPot, change: 'In Progress', isUp: true, color: 'bg-indigo-50 text-primary' },
-    { id: 'ready', name: 'Ready Orders', value: readyOrders.toString(), icon: CheckCircle2, change: 'Completed', isUp: true, color: 'bg-emerald-50 text-emerald-600' },
-    { id: 'stock', name: 'Low Stock Alerts', value: lowStockAlerts.toString(), icon: Package, change: 'Action Needed', isUp: false, color: 'bg-rose-50 text-rose-600' },
-  ] : [
-    { id: 'revenue', name: 'Total Revenue', value: `₹${totalRevenue.toLocaleString()}`, icon: TrendingUp, change: '+12.5%', isUp: true, color: 'bg-indigo-50 text-primary' },
-    { id: 'occupancy', name: 'Occupancy Rate', value: `${occupancyRate}%`, icon: Bed, change: `${occupiedRooms}/${rooms.length} Rooms`, isUp: true, color: 'bg-emerald-50 text-emerald-600' },
-    { id: 'guests', name: 'Active Guests', value: activeGuests.toString(), icon: Users, change: '+5 Today', isUp: true, color: 'bg-orange-50 text-orange-600' },
-    { id: 'kitchen', name: 'Kitchen Load', value: kitchenLoad.toString(), icon: Activity, change: 'High Demand', isUp: false, color: 'bg-rose-50 text-rose-600' },
-  ];
 
   const showToastMessage = (message, type = 'success') => {
     setToast({ message, type });
@@ -144,7 +140,7 @@ const Dashboard = () => {
     <div className="space-y-6 relative pb-10">
       {/* Toast Feedback */}
       {toast && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[300] px-6 py-3 bg-primary text-white rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border border-primary/20">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 bg-primary text-white rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border border-primary/20">
           {toast.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {toast.message}
         </div>
@@ -170,7 +166,7 @@ const Dashboard = () => {
                 <Plus className="w-4 h-4" /> Add Item POS
              </button>
            )}
-           <button className="p-3 bg-white rounded-xl border border-slate-100 text-slate-400 hover:text-primary transition-all shadow-sm"><RefreshCw className="w-5 h-5" /></button>
+           <button onClick={fetchStats} className="p-3 bg-white rounded-xl border border-slate-100 text-slate-400 hover:text-primary transition-all shadow-sm"><RefreshCw className="w-5 h-5" /></button>
         </div>
       </div>
 
@@ -215,15 +211,15 @@ const Dashboard = () => {
                     {rooms.map(room => (
                       <div 
                         key={room.id}
-                        title={`${room.name}: ${room.status}`}
+                        title={`${room.room_name}: ${room.room_status}`}
                         className={cn(
                           "aspect-square rounded-lg flex items-center justify-center text-[9px] lg:text-[10px] font-black transition-all",
-                          room.status === 'Available' ? "bg-emerald-50 text-emerald-600" :
-                          room.status === 'Occupied' ? "bg-primary text-white shadow-lg shadow-primary/20" :
+                          room.room_status?.toLowerCase() === 'available' ? "bg-emerald-50 text-emerald-600" :
+                          room.room_status?.toLowerCase() === 'occupied' ? "bg-primary text-white shadow-lg shadow-primary/20" :
                           "bg-amber-50 text-amber-600"
                         )}
                       >
-                         {room.name.slice(-3)}
+                         {room.room_code?.slice(-3)}
                       </div>
                     ))}
                  </div>
@@ -252,12 +248,12 @@ const Dashboard = () => {
                         key={table.id}
                         className={cn(
                           "aspect-square rounded-lg flex items-center justify-center text-[9px] lg:text-[10px] font-black transition-all",
-                          table.status === 'available' ? "bg-emerald-50 text-emerald-600" :
-                          table.status === 'occupied' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" :
+                          table.status?.toLowerCase() === 'available' ? "bg-emerald-50 text-emerald-600" :
+                          table.status?.toLowerCase() === 'occupied' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" :
                           "bg-rose-50 text-rose-600"
                         )}
                       >
-                         {table.name.replace('T-', '')}
+                         {table.table_name?.replace('T-', '')}
                       </div>
                     ))}
                  </div>
@@ -375,7 +371,7 @@ const Dashboard = () => {
                  {[
                    { name: 'Restaurant', val: totalRestaurantRevenue, max: totalRevenue, color: 'bg-primary' },
                    { name: 'Rooms', val: totalRoomRevenue, max: totalRevenue, color: 'bg-emerald-500' },
-                   { name: 'Services', val: 1240, max: totalRevenue, color: 'bg-amber-500' }
+                   { name: 'Services', val: 0, max: totalRevenue || 1, color: 'bg-amber-500' }
                  ].map((src, i) => (
                    <div key={i}>
                       <div className="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2">
@@ -403,20 +399,20 @@ const Dashboard = () => {
                  {recentOrders.map(order => (
                    <div key={order.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all cursor-pointer">
                       <div className="flex items-center gap-3">
-                         <div className="w-8 h-8 bg-white rounded-xl flex items-center justify-center text-xs shadow-sm">
-                            {order.id.slice(1, 2)}
+                         <div className="w-8 h-8 bg-white rounded-xl flex items-center justify-center text-[10px] font-black shadow-sm">
+                            {order.order_number?.slice(-2)}
                          </div>
                          <div>
-                            <p className="text-[11px] font-black text-text-primary uppercase leading-none">{order.id}</p>
-                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">{order.table}</p>
+                            <p className="text-[11px] font-black text-text-primary uppercase leading-none">{order.order_number}</p>
+                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">{order.table_name || 'Walk-in'}</p>
                          </div>
                       </div>
                       <div className="text-right">
-                         <p className="text-[10px] font-black text-text-primary">{order.amount}</p>
+                         <p className="text-[10px] font-black text-text-primary">₹{parseFloat(order.grand_total).toLocaleString()}</p>
                          <span className={cn(
                            "text-[7px] font-black uppercase tracking-[0.2em]",
-                           order.status === 'Ready' ? "text-emerald-500" : "text-amber-500"
-                         )}>{order.status}</span>
+                           order.order_status?.toLowerCase() === 'ready' ? "text-emerald-500" : "text-amber-500"
+                         )}>{order.order_status}</span>
                       </div>
                    </div>
                  ))}
@@ -429,7 +425,7 @@ const Dashboard = () => {
       {showAddItemModal && createPortal(
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setShowAddItemModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-           <div className="relative w-full max-w-[95%] md:max-w-[520px] bg-white rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center">
+           <div className="relative w-full sm:max-w-[500px] bg-white rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center">
             <div className="px-5 py-4 md:px-8 md:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/20 shrink-0">
                <div className="flex items-center gap-3 md:gap-4">
                   <div className="w-10 h-10 md:w-14 md:h-14 bg-primary rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl shrink-0">
@@ -533,3 +529,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+

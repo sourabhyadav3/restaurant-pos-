@@ -1,105 +1,48 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '@/utils/api';
+import { useAuth } from './AuthContext';
 
 const CustomerContext = createContext();
 
 export const useCustomer = () => useContext(CustomerContext);
 
 export const CustomerProvider = ({ children }) => {
+  const { user } = useAuth();
   const [cartItems, setCartItems] = useState(() => {
     const saved = localStorage.getItem('resto-customer-cart');
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('resto-customer-favorites');
-    return saved ? JSON.parse(saved) : [1, 3]; // Mock initial favorites
-  });
+  const [favorites, setFavorites] = useState([]);
+  const [profile, setProfile] = useState(user || null);
+  const [supportRequests, setSupportRequests] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const [profile, setProfile] = useState(() => {
-    const saved = localStorage.getItem('resto-customer-profile');
-    return saved ? JSON.parse(saved) : {
-      name: 'Guest User',
-      phone: '+00 12345 67890',
-      email: 'guest@example.com',
-      tableId: '05',
-      diningType: 'Dine-in',
-      language: 'English'
-    };
-  });
+  useEffect(() => {
+    if (user) {
+      setProfile(user);
+      fetchCustomerData();
+    }
+  }, [user]);
 
-  const [paymentMethods, setPaymentMethods] = useState(() => {
-    const saved = localStorage.getItem('resto-customer-payments');
-    return saved ? JSON.parse(saved) : [
-      { id: 1, type: 'Visa', last4: '4242', expiry: '12/25', isDefault: true },
-      { id: 2, type: 'Mastercard', last4: '8888', expiry: '08/24', isDefault: false }
-    ];
-  });
-
-  const [addresses, setAddresses] = useState(() => {
-    const saved = localStorage.getItem('resto-customer-addresses');
-    return saved ? JSON.parse(saved) : [
-      { id: 1, label: 'Home', address: '123 Luxury Avenue, Penthouse 4, Mumbai', isDefault: true },
-      { id: 2, label: 'Office', address: 'Business Center Tower B, 15th Floor, BKC', isDefault: false }
-    ];
-  });
-
-  const [notificationPrefs, setNotificationPrefs] = useState(() => {
-    const saved = localStorage.getItem('resto-customer-notifs');
-    return saved ? JSON.parse(saved) : {
-      orders: true,
-      reservations: true,
-      roomService: true,
-      offers: false
-    };
-  });
-
-  const [systemSettings, setSystemSettings] = useState(() => {
-    const saved = localStorage.getItem('resto-customer-settings');
-    return saved ? JSON.parse(saved) : {
-      language: 'English',
-      theme: 'Indigo',
-      currency: 'INR',
-      timeFormat: '12h'
-    };
-  });
-
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const [supportRequests, setSupportRequests] = useState(() => {
-    const saved = localStorage.getItem('resto-customer-support');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const fetchCustomerData = async () => {
+    setLoading(true);
+    try {
+      const favsRes = await api.get('/customer/favorites').catch(() => ({ data: { data: [] } }));
+      const supportRes = await api.get('/concierge/tickets').catch(() => ({ data: { data: [] } }));
+      
+      setFavorites(favsRes.data.data.map(f => f.item_id));
+      setSupportRequests(supportRes.data.data);
+    } catch (error) {
+      console.error('Error fetching customer data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('resto-customer-cart', JSON.stringify(cartItems));
   }, [cartItems]);
-
-  useEffect(() => {
-    localStorage.setItem('resto-customer-favorites', JSON.stringify(favorites));
-  }, [favorites]);
-
-  useEffect(() => {
-    localStorage.setItem('resto-customer-profile', JSON.stringify(profile));
-  }, [profile]);
-
-  useEffect(() => {
-    localStorage.setItem('resto-customer-support', JSON.stringify(supportRequests));
-  }, [supportRequests]);
-
-  useEffect(() => {
-    localStorage.setItem('resto-customer-payments', JSON.stringify(paymentMethods));
-  }, [paymentMethods]);
-
-  useEffect(() => {
-    localStorage.setItem('resto-customer-addresses', JSON.stringify(addresses));
-  }, [addresses]);
-
-  useEffect(() => {
-    localStorage.setItem('resto-customer-notifs', JSON.stringify(notificationPrefs));
-  }, [notificationPrefs]);
-
-  useEffect(() => {
-    localStorage.setItem('resto-customer-settings', JSON.stringify(systemSettings));
-  }, [systemSettings]);
 
   const addToCart = (item, size, quantity, notes) => {
     setCartItems(prev => {
@@ -136,40 +79,41 @@ export const CustomerProvider = ({ children }) => {
 
   const clearCart = () => {
     setCartItems([]);
-    setAppliedCoupon(null);
   };
 
-  const toggleFavorite = (itemId) => {
-    setFavorites(prev => prev.includes(itemId) ? prev.filter(id => id !== itemId) : [...prev, itemId]);
+  const toggleFavorite = async (itemId) => {
+    try {
+      if (favorites.includes(itemId)) {
+        await api.delete(`/customer/favorites/${itemId}`);
+        setFavorites(prev => prev.filter(id => id !== itemId));
+      } else {
+        await api.post('/customer/favorites', { item_id: itemId });
+        setFavorites(prev => [...prev, itemId]);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
   };
 
-  const updateProfile = (data) => {
-    setProfile(prev => ({ ...prev, ...data }));
-  };
-
-  const createSupportRequest = (details) => {
-    const newReq = {
-      id: `SR-${Math.floor(1000 + Math.random() * 9000)}`,
-      status: 'Open',
-      createdAt: new Date().toISOString(),
-      tableId: profile.tableId,
-      ...details
-    };
-    setSupportRequests(prev => [newReq, ...prev]);
-    return newReq;
+  const createSupportRequest = async (details) => {
+    try {
+      const response = await api.post('/concierge/tickets', details);
+      const newReq = response.data.data;
+      setSupportRequests(prev => [newReq, ...prev]);
+      return newReq;
+    } catch (error) {
+      console.error('Error creating support request:', error);
+      throw error;
+    }
   };
 
   return (
     <CustomerContext.Provider value={{ 
       cartItems, addToCart, removeFromCart, updateCartQuantity, clearCart,
       favorites, toggleFavorite,
-      profile, updateProfile,
-      paymentMethods, setPaymentMethods,
-      addresses, setAddresses,
-      notificationPrefs, setNotificationPrefs,
-      systemSettings, setSystemSettings,
-      appliedCoupon, setAppliedCoupon,
-      supportRequests, createSupportRequest
+      profile,
+      supportRequests, createSupportRequest,
+      loading
     }}>
       {children}
     </CustomerContext.Provider>

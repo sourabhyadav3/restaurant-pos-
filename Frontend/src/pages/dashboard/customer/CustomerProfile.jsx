@@ -86,8 +86,8 @@ const CustomerProfile = () => {
       {/* Toast */}
       {toast && (
         <div className={cn(
-          "fixed top-4 left-1/2 -translate-x-1/2 z-[600] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border animate-in slide-in-from-top-4 duration-300",
-          toast.type === 'error' ? "bg-rose-500 text-white border-rose-600" : "bg-primary text-white border-primary-dark"
+          "fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border animate-in slide-in-from-top-4 duration-300",
+          toast.type === 'success' ? "bg-primary border-primary/20 text-white" : "bg-primary border-primary/20 text-white"
         )}>
           {toast.type === 'error' ? <AlertCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
           {toast.message}

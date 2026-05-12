@@ -35,12 +35,12 @@ const CustomerHome = () => {
 
     if (tableParam) {
       const cleanTable = tableParam.replace('T-', '');
-      if (profile.tableId !== cleanTable) {
+      if (profile?.tableId !== cleanTable) {
         updateProfile({ tableId: cleanTable, diningType: 'Dine-in' });
         // Optional: show welcome toast
       }
     } else if (roomParam) {
-      if (profile.tableId !== roomParam) {
+      if (profile?.tableId !== roomParam) {
         updateProfile({ tableId: roomParam, diningType: 'Room Service' });
       }
     }
@@ -54,7 +54,7 @@ const CustomerHome = () => {
 
   // Get most recent active order for this customer/table
   const activeOrder = orders.find(o => 
-    (o.customer === profile.name || o.table === `T-${profile.tableId}`) && 
+    (o.customer === (profile?.full_name || profile?.name) || o.table === `T-${profile?.tableId}`) && 
     ['Pending', 'New', 'Cooking', 'Ready'].includes(o.status)
   );
 
@@ -65,12 +65,12 @@ const CustomerHome = () => {
         <div>
           <div className="flex items-center flex-wrap gap-2 mb-3">
             <span className="badge bg-primary/10 text-primary border-none px-3 py-1 font-black text-[9px] lg:text-[10px] uppercase tracking-widest leading-none">
-              {profile.diningType} • Table {profile.tableId}
+              {profile?.diningType || 'Dine-in'} • Table {profile?.tableId || '...'}
             </span>
             <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-emerald-500 animate-pulse" />
           </div>
           <h1 className="text-xl lg:text-3xl font-black text-text-primary tracking-tight leading-tight uppercase">
-            Good Afternoon, <br className="xs:hidden" /><span className="text-primary">{profile.name.split(' ')[0]}!</span>
+            Good Afternoon, <br className="xs:hidden" /><span className="text-primary">{(profile?.full_name || profile?.name || 'Guest').split(' ')[0]}!</span>
           </h1>
           <p className="text-text-secondary mt-1 lg:mt-2 text-[10px] lg:text-sm font-medium">What's on your mind today? 🍕</p>
         </div>

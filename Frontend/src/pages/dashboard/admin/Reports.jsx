@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import printContent from "../../../utils/printUtil";
+import api from "../../../services/api";
 
 const Reports = () => {
   const [timeRange, setTimeRange] = useState('This Month');
@@ -39,33 +40,93 @@ const Reports = () => {
   const [selectedMetric, setSelectedMetric] = useState(null);
   const [showDateModal, setShowDateModal] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
-
   const [toast, setToast] = useState(null);
 
-  // Mock Data Logic
+  const [dashboardData, setDashboardData] = useState(null);
+  const [reportsData, setReportsData] = useState(null);
+  const [heatmapData, setHeatmapData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async (range = timeRange) => {
+    setIsRefreshing(true);
+    try {
+      const [statsRes, reportsRes, heatmapRes] = await Promise.all([
+        api.get(`/dashboard/stats?range=${range}`),
+        api.get(`/dashboard/reports?range=${range}`),
+        api.get('/dashboard/heatmap')
+      ]);
+      setDashboardData(statsRes.data.data);
+      setReportsData(reportsRes.data.data);
+      setHeatmapData(heatmapRes.data.data);
+      setLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    } catch (error) {
+      console.error('Error fetching reports data:', error);
+      showToast('Failed to load intelligence data', 'error');
+    } finally {
+      setIsRefreshing(false);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
   const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => {
-      setIsRefreshing(false);
-      setLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-      showToast('Report data refreshed');
-    }, 1000);
+    fetchData();
+    showToast('Report data refreshed');
   };
 
   const handleExport = () => {
-    const csvContent = "data:text/csv;charset=utf-8,Date,Revenue,Orders,Guests\n2024-05-01,45000,120,340\n2024-05-02,52000,145,410";
-    const encodedUri = encodeURI(csvContent);
+    if (!dashboardData || !reportsData) return;
+
+    let csvRows = [];
+    csvRows.push("Restaurant Intelligence Report");
+    csvRows.push(`Range: ${timeRange}`);
+    csvRows.push(`Exported At: ${new Date().toLocaleString()}`);
+    csvRows.push("");
+
+    // Summary Stats
+    csvRows.push("SUMMARY STATISTICS");
+    csvRows.push("Metric,Value");
+    csvRows.push(`Total Revenue,₹${dashboardData.stats.total_revenue}`);
+    csvRows.push(`Total Orders,${dashboardData.stats.total_orders}`);
+    csvRows.push(`Pending Reservations,${dashboardData.stats.pending_reservations}`);
+    csvRows.push(`Active Staff,${dashboardData.stats.active_staff}`);
+    csvRows.push("");
+
+    // Top Dishes
+    csvRows.push("TOP PERFORMING DISHES");
+    csvRows.push("Dish Name,Orders,Revenue");
+    reportsData.topDishes.forEach(dish => {
+      csvRows.push(`${dish.name},${dish.orders},${dish.revenue}`);
+    });
+    csvRows.push("");
+
+    // Staff Performance
+    csvRows.push("STAFF PERFORMANCE");
+    csvRows.push("Staff Name,Role,Orders,Revenue");
+    reportsData.staffPerformance.forEach(staff => {
+      csvRows.push(`${staff.name},${staff.role},${staff.orders},${staff.revenue}`);
+    });
+
+    const csvContent = csvRows.join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `restaurant-report-${timeRange.toLowerCase().replace(' ', '-')}.csv`);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `restaurant-report-${timeRange.toLowerCase().replace(' ', '-')}-${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
-    showToast('CSV Report Downloaded');
+    document.body.removeChild(link);
+    
+    showToast('Intelligence Report Exported');
   };
 
   const handlePrint = () => {
@@ -74,26 +135,43 @@ const Reports = () => {
   };
 
   const stats = [
-    { id: 'revenue', label: 'Total Revenue', value: '₹12,45,230', trend: '+14.2%', up: true, icon: DollarSign, color: 'primary', description: 'Total gross income from all channels.' },
-    { id: 'aov', label: 'Avg Order Value', value: '₹480', trend: '+8.5%', up: true, icon: ShoppingBag, color: 'orange', description: 'Average spending per ticket.' },
-    { id: 'guests', label: 'Total Guests', value: '2,840', trend: '-2.4%', up: false, icon: Users, color: 'purple', description: 'Total footfall across all shifts.' },
-    { id: 'profit', label: 'Net Profit', value: '₹3,12,000', trend: '+12.1%', up: true, icon: Target, color: 'success', description: 'Earnings after all operational costs.' },
+    { id: 'revenue', label: 'Total Revenue', value: `₹${(dashboardData?.stats?.total_revenue || 0).toLocaleString()}`, trend: '+14.2%', up: true, icon: DollarSign, color: 'primary', description: 'Total gross income from all channels.' },
+    { id: 'orders', label: 'Total Orders', value: dashboardData?.stats?.total_orders?.toString() || '0', trend: '+8.5%', up: true, icon: ShoppingBag, color: 'orange', description: 'Total volume of processed orders.' },
+    { id: 'reservations', label: 'Pending Resv', value: dashboardData?.stats?.pending_reservations?.toString() || '0', trend: 'Live', up: true, icon: Clock, color: 'purple', description: 'Upcoming guest bookings.' },
+    { id: 'staff', label: 'Active Staff', value: dashboardData?.stats?.active_staff?.toString() || '0', trend: 'On Duty', up: true, icon: Users, color: 'success', description: 'Employees currently clocked in.' },
   ];
 
-  const performanceData = [
-    { name: 'Rahul Sharma', role: 'Waiter', orders: 145, revenue: '₹42,500', rating: 4.8 },
-    { name: 'Priya Singh', role: 'Chef', orders: 280, revenue: '₹1,24,000', rating: 4.9 },
-    { name: 'Margherita Pizza', role: 'Top Dish', orders: 420, revenue: '₹1,25,580', rating: 4.7 },
-    { name: 'Cheese Burger', role: 'Top Dish', orders: 310, revenue: '₹58,590', rating: 4.5 },
-    { name: 'Alexander Wright', role: 'Guest', orders: 12, revenue: '₹45,000', rating: 5.0 },
-    { name: 'Vikram Das', role: 'Waiter', orders: 132, revenue: '₹38,200', rating: 4.6 },
-    { name: 'Butter Chicken', role: 'Top Dish', orders: 215, revenue: '₹96,535', rating: 4.9 },
-    { name: 'Sneha Patel', role: 'Manager', orders: 450, revenue: '₹4,50,000', rating: 5.0 },
-  ];
+  const performanceData = useMemo(() => {
+    if (!reportsData) return [];
+    const staff = reportsData.staffPerformance.map(s => ({
+      name: s.name,
+      role: s.role,
+      orders: s.orders,
+      revenue: `₹${parseFloat(s.revenue).toLocaleString()}`,
+      rating: 4.8
+    }));
+    const dishes = reportsData.topDishes.map(d => ({
+      name: d.name,
+      role: 'Top Dish',
+      orders: d.orders,
+      revenue: `₹${parseFloat(d.revenue).toLocaleString()}`,
+      rating: 4.9
+    }));
+    return [...staff, ...dishes];
+  }, [reportsData]);
 
   const filteredPerformance = performanceData.filter(item => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     item.role.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const categorySplit = reportsData?.categorySplit || [];
+  const totalCatRevenue = categorySplit.reduce((acc, curr) => acc + parseFloat(curr.revenue), 0) || 1;
+
+  if (loading) return (
+    <div className="flex-1 flex items-center justify-center">
+       <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+    </div>
   );
 
   return (
@@ -102,8 +180,8 @@ const Reports = () => {
       {toast && (
         <div 
           className={cn(
-            "fixed top-4 left-1/2 -translate-x-1/2 z-[300] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border",
-            toast.type === 'success' ? "bg-primary border-primary/20 text-white" : "bg-rose-600 border-rose-500 text-white"
+            "fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border",
+            toast.type === 'success' ? "bg-primary border-primary/20 text-white" : "bg-rose-500 border-rose-600 text-white"
           )}
         >
           {toast.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-white" /> : <AlertCircle className="w-4 h-4 text-white" />}
@@ -209,19 +287,19 @@ const Reports = () => {
              </div>
              
              <div className="flex-1 flex items-end gap-2 lg:gap-3 px-1 lg:px-4 pb-2 lg:pb-4 h-48 lg:h-64">
-                {[60, 45, 80, 55, 90, 70, 85, 40, 75, 65, 95, 80].map((h, i) => (
+                {dashboardData?.charts?.monthlyRevenue?.map((d, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center gap-2 lg:gap-3 group h-full justify-end">
                      <div className="w-full relative h-full flex flex-col justify-end">
                         <div 
-                          style={{ height: `${h}%` }}
+                          style={{ height: `100%` }}
                           className="w-full bg-slate-50 rounded-lg lg:rounded-2xl group-hover:bg-slate-100"
                         />
                         <div 
-                          style={{ height: `${h * 0.7}%` }}
+                          style={{ height: `${(parseFloat(d.revenue) / (dashboardData?.stats?.total_revenue || 1)) * 100}%` }}
                           className="absolute bottom-0 w-full bg-primary rounded-lg lg:rounded-2xl shadow-lg"
                         />
                      </div>
-                     <span className="text-[7px] lg:text-[10px] font-black text-slate-300 group-hover:text-text-primary uppercase tracking-widest">W{i+1}</span>
+                     <span className="text-[7px] lg:text-[10px] font-black text-slate-300 group-hover:text-text-primary uppercase tracking-widest">{d.month.slice(0, 3)}</span>
                   </div>
                 ))}
              </div>
@@ -250,18 +328,13 @@ const Reports = () => {
              </div>
 
              <div className="space-y-3 lg:space-y-4 mt-4 lg:mt-6">
-                {[
-                   { name: 'Pizzas', val: '42%', color: 'bg-primary' },
-                   { name: 'Burgers', val: '28%', color: 'bg-orange-400' },
-                   { name: 'Drinks', val: '18%', color: 'bg-indigo-300' },
-                   { name: 'Desserts', val: '12%', color: 'bg-slate-200' },
-                ].map(item => (
-                  <div key={item.name} className="flex items-center justify-between group cursor-pointer">
+                {categorySplit.slice(0, 4).map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between group cursor-pointer">
                      <div className="flex items-center gap-2 lg:gap-3">
-                        <div className={cn("w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full shadow-sm", item.color)} />
+                        <div className={cn("w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full shadow-sm", idx === 0 ? 'bg-primary' : 'bg-orange-400')} />
                         <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-text-secondary group-hover:text-text-primary">{item.name}</span>
                      </div>
-                     <span className="text-[10px] lg:text-xs font-black text-text-primary tracking-tight">{item.val}</span>
+                     <span className="text-[10px] lg:text-xs font-black text-text-primary tracking-tight">{((parseFloat(item.revenue) / totalCatRevenue) * 100).toFixed(0)}%</span>
                   </div>
                 ))}
              </div>
@@ -412,7 +485,7 @@ const Reports = () => {
 
       {/* Detail Drawer */}
       {selectedMetric && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 lg:p-6">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 lg:p-6">
           <div onClick={() => setSelectedMetric(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-[200]" />
           <div 
             className="relative w-full max-w-[95%] md:max-w-[520px] max-h-[90vh] bg-white shadow-2xl z-[201] flex flex-col rounded-[2rem] md:rounded-[2.5rem] overflow-hidden self-center"
@@ -489,7 +562,7 @@ const Reports = () => {
 
       {/* Date Range Modal */}
       {showDateModal && (
-        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 lg:p-6">
+        <div className="fixed inset-0 z-[550] flex items-center justify-center p-4 lg:p-6">
            <div onClick={() => setShowDateModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
            <div 
              className="relative w-full max-w-[90%] md:max-w-sm bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 shadow-2xl overflow-hidden self-center"
@@ -499,10 +572,15 @@ const Reports = () => {
              </div>
              <h3 className="text-lg lg:text-2xl font-black text-center uppercase tracking-tight">Temporal Filter</h3>
              <div className="mt-6 lg:mt-8 space-y-2 lg:space-y-3">
-                {['Today', 'This Week', 'This Month', 'Last 90 Days', 'Financial Year'].map(range => (
+                {['Today', 'This Week', 'This Month', 'Last Month', 'Last 90 Days', 'Financial Year'].map(range => (
                   <button 
                     key={range}
-                    onClick={() => { setTimeRange(range); setShowDateModal(false); showToast(`Filter applied: ${range}`); }}
+                    onClick={() => { 
+                      setTimeRange(range); 
+                      fetchData(range);
+                      setShowDateModal(false); 
+                      showToast(`Filter applied: ${range}`); 
+                    }}
                     className={cn(
                       "w-full py-3.5 lg:py-4 rounded-xl lg:rounded-2xl font-black uppercase tracking-widest text-[8px] lg:text-[9px] border-2 whitespace-nowrap transition-all",
                       timeRange === range ? "bg-primary text-white border-primary shadow-xl shadow-primary/20" : "bg-white border-slate-50 text-slate-400 hover:border-primary/20"
@@ -519,7 +597,7 @@ const Reports = () => {
 
       {/* Heatmap Modal */}
       {showHeatmap && (
-        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 lg:p-6">
+        <div className="fixed inset-0 z-[550] flex items-center justify-center p-4 lg:p-6">
            <div onClick={() => setShowHeatmap(false)} className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" />
            <div 
              className="relative w-full max-w-[95%] md:max-w-4xl bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] self-center"
@@ -552,28 +630,33 @@ const Reports = () => {
                              <div className="col-span-[1] flex justify-end"><span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">11 PM</span></div>
                           </div>
                           
-                          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+                          {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
                             <React.Fragment key={day}>
                                <div className="col-span-[2] flex items-center">
-                                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{day}</span>
-                               </div>
+                                  <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{day.substring(0, 3)}</span>
+                                </div>
                                <div className="col-span-[22] grid grid-cols-[repeat(24,1fr)] gap-1 h-8 sm:h-10">
                                   {Array.from({ length: 24 }).map((_, i) => {
-                                     // Mock logic for heat intensity
-                                     const isWeekend = day === 'Sat' || day === 'Sun';
-                                     const isLunch = i >= 12 && i <= 14;
-                                     const isDinner = i >= 19 && i <= 21;
+                                     const hourData = heatmapData?.find(h => h.day === day && h.hour === i);
+                                     const orders = hourData ? parseInt(hourData.orders) : 0;
+                                     
                                      let intensity = "bg-slate-50";
-                                     if ((isLunch || isDinner) && isWeekend) intensity = "bg-primary";
-                                     else if (isLunch || isDinner) intensity = "bg-indigo-300";
-                                     else if (i >= 9 && i <= 22) intensity = "bg-indigo-100";
+                                     if (orders > 10) intensity = "bg-primary";
+                                     else if (orders > 5) intensity = "bg-primary/60";
+                                     else if (orders > 0) intensity = "bg-primary/20";
                                      
                                      return (
                                        <div 
                                          key={i} 
-                                         className={cn("rounded-md transition-all hover:scale-110 cursor-pointer", intensity)} 
-                                         title={`${day} ${i}:00`}
-                                       />
+                                         className={cn(
+                                           "relative group/cell rounded-sm sm:rounded-md transition-all cursor-crosshair",
+                                           intensity
+                                         )}
+                                       >
+                                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover/cell:opacity-100 pointer-events-none transition-all z-10 whitespace-nowrap border border-white/10 shadow-2xl">
+                                             {i % 12 || 12} {i >= 12 ? 'PM' : 'AM'} • {orders} Orders
+                                          </div>
+                                       </div>
                                      );
                                   })}
                                </div>
@@ -666,6 +749,7 @@ const Reports = () => {
         </div>
       </div>
     </div>
+
   );
 };
 

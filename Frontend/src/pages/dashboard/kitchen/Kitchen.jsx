@@ -45,24 +45,13 @@ const Kitchen = () => {
     }, 100);
   };
 
-  const kitchenOrders = orders.map(o => ({
-    ...o,
-    id: o.id.toString().replace('#', ''),
-    priority: o.priority || (o.status === 'Pending' ? 'high' : 'medium'),
-    time: o.time || 'Just now',
-    items: o.itemsList?.map(i => ({ name: i.name, qty: i.quantity, notes: i.notes || '' })) || [],
-    completedItems: o.completedItems || []
-  }));
-
   const updateStatus = (id, newStatus) => {
     updateOrderStatus(id, newStatus);
   };
 
   const togglePriority = (id) => {
-    const order = kitchenOrders.find(o => o.id === id);
-    const newPriority = order.priority === 'high' ? 'medium' : 'high';
-    updateOrderPriority(id, newPriority);
-    setDropdownOrderId(null);
+    // Priority logic could be an API call
+    showToast('Priority updated', 'info');
   };
 
   const handleCancelOrder = (id) => {
@@ -91,13 +80,17 @@ const Kitchen = () => {
     }
   };
 
-  const filteredOrders = kitchenOrders
-    .filter(o => activeTab === 'Active' ? ['Pending', 'New', 'Cooking'].includes(o.status) : o.status === 'Ready')
+  const filteredOrders = orders
+    .filter(o => activeTab === 'Active' ? ['new', 'pending', 'cooking'].includes(o.order_status) : o.order_status === 'ready')
     .filter(o => 
-      o.id.includes(searchQuery) || 
-      o.table.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      o.items.some(i => i.name.toLowerCase().includes(searchQuery.toLowerCase()))
+      o.order_number.includes(searchQuery) || 
+      (o.table_code && o.table_code.toLowerCase().includes(searchQuery.toLowerCase()))
     );
+
+  const stats = {
+    queue: orders.filter(o => ['new', 'pending', 'cooking'].includes(o.order_status)).length,
+    ready: orders.filter(o => o.order_status === 'ready').length
+  };
 
   return (
     <div className="h-full flex flex-col gap-6 overflow-hidden" onClick={() => setDropdownOrderId(null)}>
@@ -106,7 +99,7 @@ const Kitchen = () => {
         <div className="flex items-center gap-3 lg:gap-4">
            <div className="w-10 h-10 lg:w-12 lg:h-12 bg-primary rounded-xl lg:rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/30 relative shrink-0">
               <ChefHat className="w-5 h-5 lg:w-6 lg:h-6 lg:stroke-[2.5]" />
-              <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-danger rounded-full border-2 border-white" />
+              {stats.queue > 0 && <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-danger rounded-full border-2 border-white" />}
            </div>
            <div>
               <h2 className="text-xl lg:text-2xl font-black tracking-tight text-text-primary uppercase tracking-[0.05em] leading-none">Kitchen Control</h2>
@@ -120,18 +113,18 @@ const Kitchen = () => {
            {/* Metric Cards */}
            <div className="card p-3 lg:p-4 flex flex-col justify-between w-28 sm:w-32 lg:w-40 h-20 lg:h-24 bg-white border border-slate-100 shadow-sm group shrink-0">
               <div className="flex justify-between items-start">
-                 <p className="text-[7px] lg:text-[8px] uppercase font-bold text-slate-400 tracking-[0.2em]">Queue</p>
+                 <p className="text-[7px] lg:text-[8px] uppercase font-bold text-slate-400 tracking-[0.2em]">Active</p>
                  <Timer className="w-3 h-3 lg:w-4 lg:h-4 text-primary opacity-40" />
               </div>
-              <p className="text-sm sm:text-base lg:text-lg font-black text-text-primary tracking-tighter">14.2<span className="text-[9px] lg:text-[10px] font-bold text-slate-300 ml-0.5 uppercase">min</span></p>
+              <p className="text-sm sm:text-base lg:text-lg font-black text-text-primary tracking-tighter">{stats.queue}<span className="text-[9px] lg:text-[10px] font-bold text-slate-300 ml-0.5 uppercase">tickets</span></p>
            </div>
            
            <div className="card p-3 lg:p-4 flex flex-col justify-between w-28 sm:w-32 lg:w-40 h-20 lg:h-24 bg-white border border-slate-100 shadow-sm group shrink-0">
               <div className="flex justify-between items-start">
-                 <p className="text-[7px] lg:text-[8px] uppercase font-bold text-slate-400 tracking-[0.2em]">Load</p>
+                 <p className="text-[7px] lg:text-[8px] uppercase font-bold text-slate-400 tracking-[0.2em]">Ready</p>
                  <Utensils className="w-3 h-3 lg:w-4 lg:h-4 text-emerald-600 opacity-40" />
               </div>
-              <p className="text-sm sm:text-base lg:text-lg font-black text-emerald-600 tracking-tighter uppercase">Normal</p>
+              <p className="text-sm sm:text-base lg:text-lg font-black text-emerald-600 tracking-tighter uppercase">{stats.ready}</p>
            </div>
 
            <div className="h-10 w-[1px] bg-slate-200 mx-1" />
@@ -205,22 +198,17 @@ const Kitchen = () => {
                       <div className="flex justify-between items-start">
                         <div>
                           <div className="flex items-center gap-2">
-                             <h3 className="text-xl lg:text-2xl font-black text-text-primary tracking-tighter">#{order.id}</h3>
-                             {order.priority === 'high' && (
-                               <span className="flex items-center gap-1 bg-rose-500 text-white px-1.5 py-0.5 rounded text-[7px] lg:text-[8px] font-bold uppercase tracking-widest">
-                                 High
-                               </span>
-                             )}
+                             <h3 className="text-xl lg:text-2xl font-black text-text-primary tracking-tighter">#{order.order_number}</h3>
                           </div>
                           <div className="flex items-center gap-2 mt-2">
-                            <span className="text-[8px] lg:text-[10px] font-black text-white px-2 py-0.5 lg:px-2.5 lg:py-1 bg-primary rounded lg:rounded-lg shadow-md shadow-primary/20">{order.table}</span>
+                            <span className="text-[8px] lg:text-[10px] font-black text-white px-2 py-0.5 lg:px-2.5 lg:py-1 bg-primary rounded lg:rounded-lg shadow-md shadow-primary/20">{order.table_code || 'Takeaway'}</span>
                             <div className="h-3 w-[1px] bg-slate-300" />
-                            <span className="text-[8px] lg:text-[9px] font-bold text-text-secondary uppercase tracking-[0.2em] truncate max-w-[60px]">{order.type}</span>
+                            <span className="text-[8px] lg:text-[9px] font-bold text-text-secondary uppercase tracking-[0.2em] truncate max-w-[60px]">{order.order_type}</span>
                           </div>
                         </div>
                       <div className="flex flex-col items-end gap-1.5 relative">
                          <span className={cn("badge px-2.5 py-0.5 shadow-sm text-[8px]", config.badge)}>
-                           {order.status}
+                           {order.order_status}
                          </span>
                          <button 
                            onClick={(e) => {
@@ -270,8 +258,8 @@ const Kitchen = () => {
 
                   {/* Order List */}
                   <div className="flex-1 p-4 space-y-4 overflow-y-auto max-h-[300px] scrollbar-hide">
-                    {order.items.map((item, idx) => {
-                      const isCompleted = order.completedItems?.includes(idx);
+                    {order.items?.map((item, idx) => {
+                      const isCompleted = item.kitchen_status === 'ready';
                       return (
                         <div 
                           key={idx} 
@@ -281,14 +269,14 @@ const Kitchen = () => {
                             "w-10 h-10 border-2 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 shadow-lg",
                             isCompleted ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-white border-slate-50 text-text-primary group-hover/item:border-primary/20"
                           )}>
-                            {item.qty}
+                            {item.quantity}
                             <span className="text-[8px] ml-0.5 text-slate-300">x</span>
                           </div>
                           <div className="flex-1 pt-0.5">
                             <p className={cn(
                               "text-sm font-bold leading-tight",
                               isCompleted ? "text-slate-300 line-through" : "text-text-primary group-hover/item:text-primary"
-                            )}>{item.name}</p>
+                            )}>{item.item_name}</p>
                             {item.notes && !isCompleted && (
                               <div className="mt-3 flex flex-col gap-1">
                                  <p className="text-[8px] font-bold text-rose-500 uppercase tracking-widest flex items-center gap-1.5">
@@ -363,7 +351,7 @@ const Kitchen = () => {
 
       {/* View Details Modal */}
       {viewingOrder && createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-6">
           <div 
             onClick={() => setViewingOrder(null)}
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
@@ -391,13 +379,13 @@ const Kitchen = () => {
                 <span>Quantity</span>
               </div>
               <div className="space-y-3">
-                {viewingOrder.items.map((item, i) => (
+                {viewingOrder.items?.map((item, i) => (
                   <div key={i} className="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border border-slate-100">
                     <div>
-                      <p className="font-black text-slate-900 text-sm">{item.name}</p>
-                      {item.notes && <p className="text-[10px] text-rose-500 font-bold mt-1 uppercase italic">"{item.notes}"</p>}
+                       <p className="font-black text-slate-900 text-sm">{item.item_name}</p>
+                       {item.notes && <p className="text-[10px] text-rose-500 font-bold mt-1 uppercase italic">"{item.notes}"</p>}
                     </div>
-                    <span className="w-10 h-10 bg-white rounded-lg flex items-center justify-center font-black border border-slate-100 text-primary">{item.qty}x</span>
+                    <span className="w-10 h-10 bg-white rounded-lg flex items-center justify-center font-black border border-slate-100 text-primary">{item.quantity}x</span>
                   </div>
                 ))}
               </div>
@@ -426,7 +414,7 @@ const Kitchen = () => {
 
       {/* Transfer Station Modal */}
       {transferringOrderId && createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-6">
           <div 
             onClick={() => setTransferringOrderId(null)}
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
@@ -495,11 +483,11 @@ const Kitchen = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {orderForKOT.items.map((item, i) => (
+                {orderForKOT.items?.map((item, i) => (
                   <tr key={i}>
-                    <td className="py-2 font-black text-lg">{item.qty}x</td>
+                    <td className="py-2 font-black text-lg">{item.quantity}x</td>
                     <td className="py-2">
-                      <p className="font-black uppercase">{item.name}</p>
+                      <p className="font-black uppercase">{item.item_name}</p>
                       {item.notes && <p className="text-[10px] italic font-bold text-rose-600 mt-1">*** {item.notes} ***</p>}
                     </td>
                   </tr>

@@ -326,7 +326,7 @@ const Orders = () => {
       {createPortal(
         <>
           {selectedOrder && (
-            <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 sm:p-6">
+            <div className="fixed inset-0 z-[500] flex items-center justify-center p-0 sm:p-6">
               <div 
                 onClick={() => setSelectedOrder(null)}
                 className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"

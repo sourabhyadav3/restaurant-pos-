@@ -22,7 +22,23 @@ const Inventory = () => {
 
   const categories = ['All', 'Kitchen', 'Bar', 'Rooms', 'Maintenance'];
 
-  const filteredInventory = inventory.filter(item => {
+  const filteredInventory = inventory.map(item => {
+    const stock = parseFloat(item.current_stock);
+    const threshold = parseFloat(item.threshold);
+    let status = 'In Stock';
+    if (stock <= 0) status = 'Out of Stock';
+    else if (stock <= threshold) status = 'Low Stock';
+
+    return {
+      ...item,
+      id: item.id.toString(),
+      name: item.product_name,
+      stock: stock,
+      minStock: threshold,
+      price: parseFloat(item.unit_price),
+      status: status
+    };
+  }).filter(item => {
     const matchesTab = activeTab === 'All' || item.category === activeTab;
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           item.id.toLowerCase().includes(searchQuery.toLowerCase());

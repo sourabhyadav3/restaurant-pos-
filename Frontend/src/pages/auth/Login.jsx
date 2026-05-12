@@ -9,50 +9,35 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, getDashboardPath } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    const result = await login(email, password);
 
-    setTimeout(() => {
-      let role = roles.ADMIN;
-      if (email.includes('manager')) role = roles.MANAGER;
-      if (email.includes('waiter')) role = roles.WAITER;
-      if (email.includes('chef')) role = roles.CHEF;
-      if (email.includes('cashier')) role = roles.CASHIER;
-
-      login(role);
-      setLoading(false);
-
-      switch (role) {
-        case roles.ADMIN: navigate('/admin/dashboard'); break;
-        case roles.MANAGER: navigate('/manager/dashboard'); break;
-        case roles.WAITER: navigate('/waiter/dashboard'); break;
-        case roles.CHEF: navigate('/chef/dashboard'); break;
-        case roles.CASHIER: navigate('/cashier/dashboard'); break;
-        case roles.CUSTOMER: navigate('/customer/home'); break;
-        default: navigate('/dashboard');
-      }
-    }, 1000);
+    if (result.success) {
+      const path = getDashboardPath(result.user.role_name);
+      navigate(path);
+    } else {
+      alert(result.message);
+    }
   };
 
   const handleDemoLogin = (role) => {
-    setLoading(true);
-    setTimeout(() => {
-      login(role);
-      setLoading(false);
-      switch (role) {
-        case roles.ADMIN: navigate('/admin/dashboard'); break;
-        case roles.MANAGER: navigate('/manager/dashboard'); break;
-        case roles.WAITER: navigate('/waiter/dashboard'); break;
-        case roles.CHEF: navigate('/chef/dashboard'); break;
-        case roles.CASHIER: navigate('/cashier/dashboard'); break;
-        case roles.CUSTOMER: navigate('/customer/home'); break;
-        default: navigate('/dashboard');
-      }
-    }, 500);
+    const roleEmails = {
+      ADMIN: 'admin@gilahouse.com',
+      MANAGER: 'manager@gilahouse.com',
+      WAITER: 'waiter@gilahouse.com',
+      CHEF: 'chef@gilahouse.com',
+      CASHIER: 'cashier@gilahouse.com',
+      CUSTOMER: 'customer@gilahouse.com'
+    };
+    
+    setEmail(roleEmails[role] || `${role.toLowerCase()}@gilahouse.com`);
+    // Seeded password for all default users is admin123, manager123, etc.
+    // Actually, I seeded them with role name + 123
+    setPassword(`${role.toLowerCase()}123`);
   };
 
   return (

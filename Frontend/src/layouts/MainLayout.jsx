@@ -42,6 +42,7 @@ import { cn } from '@/utils/cn';
 
 const MainLayout = ({ children }) => {
   const { user, login, logout } = useAuth();
+  const userRole = (user?.role || user?.role_name || '').toUpperCase();
   const { notifications, getUnreadCount, markAsRead, markAllAsRead } = useNotifications();
   const { cartItems } = useCustomer();
   const navigate = useNavigate();
@@ -50,8 +51,8 @@ const MainLayout = ({ children }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  const unreadCount = getUnreadCount(user?.role);
-  const myNotifications = notifications.filter(n => n.targetRole === user?.role?.toUpperCase() || n.targetRole === 'ALL');
+  const unreadCount = getUnreadCount(userRole);
+  const myNotifications = notifications.filter(n => n.targetRole === userRole.toUpperCase() || n.targetRole === 'ALL');
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -62,13 +63,21 @@ const MainLayout = ({ children }) => {
     return () => window.removeEventListener('open-sidebar', handleToggle);
   }, []);
 
+  const [posCartInfo, setPosCartInfo] = React.useState({ count: 0, total: 0 });
+
+  React.useEffect(() => {
+    const handleUpdate = (e) => setPosCartInfo(e.detail);
+    window.addEventListener('pos-cart-updated', handleUpdate);
+    return () => window.removeEventListener('pos-cart-updated', handleUpdate);
+  }, []);
+
   const getRoleModulePath = (moduleName) => {
     if (!user) return `/${moduleName}`;
-    if (user.role === roles.CUSTOMER) {
+    if (userRole === roles.CUSTOMER) {
       if (moduleName === 'dashboard') return '/customer/home';
       return `/customer/${moduleName}`;
     }
-    const rolePrefix = user.role.toLowerCase();
+    const rolePrefix = userRole.toLowerCase();
     return `/${rolePrefix}/${moduleName}`;
   };
 
@@ -78,22 +87,12 @@ const MainLayout = ({ children }) => {
     { name: 'POS', icon: Calculator, path: getRoleModulePath('pos'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CASHIER] },
     { name: 'Orders', icon: ClipboardList, path: getRoleModulePath('orders'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF, roles.CASHIER] },
     { name: 'Kitchen', icon: CookingPot, path: getRoleModulePath('kitchen'), roles: [roles.ADMIN, roles.MANAGER, roles.CHEF] },
-    { name: 'Tasks', icon: ClipboardCheck, path: getRoleModulePath('tasks'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF] },
     { name: 'Inventory', icon: Package, path: getRoleModulePath('inventory'), roles: [roles.ADMIN, roles.MANAGER, roles.CHEF] },
-    { name: 'Notifications', icon: Bell, path: getRoleModulePath('notifications'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER, roles.CHEF, roles.CASHIER, roles.CUSTOMER] },
     { name: 'Menu', icon: UtensilsCrossed, path: getRoleModulePath('menu'), roles: [roles.ADMIN, roles.MANAGER] },
     { name: 'Staff', icon: Users, path: getRoleModulePath('staff'), roles: [roles.ADMIN] },
     { name: 'Reports', icon: BarChart3, path: getRoleModulePath('reports'), roles: [roles.ADMIN, roles.MANAGER] },
     { name: 'Rooms', icon: Bed, path: getRoleModulePath('rooms'), roles: [roles.ADMIN, roles.MANAGER] },
     { name: 'Reservations', icon: CalendarCheck, path: getRoleModulePath('reservations'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
-    { name: 'Concierge', icon: MessageSquare, path: getRoleModulePath('concierge'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
-
-    { name: 'Services', icon: Compass, path: getRoleModulePath('services'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
-    { name: 'QR Manager', icon: QrCode, path: getRoleModulePath('qr-manager'), roles: [roles.ADMIN, roles.MANAGER] },
-    { name: 'Guest Billing', icon: Receipt, path: getRoleModulePath('folio'), roles: [roles.ADMIN, roles.MANAGER] },
-    { name: 'Guest Bills', icon: Receipt, path: getRoleModulePath('guest-bills'), roles: [roles.CASHIER] },
-    { name: 'Settlements', icon: CreditCard, path: getRoleModulePath('settlements'), roles: [roles.CASHIER] },
-    { name: 'Transactions', icon: History, path: getRoleModulePath('transactions'), roles: [roles.CASHIER] },
     { name: 'Settings', icon: Settings, path: getRoleModulePath('settings'), roles: [roles.ADMIN] },
 
     // Customer Specific Items
@@ -101,30 +100,27 @@ const MainLayout = ({ children }) => {
     { name: 'Order Now', icon: UtensilsCrossed, path: '/customer/order-now', roles: [roles.CUSTOMER] },
     { name: 'Orders', icon: History, path: '/customer/orders', roles: [roles.CUSTOMER] },
     { name: 'Reservations', icon: CalendarCheck, path: '/customer/reservations', roles: [roles.CUSTOMER] },
-    { name: 'Excursions', icon: Compass, path: '/customer/services', roles: [roles.CUSTOMER] },
     { name: 'Favorites', icon: Heart, path: '/customer/favorites', roles: [roles.CUSTOMER] },
     { name: 'Cart', icon: ShoppingCart, path: '/customer/cart', roles: [roles.CUSTOMER] },
-    { name: 'Profile', icon: UserIcon, path: '/customer/profile', roles: [roles.CUSTOMER] },
-    { name: 'Support', icon: HelpCircle, path: '/customer/support', roles: [roles.CUSTOMER] },
   ];
 
-  const filteredMenu = menuItems.filter(item => item.roles.includes(user?.role));
+  const filteredMenu = menuItems.filter(item => item.roles.includes(userRole));
 
   return (
     <div className="fixed inset-0 flex bg-background overflow-hidden font-['Inter']">
       {/* Sidebar */}
       <aside
         className={cn(
-          "bg-white border-r border-border flex flex-col relative z-[150] shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-full transition-all duration-300 ease-in-out",
-          "lg:translate-x-0 fixed lg:sticky lg:top-0",
-          isCollapsed ? "lg:w-[72px]" : "lg:w-[220px]",
-          isMobileMenuOpen ? "translate-x-0 w-[260px]" : "-translate-x-full lg:translate-x-0"
+          "bg-white border-r border-border flex flex-col relative z-[250] shadow-[4px_0_24px_rgba(0,0,0,0.02)] h-full transition-all duration-300 shrink-0",
+          "md:translate-x-0 fixed md:relative",
+          isCollapsed ? "md:w-[80px]" : "md:w-[200px]",
+          isMobileMenuOpen ? "translate-x-0 w-[240px]" : "-translate-x-full md:translate-x-0"
         )}
       >
         {/* Logo Area */}
         <div
           onClick={() => navigate(getRoleModulePath('dashboard'))}
-          className="h-16 flex items-center px-6 shrink-0 border-b border-slate-50 cursor-pointer group/logo relative z-[260] bg-white"
+          className="h-16 flex items-center px-4 shrink-0 border-b border-slate-50 cursor-pointer group/logo relative z-[260] bg-white"
         >
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm shrink-0 group-hover/logo:scale-110 transition-transform">
@@ -211,8 +207,8 @@ const MainLayout = ({ children }) => {
         <div className="absolute top-[20%] left-[10%] w-[30rem] h-[30rem] bg-blue-300/[0.02] rounded-full blur-[80px] pointer-events-none" />
         {/* Header */}
         <header className={cn(
-          "h-16 bg-white/80 backdrop-blur-md border-b border-border flex items-center justify-between px-4 lg:px-8 shrink-0 z-[140] transition-all",
-          "sticky top-0 left-0 right-0"
+          "h-14 bg-white border-b border-border flex items-center justify-between px-3 md:px-4 shrink-0 z-[200] sticky top-0 w-full",
+          "transition-all duration-300"
         )}>
           <div className="flex items-center gap-3 lg:gap-6 flex-1">
             <button
@@ -296,7 +292,7 @@ const MainLayout = ({ children }) => {
                 )}
               </button>
 
-              {user?.role === roles.CUSTOMER && (
+              {userRole === roles.CUSTOMER && (
                 <button
                   onClick={() => navigate('/customer/cart')}
                   className="relative p-2 bg-slate-50 rounded-xl text-text-secondary hover:text-primary transition-all ml-2"
@@ -310,13 +306,28 @@ const MainLayout = ({ children }) => {
                 </button>
               )}
 
+              {/* POS Mobile Cart Trigger */}
+              {location.pathname.includes('/pos') && (
+                <button 
+                  onClick={() => window.dispatchEvent(new CustomEvent('toggle-pos-cart'))}
+                  className="md:hidden relative p-2 bg-primary/10 text-primary rounded-xl transition-all"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  {typeof posCartInfo !== 'undefined' && posCartInfo.count > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[8px] font-black rounded-full border-2 border-white flex items-center justify-center">
+                      {posCartInfo.count}
+                    </span>
+                  )}
+                </button>
+              )}
+
               {showNotifications && typeof document !== 'undefined' && createPortal(
                 <>
                   <div className="fixed inset-0 z-[500]" onClick={() => setShowNotifications(false)} />
                   <div className="fixed top-16 right-4 sm:right-24 w-[calc(100vw-2rem)] sm:w-[320px] bg-white border border-slate-100 rounded-3xl shadow-2xl overflow-hidden z-[510] animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
                       <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Notifications</h4>
-                      <button onClick={() => markAllAsRead(user?.role)} className="text-[9px] font-black text-primary uppercase tracking-widest hover:underline">Clear All</button>
+                      <button onClick={() => markAllAsRead(userRole)} className="text-[9px] font-black text-primary uppercase tracking-widest hover:underline">Clear All</button>
                     </div>
                     <div className="max-h-[320px] overflow-y-auto scrollbar-hide">
                       {myNotifications.length === 0 ? (
@@ -370,7 +381,7 @@ const MainLayout = ({ children }) => {
                   <p className="text-xs font-black text-text-primary leading-none uppercase">{user?.name}</p>
                   <div className="mt-1 flex justify-end">
                     <span className="badge bg-primary-light text-primary border-none text-[8px] py-0 font-bold uppercase tracking-wider">
-                      {user?.role}
+                      {userRole}
                     </span>
                   </div>
                 </div>
@@ -401,7 +412,7 @@ const MainLayout = ({ children }) => {
         </header>
 
         {/* Content - Fixed Scrolling Hub */}
-        <main className="flex-1 overflow-y-auto px-4 md:px-6 pt-6 pb-6 bg-transparent relative scroll-smooth z-0">
+        <main className="flex-1 overflow-y-auto px-4 md:px-6 pt-6 pb-6 bg-transparent relative scroll-smooth">
           <div className="max-w-[1600px] mx-auto w-full">
             {children}
           </div>

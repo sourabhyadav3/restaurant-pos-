@@ -33,7 +33,10 @@ const Tasks = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
 
-  const filteredTasks = tasks.filter(t => {
+  const filteredTasks = tasks.map(t => ({
+    ...t,
+    assignee: t.assigned_staff || 'Unassigned'
+  })).filter(t => {
     const matchesTab = activeTab === 'All' || t.status === activeTab;
     const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           t.assignee.toLowerCase().includes(searchQuery.toLowerCase());
@@ -294,7 +297,7 @@ const TaskModal = ({ onClose, staff, onSave }) => {
     title: '',
     type: 'Cleaning',
     priority: 'Normal',
-    assignee: staff[0]?.name || '',
+    assignee_id: staff[0]?.id || '',
     target: '',
     deadline: 'Today'
   });
@@ -319,7 +322,7 @@ const TaskModal = ({ onClose, staff, onSave }) => {
           </div>
           
           <form 
-            onSubmit={(e) => { e.preventDefault(); onSave(formData); onClose(); }} 
+            onSubmit={(e) => { e.preventDefault(); onSave({ ...formData, assigned_to: formData.assignee_id }); onClose(); }} 
             className="flex-1 overflow-y-auto"
           >
              <div className="p-6 md:p-8 space-y-6">
@@ -362,11 +365,11 @@ const TaskModal = ({ onClose, staff, onSave }) => {
                    <div className="space-y-1.5">
                       <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Specialist</label>
                       <select 
-                        value={formData.assignee}
-                        onChange={(e) => setFormData({...formData, assignee: e.target.value})}
+                        value={formData.assignee_id}
+                        onChange={(e) => setFormData({...formData, assignee_id: e.target.value})}
                         className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-bold text-sm appearance-none focus:border-primary/20 transition-all"
                       >
-                         {staff.map(s => <option key={s.id} value={s.name}>{s.name} ({s.role})</option>)}
+                         {staff.map(s => <option key={s.id} value={s.id}>{s.full_name} ({s.role_name})</option>)}
                       </select>
                    </div>
                    <div className="space-y-1.5">

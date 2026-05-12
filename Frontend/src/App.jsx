@@ -79,14 +79,16 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   
   if (!user) return <Navigate to="/login" />;
   
+  const userRole = user.role || user.role_name || '';
+  
   // If route has a role prefix, it MUST match the user's role
-  if (routeRole && routeRole.toUpperCase() !== user.role) {
-    const correctPrefix = user.role.toLowerCase();
+  if (routeRole && routeRole.toUpperCase() !== userRole.toUpperCase()) {
+    const correctPrefix = userRole.toLowerCase();
     return <Navigate to={`/${correctPrefix}/dashboard`} />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    const correctPrefix = user.role.toLowerCase();
+  if (allowedRoles && !allowedRoles.includes(userRole.toUpperCase())) {
+    const correctPrefix = userRole.toLowerCase();
     return <Navigate to={`/${correctPrefix}/dashboard`} />;
   }
   return children;
@@ -96,8 +98,9 @@ const DashboardRedirect = () => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" />;
   
-  const rolePrefix = user.role.toLowerCase();
-  if (user.role === roles.CUSTOMER) return <Navigate to="/customer/home" />;
+  const userRole = user.role || user.role_name || '';
+  const rolePrefix = userRole.toLowerCase();
+  if (userRole.toUpperCase() === roles.CUSTOMER) return <Navigate to="/customer/home" />;
   return <Navigate to={`/${rolePrefix}/dashboard`} />;
 };
 
@@ -105,7 +108,8 @@ const ModuleRedirect = ({ module }) => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" />;
   
-  const rolePrefix = user.role.toLowerCase();
+  const userRole = user.role || user.role_name || '';
+  const rolePrefix = userRole.toLowerCase();
   return <Navigate to={`/${rolePrefix}/${module}`} replace />;
 };
 

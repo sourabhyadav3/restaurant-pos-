@@ -8,24 +8,24 @@ const Reservation = () => {
 
   const mealOptions = {
     Breakfast: [
-      { name: 'Classic Omelette', price: '$12', desc: 'Farm fresh eggs with herbs' },
-      { name: 'Pancake Stack', price: '$15', desc: 'Maple syrup and fresh berries' },
-      { name: 'Avocado Toast', price: '$14', desc: 'Sourdough with poached eggs' },
+      { name: 'Classic Omelette', desc: 'Farm fresh eggs with herbs' },
+      { name: 'Pancake Stack', desc: 'Maple syrup and fresh berries' },
+      { name: 'Avocado Toast', desc: 'Sourdough with poached eggs' },
     ],
     Lunch: [
-      { name: 'Wagyu Burger', price: '$22', desc: 'Truffle mayo and brioche bun' },
-      { name: 'Ceasar Salad', price: '$18', desc: 'Grilled chicken and parmesan' },
-      { name: 'Pasta Carbonara', price: '$20', desc: 'Crispy pancetta and egg yolk' },
+      { name: 'Wagyu Burger', desc: 'Truffle mayo and brioche bun' },
+      { name: 'Ceasar Salad', desc: 'Grilled chicken and parmesan' },
+      { name: 'Pasta Carbonara', desc: 'Crispy pancetta and egg yolk' },
     ],
     Dinner: [
-      { name: 'Ribeye Steak', price: '$45', desc: 'Aged beef with garlic butter' },
-      { name: 'Grilled Salmon', price: '$38', desc: 'Lemon butter and asparagus' },
-      { name: 'Lamb Chops', price: '$42', desc: 'Mint glaze and roasted roots' },
+      { name: 'Ribeye Steak', desc: 'Aged beef with garlic butter' },
+      { name: 'Grilled Salmon', desc: 'Lemon butter and asparagus' },
+      { name: 'Lamb Chops', desc: 'Mint glaze and roasted roots' },
     ],
     Bar: [
-      { name: 'Old Fashioned', price: '$16', desc: 'Bourbon with aromatic bitters' },
-      { name: 'Signature Mojito', price: '$14', desc: 'Fresh mint and white rum' },
-      { name: 'Craft Beer Flight', price: '$20', desc: 'Selection of 4 local brews' },
+      { name: 'Old Fashioned', desc: 'Bourbon with aromatic bitters' },
+      { name: 'Signature Mojito', desc: 'Fresh mint and white rum' },
+      { name: 'Craft Beer Flight', desc: 'Selection of 4 local brews' },
     ]
   };
 
@@ -120,13 +120,12 @@ const Reservation = () => {
                       <h4 className="text-white font-bold text-sm uppercase group-hover:text-landing-primary transition-colors">{item.name}</h4>
                       <p className="text-xs text-gray-500">{item.desc}</p>
                     </div>
-                    <span className="text-landing-primary font-black">{item.price}</span>
+                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-landing-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                       <ArrowRight size={14} />
+                    </div>
                   </motion.div>
                 ))}
               </div>
-              <p className="mt-8 pt-6 border-t border-white/5 text-[9px] text-gray-500 italic">
-                * Prices are starting estimates for pre-order sets.
-              </p>
             </div>
           </motion.div>
 

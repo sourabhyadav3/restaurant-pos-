@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const NotificationContext = createContext();
 
@@ -67,38 +67,40 @@ export const NotificationProvider = ({ children }) => {
     localStorage.setItem('resto-notifications', JSON.stringify(notifications));
   }, [notifications]);
 
-  const addNotification = (notif) => {
-    const newNotif = {
-      id: Date.now(),
-      timestamp: new Date().toISOString(),
-      read: false,
-      ...notif,
-      targetRole: notif.targetRole?.toUpperCase() || 'ALL'
-    };
-    setNotifications(prev => [newNotif, ...prev].slice(0, 50));
-  };
+  const addNotification = useCallback((notif) => {
+    setNotifications(prev => {
+      const newNotif = {
+        id: Date.now(),
+        timestamp: new Date().toISOString(),
+        read: false,
+        ...notif,
+        targetRole: notif.targetRole?.toUpperCase() || 'ALL'
+      };
+      return [newNotif, ...prev].slice(0, 50);
+    });
+  }, []);
 
-  const markAsRead = (id) => {
+  const markAsRead = useCallback((id) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-  };
+  }, []);
 
-  const markAllAsRead = (role) => {
+  const markAllAsRead = useCallback((role) => {
     const roleUpper = role?.toUpperCase();
     setNotifications(prev => prev.map(n => (n.targetRole === roleUpper || n.targetRole === 'ALL') ? { ...n, read: true } : n));
-  };
+  }, []);
 
-  const clearNotifications = () => {
+  const clearNotifications = useCallback(() => {
     setNotifications([]);
-  };
+  }, []);
 
-  const deleteNotification = (id) => {
+  const deleteNotification = useCallback((id) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
-  };
+  }, []);
 
-  const getUnreadCount = (role) => {
+  const getUnreadCount = useCallback((role) => {
     const roleUpper = role?.toUpperCase();
     return notifications.filter(n => !n.read && (n.targetRole === roleUpper || n.targetRole === 'ALL')).length;
-  };
+  }, [notifications]);
 
   return (
     <NotificationContext.Provider value={{

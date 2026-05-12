@@ -20,7 +20,7 @@ import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
 
 const Rooms = () => {
-  const { rooms, addRoom, updateRoom, deleteRoom } = useHospitality();
+  const { rooms, addRoom, updateRoom, updateRoomStatus, deleteRoom } = useHospitality();
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [showAddRoom, setShowAddRoom] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,20 +49,21 @@ const Rooms = () => {
   };
 
   const filteredRooms = rooms.filter(room => {
-    const matchesSearch = room.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          room.assignedGuest?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTab = activeTab === 'All' || room.status === activeTab;
+    const matchesSearch = (room.room_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) || 
+                          (room.room_code?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+                          (room.assigned_guest?.toLowerCase() || '').includes(searchQuery.toLowerCase());
+    const matchesTab = activeTab === 'All' || room.room_status?.toLowerCase() === activeTab.toLowerCase();
     return matchesSearch && matchesTab;
   });
 
   const handleCreateRoom = (e) => {
     e.preventDefault();
     addRoom({
-      roomName: newRoomData.name,
-      roomType: newRoomData.type,
+      room_code: newRoomData.name,
+      room_name: newRoomData.name,
+      room_type: newRoomData.type,
       capacity: parseInt(newRoomData.capacity),
-      status: newRoomData.status,
-      assignedGuest: null,
+      room_status: newRoomData.status.toLowerCase(),
       notes: newRoomData.notes
     });
     setNewRoomData({ name: '', type: 'Deluxe', capacity: 2, status: 'Available', notes: '' });
@@ -79,7 +80,7 @@ const Rooms = () => {
           </div>
           <div>
             <h2 className="text-2xl font-black tracking-tight text-text-primary uppercase tracking-wider">Rooms Management</h2>
-            <p className="text-text-secondary text-sm font-bold mt-1">Total {rooms.length} Units • {rooms.filter(r => r.status === 'Available').length} Ready</p>
+            <p className="text-text-secondary text-sm font-bold mt-1">Total {rooms.length} Units • {rooms.filter(r => r.room_status?.toLowerCase() === 'available').length} Ready</p>
           </div>
         </div>
         
@@ -125,7 +126,8 @@ const Rooms = () => {
       <div className="flex-1 overflow-y-auto scrollbar-hide -mx-1 px-1">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5 pb-10">
           {filteredRooms.map((room) => {
-            const config = getStatusConfig(room.status);
+            const status = room.room_status?.charAt(0).toUpperCase() + room.room_status?.slice(1);
+            const config = getStatusConfig(status || 'Available');
             const StatusIcon = config.icon;
             return (
               <div 
@@ -140,14 +142,14 @@ const Rooms = () => {
                     <Bed className="w-6 h-6" />
                   </div>
                   <div className={cn("px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border", config.bg, config.text, config.border)}>
-                    {room.status}
+                    {status}
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <h3 className="text-xl font-black text-text-primary tracking-tight">{room.name}</h3>
+                  <h3 className="text-xl font-black text-text-primary tracking-tight">{room.room_code}</h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{room.type}</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{room.room_type}</span>
                     <span className="w-1 h-1 bg-slate-300 rounded-full" />
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cap: {room.capacity}</span>
                   </div>
@@ -166,7 +168,8 @@ const Rooms = () => {
             );
           })}
         </div>
-      </div>      {/* Modals */}
+      </div>
+      {/* Modals */}
       {showAddRoom && createPortal(
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setShowAddRoom(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
@@ -280,11 +283,11 @@ const Rooms = () => {
           <div className="relative w-full max-w-[95%] md:max-w-lg bg-white rounded-t-[2rem] sm:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
             <div className="p-5 md:p-8 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-4">
-                <div className={cn("w-12 md:w-14 h-12 md:h-14 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-inner", getStatusConfig(selectedRoom.status).color)}>
+                <div className={cn("w-12 md:w-14 h-12 md:h-14 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-inner", getStatusConfig(selectedRoom.room_status?.charAt(0).toUpperCase() + selectedRoom.room_status?.slice(1) || 'Available').color)}>
                   <Bed className="w-6 md:w-7 h-6 md:h-7" />
                 </div>
                 <div>
-                  <h3 className="text-xl md:text-2xl font-black text-text-primary uppercase tracking-tight leading-none">{selectedRoom.name}</h3>
+                  <h3 className="text-xl md:text-2xl font-black text-text-primary uppercase tracking-tight leading-none">{selectedRoom.room_code}</h3>
                   <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1">{selectedRoom.id}</p>
                 </div>
               </div>
@@ -296,19 +299,7 @@ const Rooms = () => {
                 <div>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Guest Assignment</p>
                   <div className="flex items-center gap-3">
-                    <p className="text-base font-black text-text-primary">{selectedRoom.assignedGuest || 'No Guest Active'}</p>
-                    {selectedRoom.assignedGuest && (
-                      <button 
-                        onClick={() => {
-                          updateRoom(selectedRoom.id, { assignedGuest: null, status: 'Cleaning' });
-                          setSelectedRoom(null);
-                        }}
-                        className="p-1.5 bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-500 hover:text-white transition-all shadow-sm"
-                        title="Unassign Guest"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    )}
+                    <p className="text-base font-black text-text-primary">{selectedRoom.assigned_guest || 'No Guest Active'}</p>
                   </div>
                 </div>
                 <div className="sm:text-right">
@@ -316,14 +307,14 @@ const Rooms = () => {
                   <div className="flex sm:justify-end">
                     <div className="relative min-w-[140px]">
                       <select 
-                        value={selectedRoom.status}
+                        value={selectedRoom.room_status}
                         onChange={(e) => {
-                          updateRoom(selectedRoom.id, { status: e.target.value });
-                          setSelectedRoom({...selectedRoom, status: e.target.value});
+                          updateRoomStatus(selectedRoom.id, e.target.value);
+                          setSelectedRoom({...selectedRoom, room_status: e.target.value.toLowerCase()});
                         }}
-                        className={cn("w-full px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 outline-none transition-all appearance-none", getStatusConfig(selectedRoom.status).border, getStatusConfig(selectedRoom.status).text)}
+                        className={cn("w-full px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 outline-none transition-all appearance-none", getStatusConfig(selectedRoom.room_status?.charAt(0).toUpperCase() + selectedRoom.room_status?.slice(1) || 'Available').border, getStatusConfig(selectedRoom.room_status?.charAt(0).toUpperCase() + selectedRoom.room_status?.slice(1) || 'Available').text)}
                       >
-                        {roomStatuses.map(s => <option key={s}>{s}</option>)}
+                        {roomStatuses.map(s => <option key={s} value={s.toLowerCase()}>{s}</option>)}
                       </select>
                       <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rotate-90 pointer-events-none opacity-50" />
                     </div>
@@ -331,7 +322,7 @@ const Rooms = () => {
                 </div>
               </div>
 
-              {!selectedRoom.assignedGuest && (
+              {!selectedRoom.assigned_guest && (
                 <div className="space-y-3">
                   <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Direct Assignment</label>
                   <div className="flex gap-2">
@@ -344,7 +335,7 @@ const Rooms = () => {
                       onClick={() => {
                         const input = document.getElementById('assign-guest-input');
                         if (input.value.trim()) {
-                          updateRoom(selectedRoom.id, { assignedGuest: input.value.trim(), status: 'Occupied' });
+                          updateRoom(selectedRoom.id, { assigned_guest: input.value.trim(), room_status: 'occupied' });
                           setSelectedRoom(null);
                         }
                       }}

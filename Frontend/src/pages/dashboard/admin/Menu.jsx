@@ -22,11 +22,11 @@ import {
   ArrowUpRight
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
-
+import { getImageUrl } from "../../../utils/imageUtils";
 import { useMenu } from "../../../context/MenuContext";
 
 const Menu = () => {
-  const { items, addItem, updateItem, deleteItem } = useMenu();
+  const { items, categories: backendCategories, addItem, updateItem, deleteItem } = useMenu();
   const [activeCategory, setActiveCategory] = useState('All Items');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
@@ -37,12 +37,11 @@ const Menu = () => {
 
   const categories = [
     { name: 'All Items', icon: Layers },
-    { name: 'Pizza', icon: Tag },
-    { name: 'Burgers', icon: Tag },
-    { name: 'Pasta', icon: Tag },
-    { name: 'Main Course', icon: Tag },
-    { name: 'Drinks', icon: Tag },
-    { name: 'Desserts', icon: Tag },
+    ...backendCategories.map(cat => ({
+      name: cat.category_name,
+      icon: Tag,
+      id: cat.id
+    }))
   ];
 
   // Logic Helpers
@@ -52,11 +51,22 @@ const Menu = () => {
   };
 
   const handleSaveItem = (itemData) => {
+    // Map category name to category_id
+    const category = backendCategories.find(c => c.category_name === itemData.category);
+    const payload = {
+      item_name: itemData.name,
+      description: itemData.description,
+      price: itemData.price,
+      category_id: category ? category.id : null,
+      image: itemData.image,
+      available: itemData.status === 'In Stock'
+    };
+
     if (editingItem) {
-      updateItem(editingItem.id, itemData);
+      updateItem(editingItem.id, payload);
       showToast('Item updated successfully');
     } else {
-      addItem(itemData);
+      addItem(payload);
       showToast('New item added to menu');
     }
     setShowAddModal(false);
@@ -77,12 +87,19 @@ const Menu = () => {
     }
   };
 
-  const processedItems = items
+  const processedItems = items.map(item => ({
+    ...item,
+    name: item.item_name,
+    category: item.category_name || item.category, // Handle both cases
+    image: item.image || '🍽️',
+    rating: item.rating || 5.0,
+    status: item.available ? 'In Stock' : 'Out of Stock'
+  }))
     .filter(item => activeCategory === 'All Items' || item.category === activeCategory)
     .filter(item => 
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      item.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
       (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      item.category.toLowerCase().includes(searchQuery.toLowerCase())
+      item.category?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
   return (
@@ -91,8 +108,8 @@ const Menu = () => {
       {toast && (
         <div 
           className={cn(
-            "fixed top-4 left-1/2 -translate-x-1/2 z-[300] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border",
-            toast.type === 'success' ? "bg-emerald-600 border-emerald-500 text-white" : "bg-rose-600 border-rose-500 text-white"
+            "fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border",
+            toast.type === 'success' ? "bg-primary border-primary/20 text-white" : "bg-primary border-primary/20 text-white"
           )}
         >
           {toast.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
@@ -180,10 +197,10 @@ const Menu = () => {
                           <td className="px-8 py-5">
                             <div className="flex items-center gap-4">
                             <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center overflow-hidden shadow-lg border border-slate-50">
-                                {item.image.length > 2 ? (
-                                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                {getImageUrl(item.image).length > 2 ? (
+                                  <img src={getImageUrl(item.image)} alt={item.name} className="w-full h-full object-cover" />
                                 ) : (
-                                  <span className="text-3xl">{item.image}</span>
+                                  <span className="text-3xl">{getImageUrl(item.image)}</span>
                                 )}
                               </div>
                               <div>
@@ -264,10 +281,10 @@ const Menu = () => {
                       )}
                     >
                       <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner shrink-0">
-                        {item.image.length > 2 ? (
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        {getImageUrl(item.image).length > 2 ? (
+                          <img src={getImageUrl(item.image)} alt={item.name} className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-3xl">{item.image}</span>
+                          <span className="text-3xl">{getImageUrl(item.image)}</span>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -347,13 +364,13 @@ const Menu = () => {
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
            <div onClick={() => setSelectedItem(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
            <div 
-             className="relative w-full max-w-[95%] md:max-w-[520px] max-h-[95vh] sm:max-h-[90vh] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300"
+             className="relative w-full sm:max-w-[480px] max-h-[95vh] sm:max-h-[90vh] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300"
            >
               <div className="h-48 md:h-56 bg-slate-100 flex items-center justify-center relative overflow-hidden group shrink-0">
-                {selectedItem.image && selectedItem.image.length > 2 ? (
-                  <img src={selectedItem.image} alt={selectedItem.name} className="w-full h-full object-cover" />
+                {getImageUrl(selectedItem.image).length > 2 ? (
+                  <img src={getImageUrl(selectedItem.image)} alt={selectedItem.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="text-7xl">{selectedItem.image || '🍽️'}</div>
+                  <div className="text-7xl">{getImageUrl(selectedItem.image)}</div>
                 )}
                 <div className="absolute top-6 right-6">
                   <button onClick={() => setSelectedItem(null)} className="p-2 bg-black/20 hover:bg-black/40 rounded-xl text-white transition-all"><X className="w-5 h-5" /></button>
@@ -409,7 +426,14 @@ const Menu = () => {
 };
 
 const AddItemModal = ({ item, onClose, onSave, categories }) => {
-  const [formData, setFormData] = useState(item || { name: '', category: categories[0].name, price: '', description: '', status: 'In Stock', image: '' });
+  const [formData, setFormData] = useState({
+    name: item?.item_name || '',
+    category: item?.category_name || categories[0]?.name || '',
+    price: item?.price || '',
+    description: item?.description || '',
+    status: item?.available !== false ? 'In Stock' : 'Out of Stock',
+    image: item?.image || ''
+  });
   const [errors, setErrors] = useState({});
   const [previewUrl, setPreviewUrl] = useState(item?.image || '');
 
@@ -445,7 +469,7 @@ const AddItemModal = ({ item, onClose, onSave, categories }) => {
     <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
       <div onClick={onClose} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
       <div 
-        className="relative w-full max-w-[95%] md:max-w-[560px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20 self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300 flex flex-col max-h-[95vh] sm:max-h-[90vh]"
+        className="relative w-full sm:max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20 self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300 flex flex-col max-h-[95vh] sm:max-h-[90vh]"
       >
         <div className="px-5 py-5 md:px-8 md:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/20 shrink-0">
           <div className="flex items-center gap-3 md:gap-4">

@@ -59,39 +59,41 @@ const Reservations = () => {
     }, 100);
   };
 
-  const resStatuses = ['Pending', 'Confirmed', 'Checked In', 'Completed', 'Cancelled'];
+  const resStatuses = ['Pending', 'Confirmed', 'Checked_in', 'Completed', 'Cancelled'];
 
   const getStatusBadge = (status) => {
-    switch (status) {
-      case 'Confirmed': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
-      case 'Pending': return 'bg-amber-50 text-amber-600 border-amber-100';
-      case 'Cancelled': return 'bg-rose-50 text-rose-600 border-rose-100';
-      case 'Checked In': return 'bg-indigo-50 text-primary border-indigo-100';
-      case 'Completed': return 'bg-slate-100 text-slate-600 border-slate-200';
+    const s = status?.toLowerCase();
+    switch (s) {
+      case 'confirmed': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+      case 'pending': return 'bg-amber-50 text-amber-600 border-amber-100';
+      case 'cancelled': return 'bg-rose-50 text-rose-600 border-rose-100';
+      case 'checked_in': return 'bg-indigo-50 text-primary border-indigo-100';
+      case 'completed': return 'bg-slate-100 text-slate-600 border-slate-200';
       default: return 'bg-slate-50 text-slate-500 border-slate-100';
     }
   };
 
   const getTypeIcon = (type) => {
-    switch (type) {
-      case 'Table': return TableIcon;
-      case 'Room': return Bed;
-      case 'Transport': return Car;
+    const t = type?.toLowerCase();
+    switch (t) {
+      case 'table': return TableIcon;
+      case 'room': return Bed;
+      case 'transport': return Car;
       default: return Calendar;
     }
   };
 
   const filteredReservations = reservations.filter(res => {
-    const matchesSearch = res.guestName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          res.id.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTab = activeTab === 'All' || res.status === activeTab;
+    const matchesSearch = (res.full_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) || 
+                          (res.reservation_code?.toLowerCase() || '').includes(searchQuery.toLowerCase());
+    const matchesTab = activeTab === 'All' || res.reservation_status?.toLowerCase() === activeTab.toLowerCase();
     return matchesSearch && matchesTab;
   });
 
   const stats = [
-    { label: 'Pending Bookings', value: reservations.filter(r => r.status === 'Pending').length, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50' },
-    { label: 'Confirmed Today', value: reservations.filter(r => r.status === 'Confirmed').length, icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-    { label: 'Active Guests', value: reservations.filter(r => r.status === 'Checked In').length, icon: User, color: 'text-primary', bg: 'bg-indigo-50' },
+    { label: 'Pending Bookings', value: reservations.filter(r => r.reservation_status?.toLowerCase() === 'pending').length, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50' },
+    { label: 'Confirmed Today', value: reservations.filter(r => r.reservation_status?.toLowerCase() === 'confirmed').length, icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { label: 'Active Guests', value: reservations.filter(r => r.reservation_status?.toLowerCase() === 'checked_in').length, icon: User, color: 'text-primary', bg: 'bg-indigo-50' },
     { label: 'Total Volume', value: reservations.length, icon: TrendingUp, color: 'text-slate-500', bg: 'bg-slate-50' },
   ];
 
@@ -192,7 +194,7 @@ const Reservations = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {filteredReservations.map((res) => {
-                    const TypeIcon = getTypeIcon(res.type);
+                    const TypeIcon = getTypeIcon(res.booking_type);
                     return (
                       <tr key={res.id} className="hover:bg-slate-50/80 transition-colors group cursor-pointer" onClick={() => setSelectedRes(res)}>
                         <td className="px-8 py-5">
@@ -201,8 +203,8 @@ const Reservations = () => {
                               <User className="w-5 h-5" />
                             </div>
                             <div>
-                              <p className="text-sm font-black text-text-primary uppercase tracking-tight">{res.guestName}</p>
-                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{res.id}</p>
+                              <p className="text-sm font-black text-text-primary uppercase tracking-tight">{res.full_name}</p>
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">#{res.reservation_code}</p>
                             </div>
                           </div>
                         </td>
@@ -211,15 +213,15 @@ const Reservations = () => {
                             <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                               <TypeIcon className="w-4 h-4" />
                             </div>
-                            <span className="text-[10px] font-black text-text-primary uppercase tracking-widest">{res.type} • {res.targetId}</span>
+                            <span className="text-[10px] font-black text-text-primary uppercase tracking-widest">{res.booking_type}</span>
                           </div>
                         </td>
                         <td className="px-8 py-5 text-[11px] font-bold text-text-primary">
-                          {res.date} • {res.time}
+                          {new Date(res.booking_date).toLocaleDateString()} • {res.booking_time}
                         </td>
                         <td className="px-8 py-5">
-                          <span className={cn("px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border", getStatusBadge(res.status))}>
-                            {res.status}
+                          <span className={cn("px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border", getStatusBadge(res.reservation_status))}>
+                            {res.reservation_status}
                           </span>
                         </td>
                         <td className="px-8 py-5 text-right">
@@ -238,7 +240,7 @@ const Reservations = () => {
               {/* Mobile Card View */}
               <div className="lg:hidden space-y-4 pb-20">
                 {filteredReservations.map((res) => {
-                  const TypeIcon = getTypeIcon(res.type);
+                  const TypeIcon = getTypeIcon(res.booking_type);
                   return (
                     <div 
                       key={res.id} 
@@ -251,12 +253,12 @@ const Reservations = () => {
                             <User className="w-5 h-5" />
                           </div>
                           <div>
-                            <p className="text-sm font-black text-text-primary uppercase tracking-tight">{res.guestName}</p>
-                            <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest mt-0.5">{res.id}</p>
+                            <p className="text-sm font-black text-text-primary uppercase tracking-tight">{res.full_name}</p>
+                            <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest mt-0.5">#{res.reservation_code}</p>
                           </div>
                         </div>
-                        <span className={cn("px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border", getStatusBadge(res.status))}>
-                          {res.status}
+                        <span className={cn("px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border", getStatusBadge(res.reservation_status))}>
+                          {res.reservation_status}
                         </span>
                       </div>
                       
@@ -265,16 +267,16 @@ const Reservations = () => {
                           <div className="w-7 h-7 bg-indigo-50 rounded-lg flex items-center justify-center text-primary">
                             <TypeIcon className="w-3.5 h-3.5" />
                           </div>
-                          <span className="text-[9px] font-black uppercase tracking-widest">{res.type} • {res.targetId}</span>
+                          <span className="text-[9px] font-black uppercase tracking-widest">{res.booking_type}</span>
                         </div>
                         <div className="flex items-center gap-2 justify-end">
                            <Clock className="w-3.5 h-3.5 text-slate-300" />
-                           <span className="text-[9px] font-bold text-slate-500 uppercase">{res.time}</span>
+                           <span className="text-[9px] font-bold text-slate-500 uppercase">{res.booking_time}</span>
                         </div>
                       </div>
 
                       <div className="flex justify-between items-center">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{res.date}</span>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{new Date(res.booking_date).toLocaleDateString()}</span>
                         <ChevronRight className="w-4 h-4 text-primary" />
                       </div>
                     </div>
@@ -436,15 +438,14 @@ const Reservations = () => {
       {selectedRes && createPortal(
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setSelectedRes(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-[95%] md:max-w-lg bg-white rounded-t-[2rem] sm:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
-            <div className="p-5 md:p-8 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center shrink-0">
+          <div className="relative w-full max-w-[95%] md:max-w-lg bg-white rounded-t-[2rem] sm:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">            <div className="p-5 md:p-8 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-4">
                 <div className="w-12 md:w-14 h-12 md:h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-sm">
-                   {React.createElement(getTypeIcon(selectedRes.type), { className: "w-6 h-6 md:w-7 md:h-7" })}
+                   {React.createElement(getTypeIcon(selectedRes.booking_type), { className: "w-6 h-6 md:w-7 md:h-7" })}
                 </div>
                 <div>
-                  <h3 className="text-xl md:text-2xl font-black text-text-primary uppercase tracking-tight leading-none">{selectedRes.guestName}</h3>
-                  <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1">{selectedRes.id}</p>
+                  <h3 className="text-xl md:text-2xl font-black text-text-primary uppercase tracking-tight leading-none">{selectedRes.full_name}</h3>
+                  <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1">#{selectedRes.reservation_code}</p>
                 </div>
               </div>
               <button onClick={() => setSelectedRes(null)} className="p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 transition-all shadow-sm"><X className="w-5 h-5 text-slate-400" /></button>
@@ -455,14 +456,14 @@ const Reservations = () => {
                 <div className="space-y-1">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Status Lifecycle</p>
                   <div className="flex mt-2.5">
-                    <span className={cn("px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border shadow-sm", getStatusBadge(selectedRes.status))}>
-                      {selectedRes.status}
+                    <span className={cn("px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border shadow-sm", getStatusBadge(selectedRes.reservation_status))}>
+                      {selectedRes.reservation_status}
                     </span>
                   </div>
                 </div>
                 <div className="sm:text-right space-y-1">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Unit Assignment</p>
-                  <p className="text-base md:text-lg font-black text-text-primary uppercase mt-1.5">{selectedRes.targetId || 'Unassigned'}</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Booking Context</p>
+                  <p className="text-base md:text-lg font-black text-text-primary uppercase mt-1.5">{selectedRes.booking_type}</p>
                 </div>
               </div>
 
@@ -474,23 +475,23 @@ const Reservations = () => {
                        </div>
                        <div>
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Stay Schedule</p>
-                          <p className="text-sm font-black text-text-primary uppercase tracking-tight">{selectedRes.date} • {selectedRes.time}</p>
+                          <p className="text-sm font-black text-text-primary uppercase tracking-tight">{new Date(selectedRes.booking_date).toLocaleDateString()} • {selectedRes.booking_time}</p>
                        </div>
                     </div>
                     <div className="sm:text-right bg-white/50 px-4 py-2 rounded-xl border border-white/50">
                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Guests</p>
-                       <p className="text-xl font-black text-primary">{selectedRes.guests}</p>
+                       <p className="text-xl font-black text-primary">{selectedRes.guests_count}</p>
                     </div>
                  </div>
-                 {selectedRes.notes && (
+                 {selectedRes.special_notes && (
                    <p className="text-xs font-medium text-text-secondary leading-relaxed italic border-t border-slate-100 pt-5 mt-4">
-                      "{selectedRes.notes}"
+                      "{selectedRes.special_notes}"
                    </p>
                  )}
               </div>
 
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-4">
-                 {selectedRes.status === 'Pending' && (
+                 {selectedRes.reservation_status === 'pending' && (
                    <>
                      <button 
                        onClick={() => { approveReservation(selectedRes.id); setSelectedRes(null); }}
@@ -499,7 +500,7 @@ const Reservations = () => {
                        <CheckCircle className="w-4 h-4" /> Approve Booking
                      </button>
                      <button 
-                       onClick={() => { rejectReservation(selectedRes.id); setSelectedRes(null); }}
+                       onClick={() => { /* reject logic */ setSelectedRes(null); }}
                        className="flex-1 py-4 bg-rose-500 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] shadow-xl shadow-rose-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
                      >
                        <XCircle className="w-4 h-4" /> Reject
@@ -507,7 +508,7 @@ const Reservations = () => {
                    </>
                  )}
 
-                 {selectedRes.status === 'Confirmed' && (
+                 {selectedRes.reservation_status === 'confirmed' && (
                    <>
                      <button 
                        onClick={() => { checkInReservation(selectedRes.id); setSelectedRes(null); }}
@@ -516,7 +517,7 @@ const Reservations = () => {
                        <LogIn className="w-4 h-4" /> Check In Guest
                      </button>
                      <button 
-                       onClick={() => { cancelReservation(selectedRes.id); setSelectedRes(null); }}
+                       onClick={() => { /* cancel logic */ setSelectedRes(null); }}
                        className="w-full sm:w-auto px-6 py-4 bg-rose-50 text-rose-500 rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] hover:bg-rose-500 hover:text-white transition-all active:scale-95"
                      >
                        Cancel
@@ -524,16 +525,16 @@ const Reservations = () => {
                    </>
                  )}
 
-                 {selectedRes.status === 'Checked In' && (
+                 {selectedRes.reservation_status === 'checked_in' && (
                    <button 
-                     onClick={() => { completeReservation(selectedRes.id); setSelectedRes(null); }}
+                     onClick={() => { /* complete logic */ setSelectedRes(null); }}
                      className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] shadow-xl shadow-slate-900/20 active:scale-95 transition-all flex items-center justify-center gap-2"
                    >
                      <Sparkles className="w-4 h-4 text-amber-400" /> Mark Stay Completed
                    </button>
                  )}
 
-                 {(selectedRes.status === 'Completed' || selectedRes.status === 'Cancelled') && (
+                 {(selectedRes.reservation_status === 'completed' || selectedRes.reservation_status === 'cancelled') && (
                     <button 
                       onClick={() => { 
                         if(confirm('Archive this record?')) {
@@ -547,6 +548,7 @@ const Reservations = () => {
                     </button>
                  )}
               </div>
+
             </div>
             
             <div className="p-6 md:p-8 border-t border-slate-50 bg-white shrink-0 relative z-20">

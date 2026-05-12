@@ -23,7 +23,7 @@ import { useOrders } from "../../../context/OrdersContext";
 import { useToast } from "../../../context/ToastContext";
 
 const Tables = () => {
-  const { tables, setTables } = useHospitality();
+  const { tables, addTable, updateTableStatus, deleteTable } = useHospitality();
   const { addOrder } = useOrders();
   const { showToast } = useToast();
   const [selectedTable, setSelectedTable] = useState(null);
@@ -56,30 +56,34 @@ const Tables = () => {
     }
   };
 
-  const updateTableStatus = (id, newStatus, extraData = {}) => {
-    setTables(prev => prev.map(t => t.id === id ? { ...t, status: newStatus, ...extraData } : t));
-    if (selectedTable?.id === id) {
-      setSelectedTable(prev => ({ ...prev, status: newStatus, ...extraData }));
-    }
-  };
+  const getTableData = (table) => ({
+    ...table,
+    name: table.table_number,
+    floor: table.zone_name || 'Ground Floor',
+    orders: table.orders || [],
+    total: table.total || 0,
+    time: table.time || (table.status === 'occupied' ? '35 mins' : null)
+  });
+
+  const processedTables = tables.map(getTableData);
 
   const handleOpenSession = (table) => {
-    updateTableStatus(table.id, 'occupied', { orders: [], time: 'Just now', total: 0, guests: guestCount });
+    updateTableStatus(table.id, 'occupied');
     setSelectedTable(prev => ({ ...prev, status: 'occupied', guests: guestCount }));
   };
 
   const handleMarkArrived = (table) => {
-    updateTableStatus(table.id, 'occupied', { orders: [], time: 'Just now', total: 0 });
+    updateTableStatus(table.id, 'occupied');
   };
 
   const handleCancelBooking = (table) => {
-    updateTableStatus(table.id, 'available', { reservedBy: null, time: null });
+    updateTableStatus(table.id, 'available');
   };
 
   const handleFinalize = () => {
     setIsProcessing(true);
     setTimeout(() => {
-      updateTableStatus(selectedTable.id, 'available', { orders: [], total: 0, time: null });
+      updateTableStatus(selectedTable.id, 'available');
       setIsProcessing(false);
       setShowBilling(false);
       setSelectedTable(null);
@@ -117,16 +121,11 @@ const Tables = () => {
 
   const handleCreateTable = (e) => {
     e.preventDefault();
-    const newId = tables.length > 0 ? Math.max(...tables.map(t => t.id)) + 1 : 1;
-    const newTable = {
-      id: newId,
-      name: newTableData.name || `T-${newId}`,
-      status: 'available',
+    addTable({
+      name: newTableData.name,
       capacity: parseInt(newTableData.capacity),
-      orders: [],
-      floor: activeFloor
-    };
-    setTables([...tables, newTable]);
+      floor: newTableData.floor
+    });
     setShowAddTable(false);
     setNewTableData({ name: '', capacity: 4, floor: activeFloor });
   };
@@ -188,7 +187,7 @@ const Tables = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-5 pb-20 lg:pb-0">
-          {tables.filter(t => t.floor === activeFloor).map((table) => {
+          {processedTables.filter(t => t.floor === activeFloor).map((table) => {
             const config = getStatusConfig(table.status);
             const isSelected = selectedTable?.id === table.id;
             
@@ -261,7 +260,7 @@ const Tables = () => {
 
       {/* Table Side Drawer */}
       {selectedTable && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6">
           <div 
             onClick={() => setSelectedTable(null)}
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
@@ -538,7 +537,7 @@ const Tables = () => {
 
       {/* History Modal */}
       {showHistory && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 lg:p-6">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 lg:p-6">
           <div 
             onClick={() => setShowHistory(false)}
             className="absolute inset-0 bg-slate-900/60"
@@ -580,7 +579,7 @@ const Tables = () => {
 
       {/* Add Items Quick Modal */}
       {showAddItems && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 lg:p-6">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 lg:p-6">
           <div 
             onClick={() => setShowAddItems(false)}
             className="absolute inset-0 bg-slate-900/60"
@@ -621,7 +620,7 @@ const Tables = () => {
 
       {/* Compact & Interactive Billing Modal */}
       {showBilling && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 overflow-hidden">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 overflow-hidden">
           <div 
             onClick={() => !isProcessing && setShowBilling(false)}
             className="absolute inset-0 bg-slate-900/60"

@@ -73,12 +73,17 @@ const Staff = () => {
   };
 
   const filteredStaff = useMemo(() => {
-    return staffMembers.filter(m => {
+    return staffMembers.map(m => ({
+      ...m,
+      name: m.full_name,
+      role: m.role_name,
+      avatar: m.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || '?'
+    })).filter(m => {
       const matchesTab = activeTab === 'All' || m.role === activeTab;
       const query = searchQuery.toLowerCase();
-      const matchesSearch = m.name.toLowerCase().includes(query) || 
-                           m.email.toLowerCase().includes(query) || 
-                           m.role.toLowerCase().includes(query);
+      const matchesSearch = m.name?.toLowerCase().includes(query) || 
+                           m.email?.toLowerCase().includes(query) || 
+                           m.role?.toLowerCase().includes(query);
       return matchesTab && matchesSearch;
     });
   }, [staffMembers, activeTab, searchQuery]);
@@ -87,7 +92,7 @@ const Staff = () => {
     <div className="space-y-5 h-full flex flex-col overflow-hidden relative">
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[300] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border bg-primary border-primary/20 text-white">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border bg-primary border-primary/20 text-white">
           {toast.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-white" /> : <AlertCircle className="w-4 h-4 text-white" />}
           {toast.message}
         </div>
@@ -231,7 +236,7 @@ const Staff = () => {
       {selectedStaff && createPortal(
          <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setSelectedStaff(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-[95%] md:max-w-md bg-white rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
+          <div className="relative w-full sm:max-w-[450px] bg-white rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
              <div className="p-5 md:p-8 border-b border-slate-50 flex items-center justify-between shrink-0 bg-slate-50/20">
                 <div className="flex items-center gap-4">
                    <div className="w-12 h-12 md:w-14 md:h-14 bg-primary text-white rounded-2xl flex items-center justify-center text-xl md:text-2xl font-black shadow-xl shadow-primary/20 shrink-0">{selectedStaff.avatar}</div>
@@ -351,7 +356,7 @@ const StaffModal = ({ staff, onClose, onSave }) => {
   return createPortal(
     <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
       <div onClick={onClose} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-      <div className="relative w-full max-w-[95%] md:max-w-xl bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
+      <div className="relative w-full sm:max-w-[500px] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300">
         <div className="px-5 py-4 md:px-8 md:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/20 shrink-0">
           <div className="flex items-center gap-3 md:gap-4">
              <div className="w-10 h-10 md:w-14 md:h-14 bg-primary/10 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0">

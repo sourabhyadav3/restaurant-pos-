@@ -8,16 +8,16 @@ import dessertImg from '../../../assets/landing/dessert.png';
 import drinksImg from '../../../assets/landing/drinks.png';
 
 const foods = [
-  { id: 1, name: 'Premium Pepperoni Pizza', price: '$18.99', rating: 4.9, img: pizzaImg, tag: 'Best Seller' },
-  { id: 2, name: 'Double Wagyu Burger', price: '$14.99', rating: 4.8, img: burgerImg, tag: 'Hot' },
-  { id: 3, name: 'Truffle Cream Pasta', price: '$16.50', rating: 4.7, img: pastaImg, tag: 'Premium' },
-  { id: 4, name: 'Molten Lava Cake', price: '$8.99', rating: 4.9, img: dessertImg, tag: 'Dessert' },
-  { id: 5, name: 'Signature Fruit Mojito', price: '$6.50', rating: 4.6, img: drinksImg, tag: 'Cooler' },
+  { id: 1, name: 'Premium Pepperoni Pizza', rating: 4.9, img: pizzaImg, tag: 'Best Seller' },
+  { id: 2, name: 'Double Wagyu Burger', rating: 4.8, img: burgerImg, tag: 'Hot' },
+  { id: 3, name: 'Truffle Cream Pasta', rating: 4.7, img: pastaImg, tag: 'Premium' },
+  { id: 4, name: 'Molten Lava Cake', rating: 4.9, img: dessertImg, tag: 'Dessert' },
+  { id: 5, name: 'Signature Fruit Mojito', rating: 4.6, img: drinksImg, tag: 'Cooler' },
 ];
 
 const FeaturedFood = () => {
   return (
-    <section className="py-24 bg-dark-lighter" id="menu">
+    <section className="py-24 bg-dark-lighter overflow-hidden" id="menu">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-end mb-12">
           <div>
@@ -57,13 +57,13 @@ const FeaturedFood = () => {
                 <span className="text-gray-400 text-xs">Rating</span>
               </div>
               <h3 className="text-lg font-bold mb-4 line-clamp-1 text-white">{food.name}</h3>
-              <div className="flex items-center justify-between">
-                <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-premium">
-                  {food.price}
+              <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                <span className="text-[10px] font-black text-landing-primary uppercase tracking-[0.2em]">
+                   Gourmet Selection
                 </span>
-                <button className="w-10 h-10 bg-white/10 hover:bg-landing-primary transition-colors rounded-full flex items-center justify-center group/btn text-white">
-                  <ShoppingCart size={18} className="group-hover/btn:scale-110 transition-transform" />
-                </button>
+                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-500">
+                  <ArrowRight size={14} />
+                </div>
               </div>
             </motion.div>
           ))}

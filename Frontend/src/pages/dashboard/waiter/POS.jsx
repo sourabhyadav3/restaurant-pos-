@@ -24,6 +24,7 @@ import {
   Bed
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
+import { getImageUrl } from "../../../utils/imageUtils";
 import { useAuth } from "../../../context/AuthContext";
 import { useMenu } from "../../../context/MenuContext";
 import { useHospitality } from "../../../context/HospitalityContext";
@@ -34,7 +35,7 @@ const POS = () => {
   const { user } = useAuth();
   const { items, categoriesList } = useMenu();
   const { rooms, reservations, addToFolio } = useHospitality();
-  const { addOrder } = useOrders();
+  const { orders, addOrder } = useOrders();
   const [cart, setCart] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,14 +48,16 @@ const POS = () => {
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [selectedItemForSize, setSelectedItemForSize] = useState(null);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
-  const [selectedGuest, setSelectedGuest] = useState('');
+  const [selectedGuestId, setSelectedGuestId] = useState('');
   const [orderForReceipt, setOrderForReceipt] = useState(null);
 
-  const orderHistory = [
-    { id: '#ORD-9901', time: '10:15 AM', items: 3, total: 1240, status: 'Completed' },
-    { id: '#ORD-9902', time: '10:45 AM', items: 1, total: 299, status: 'Completed' },
-    { id: '#ORD-9903', time: '11:20 AM', items: 5, total: 2150, status: 'Cancelled' },
-  ];
+  const orderHistory = orders.map(o => ({
+    id: o.order_number,
+    time: new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    items: 0, // Simplified for now
+    total: o.grand_total,
+    status: o.order_status
+  })).slice(0, 5);
 
   const addToCart = (item, selectedSize = null) => {
     // If item has sizes and none is selected, open size selection modal
@@ -64,7 +67,7 @@ const POS = () => {
     }
 
     const itemPrice = selectedSize ? selectedSize.price : item.price;
-    const itemName = selectedSize ? `${item.name} (${selectedSize.name})` : item.name;
+    const itemName = selectedSize ? `${item.item_name || item.name} (${selectedSize.name})` : (item.item_name || item.name);
     const cartId = selectedSize ? `${item.id}-${selectedSize.name}` : `${item.id}`;
 
     setCart(prev => {
@@ -102,43 +105,59 @@ const POS = () => {
   const gst = Math.round((subtotal - discountAmount) * 0.05);
   const total = subtotal - discountAmount + gst;
 
+  // Sync cart info with MainLayout header
+  React.useEffect(() => {
+    const count = cart.reduce((acc, item) => acc + item.qty, 0);
+    window.dispatchEvent(new CustomEvent('pos-cart-updated', { 
+      detail: { count, total } 
+    }));
+  }, [cart, total]);
+
   const showToastMessage = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleKDS = () => {
+  const handleKDS = async () => {
     setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
+    try {
+      await addOrder(cart, {
+        type: 'dine-in',
+        total: total,
+        discount: discountAmount,
+        tax: gst,
+        paymentStatus: 'pending'
+      });
       showToastMessage('Order sent to Kitchen successfully!');
-    }, 1000);
+      setCart([]);
+    } catch (err) {
+      showToastMessage('Failed to send order to Kitchen', 'error');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handleFinalPayment = () => {
-    if (paymentMethod === 'Room Service' && !selectedGuest) {
+  const handleFinalPayment = async () => {
+    if (paymentMethod === 'Room Service' && !selectedGuestId) {
       showToastMessage('Please select a guest for Room Service', 'error');
       return;
     }
 
     setIsProcessing(true);
-    
-    const newOrder = {
-      customer: paymentMethod === 'Room Service' ? selectedGuest : 'Walk-in',
-      type: paymentMethod === 'Room Service' ? 'Room Service' : 'Dine-in',
-      table: paymentMethod === 'Room Service' ? selectedGuest : '-',
-      amount: `₹${total}`,
-      items: cart.reduce((acc, i) => acc + i.qty, 0),
-      itemsList: cart.map(i => ({ name: i.name, quantity: i.qty, price: i.price })),
-      payment: paymentMethod,
-      status: 'Pending'
-    };
+    try {
+      const extraData = {
+        type: paymentMethod === 'Room Service' ? 'delivery' : 'dine-in',
+        total: total,
+        discount: discountAmount,
+        tax: gst,
+        paymentStatus: 'paid',
+        customerId: selectedGuestId || null
+      };
 
-    setTimeout(() => {
-      addOrder(newOrder);
+      const result = await addOrder(cart, extraData);
       
       if (paymentMethod === 'Room Service') {
-        addToFolio(selectedGuest, {
+        addToFolio(selectedGuestId, {
           description: `Room Service Order`,
           amount: total,
           date: new Date().toLocaleDateString(),
@@ -146,14 +165,17 @@ const POS = () => {
         });
       }
 
-      setIsProcessing(false);
-      setShowPaymentModal(false);
-      setOrderForReceipt(newOrder);
+      setOrderForReceipt({ ...extraData, itemsList: cart.map(i => ({ name: i.item_name || i.name, quantity: i.qty, price: i.price })), id: result.id });
       setCart([]);
       setDiscount(0);
-      setSelectedGuest('');
+      setSelectedGuestId('');
+      setShowPaymentModal(false);
       showToastMessage(paymentMethod === 'Room Service' ? 'Charge added to guest folio!' : 'Payment Successful!');
-    }, 2000);
+    } catch (err) {
+      showToastMessage('Order failed', 'error');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handlePrintOnly = () => {
@@ -163,7 +185,7 @@ const POS = () => {
       table: paymentMethod === 'Room Service' ? selectedGuest : '-',
       amount: `₹${total}`,
       items: cart.reduce((acc, i) => acc + i.qty, 0),
-      itemsList: cart.map(i => ({ name: i.name, quantity: i.qty, price: i.price })),
+      itemsList: cart.map(i => ({ name: i.item_name || i.name, quantity: i.qty, price: i.price })),
       payment: paymentMethod,
       status: 'Pro-forma'
     };
@@ -175,7 +197,8 @@ const POS = () => {
 
   const filteredItems = items.filter(item => {
     const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const itemName = item.item_name || item.name;
+    const matchesSearch = itemName?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -185,8 +208,8 @@ const POS = () => {
       {toast && (
         <div 
           className={cn(
-            "fixed top-4 left-1/2 -translate-x-1/2 z-[300] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border text-white",
-            toast.type === 'success' ? "bg-emerald-500 border-emerald-400" : "bg-red-500 border-red-400"
+            "fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border text-white",
+            toast.type === 'success' ? "bg-emerald-500 border-emerald-500/20" : "bg-rose-500 border-rose-500/20"
           )}
         >
           {toast.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-white" /> : <AlertCircle className="w-4 h-4 text-white" />}
@@ -245,10 +268,10 @@ const POS = () => {
             >
               <div className="flex justify-between items-start mb-2 lg:mb-4 relative z-10">
                  <div className="w-10 h-10 lg:w-14 lg:h-14 bg-white rounded-lg lg:rounded-2xl flex items-center justify-center overflow-hidden text-xl lg:text-3xl shadow-xl shadow-slate-200 shrink-0">
-                    {item.image && item.image.length > 2 ? (
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    {getImageUrl(item.image).length > 2 ? (
+                      <img src={getImageUrl(item.image)} alt={item.item_name || item.name} className="w-full h-full object-cover" />
                     ) : (
-                      item.image
+                      getImageUrl(item.image)
                     )}
                  </div>
                  <div className="flex flex-col items-end gap-1">
@@ -261,7 +284,7 @@ const POS = () => {
 
               <div className="relative z-10 mb-2 flex-1 flex flex-col min-h-0">
                 <h4 className="font-black text-text-primary text-[11px] lg:text-base leading-tight group-hover:text-primary uppercase tracking-tight line-clamp-2 mb-1">
-                  {item.name}
+                  {item.item_name || item.name}
                 </h4>
                 <p className="line-clamp-2 text-text-secondary text-[9px] lg:text-[11px] font-medium opacity-60 leading-relaxed">
                   {item.description}
@@ -286,9 +309,17 @@ const POS = () => {
         </div>
       </div>
 
+      {/* Backdrop for mobile */}
+      {isMobileCartOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[300] lg:hidden transition-opacity duration-300"
+          onClick={() => setIsMobileCartOpen(false)}
+        />
+      )}
+
       {/* Cart & Billing Section */}
       <div className={cn(
-        "fixed inset-x-0 bottom-0 lg:relative lg:inset-auto z-40 transition-transform duration-300 lg:translate-y-0 shadow-2xl lg:shadow-none",
+        "fixed inset-x-0 bottom-0 lg:relative lg:inset-auto z-[400] transition-transform duration-300 lg:translate-y-0 shadow-2xl lg:shadow-none",
         "w-full lg:w-[320px] xl:w-[380px] flex flex-col shrink-0 h-[85vh] lg:h-full",
         isMobileCartOpen ? "translate-y-0" : "translate-y-full lg:translate-y-0",
         cart.length === 0 ? "opacity-95" : "opacity-100"
@@ -349,14 +380,14 @@ const POS = () => {
                   >
                   <div className="flex items-center gap-4">
                      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center overflow-hidden text-2xl shrink-0 shadow-sm">
-                        {item.image && item.image.length > 2 ? (
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        {getImageUrl(item.image).length > 2 ? (
+                          <img src={getImageUrl(item.image)} alt={item.item_name || item.name} className="w-full h-full object-cover" />
                         ) : (
-                          item.image
+                          getImageUrl(item.image)
                         )}
                      </div>
                      <div className="flex-1 min-w-0">
-                        <h5 className="font-bold text-text-primary text-sm truncate leading-tight">{item.name}</h5>
+                        <h5 className="font-bold text-text-primary text-sm truncate leading-tight">{item.item_name || item.name}</h5>
                         <p className="text-xs text-primary font-black mt-0.5 tracking-tight">₹{item.price}</p>
                      </div>
                      <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-100 shadow-sm">
@@ -452,10 +483,6 @@ const POS = () => {
                   <span>- ₹{discountAmount}</span>
                 </div>
               )}
-              <div className="flex justify-between items-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">
-                <span>Tax (GST 5%)</span>
-                <span className="text-white">₹{gst}</span>
-              </div>
               <div className="pt-4 mt-2 border-t border-white/10 flex justify-between items-end">
                 <div className="flex flex-col">
                   <span className="text-white/40 text-[9px] font-black uppercase tracking-[0.3em] mb-1.5">Grand Total</span>
@@ -493,31 +520,11 @@ const POS = () => {
       </div>
 
       {/* Mobile Cart Toggle */}
-      {cart.length > 0 && !isMobileCartOpen && (
-        <div className="fixed bottom-4 inset-x-4 lg:hidden z-[45]">
-          <button 
-            onClick={() => setIsMobileCartOpen(true)}
-            className="w-full bg-primary text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between font-black uppercase tracking-widest text-[10px]"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                <ShoppingCart className="w-5 h-5" />
-              </div>
-              <div className="text-left">
-                <p className="leading-none">{cart.reduce((a, b) => a + b.qty, 0)} Items</p>
-                <p className="text-white/60 text-[8px] mt-1">View Order Summary</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-lg">₹{total}</p>
-            </div>
-          </button>
-        </div>
-      )}
+      {/* Floating cart bar removed - now in Header */}
 
       {/* History Modal */}
       {showHistory && (
-         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+         <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
           <div onClick={() => setShowHistory(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
           <div className="relative w-full max-w-[95%] md:max-w-[560px] max-h-[90vh] bg-white rounded-[2rem] md:rounded-[2.5rem] overflow-hidden flex flex-col self-center">
              <div className="px-5 py-4 md:px-6 md:py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
@@ -625,20 +632,20 @@ const POS = () => {
                   <h4 className="text-[9px] font-black text-text-secondary uppercase tracking-[0.3em] px-1">Select Active Guest</h4>
                   <div className="space-y-2">
                     <select 
-                      value={selectedGuest}
-                      onChange={(e) => setSelectedGuest(e.target.value)}
+                      value={selectedGuestId}
+                      onChange={(e) => setSelectedGuestId(e.target.value)}
                       className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm appearance-none focus:border-primary/20"
                     >
                       <option value="">Select Guest (In-House Only)</option>
                       {reservations
-                        .filter(r => r.status === 'Checked In')
+                        .filter(r => r.reservation_status === 'checked_in')
                         .map(res => (
-                          <option key={res.id} value={res.guestName}>
-                            {res.guestName} • {res.targetId}
+                          <option key={res.id} value={res.guest_id}>
+                            {res.guest_name} • {res.room_code || res.targetId}
                           </option>
                         ))}
                     </select>
-                    {reservations.filter(r => r.status === 'Checked In').length === 0 && (
+                    {reservations.filter(r => r.reservation_status === 'checked_in').length === 0 && (
                       <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest px-1">
                         No checked-in guests found
                       </p>
@@ -684,7 +691,7 @@ const POS = () => {
 
       {/* Size Selection Modal */}
       {selectedItemForSize && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
           <div 
             onClick={() => setSelectedItemForSize(null)} 
             className="absolute inset-0 bg-slate-900/60" 
@@ -694,10 +701,10 @@ const POS = () => {
           >
             <div className="px-8 py-8 flex flex-col items-center text-center">
               <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center text-5xl mb-6 shadow-inner">
-                {selectedItemForSize.image}
+                {getImageUrl(selectedItemForSize.image)}
               </div>
               <h3 className="text-2xl font-black text-text-primary tracking-tight uppercase leading-tight">
-                {selectedItemForSize.name}
+                {selectedItemForSize.item_name || selectedItemForSize.name}
               </h3>
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2 mb-8">Select Item Size</p>
               

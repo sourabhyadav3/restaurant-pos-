@@ -37,7 +37,7 @@ const Settings = () => {
     email: 'admin@royalkitchen.com',
     phone: '+00 12345 67890',
     address: '123, Foodie Street, Bangalore, KA 560001',
-    currency: 'INR (₹)',
+    currency: 'INR (â‚¹)',
     timezone: '(GMT+05:30) India Standard Time',
     taxRate: '18',
     serviceCharge: '5',
@@ -161,7 +161,7 @@ const Settings = () => {
       {toast && (
         <div 
           className={cn(
-            "fixed top-4 left-1/2 -translate-x-1/2 z-[300] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border",
+            "fixed top-6 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-[10px] uppercase tracking-widest border",
             toast.type === 'success' ? "bg-primary border-primary/20 text-white" : "bg-primary border-primary/20 text-white"
           )}
         >
@@ -174,20 +174,20 @@ const Settings = () => {
         <div>
           <h2 className="text-2xl lg:text-3xl font-black text-text-primary uppercase tracking-tight leading-none">Settings</h2>
           <p className="text-text-secondary mt-2 text-[10px] lg:text-sm font-medium flex items-center gap-2 italic leading-none">
-            Global Configuration • <span className="text-slate-400 font-bold">{lastSaved}</span>
+            Global Configuration â€¢ <span className="text-slate-400 font-bold">{lastSaved}</span>
           </p>
         </div>
-        <div className="flex items-center gap-3 w-full lg:w-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
           <button 
             onClick={handleDiscard}
-            className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 lg:px-6 py-3.5 bg-white border border-border rounded-xl lg:rounded-2xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 shadow-sm whitespace-nowrap"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 lg:px-6 py-3.5 bg-white border border-border rounded-xl lg:rounded-2xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 shadow-sm whitespace-nowrap"
           >
             <RotateCcw className="w-4 h-4" /> Discard
           </button>
           <button 
             onClick={handleSave}
             disabled={isSaving}
-            className="flex-[2] lg:flex-none btn-primary flex items-center justify-center gap-2.5 py-3.5 px-6 lg:px-8 shadow-xl shadow-indigo-100 disabled:opacity-50 whitespace-nowrap text-[9px] lg:text-[10px] uppercase font-black"
+            className="w-full sm:w-auto btn-primary flex items-center justify-center gap-2.5 py-3.5 px-6 lg:px-8 shadow-xl shadow-indigo-100 disabled:opacity-50 whitespace-nowrap text-[9px] lg:text-[10px] uppercase font-black"
           >
             {isSaving ? <RotateCcw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {isSaving ? 'Saving...' : 'Commit Changes'}
@@ -212,7 +212,7 @@ const Settings = () => {
          ))}
       </div>
 
-      <div className="flex-1 flex overflow-hidden lg:gap-8 px-4">
+      <div className="flex-1 flex overflow-hidden lg:gap-8 px-4 min-w-0">
         {/* Navigation Sidebar (Desktop) */}
         <div className="w-64 shrink-0 space-y-6 hidden lg:block">
            <div className="relative group">
@@ -280,10 +280,10 @@ const Settings = () => {
                          <div className="space-y-2">
                             <label className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Regional Currency</label>
                             <select name="currency" value={settings.currency} onChange={handleInputChange} className="w-full px-5 lg:px-6 py-3 lg:py-4 bg-slate-50 border-2 border-transparent focus:border-primary focus:bg-white rounded-xl lg:rounded-2xl outline-none text-xs lg:text-sm font-bold appearance-none">
-                               <option>INR (₹)</option>
+                               <option>INR (â‚¹)</option>
                                <option>USD ($)</option>
-                               <option>GBP (£)</option>
-                               <option>EUR (€)</option>
+                               <option>GBP (Â£)</option>
+                               <option>EUR (â‚¬)</option>
                             </select>
                          </div>
                       </div>
@@ -314,30 +314,32 @@ const Settings = () => {
                               "flex flex-col sm:flex-row sm:items-center justify-between p-4 lg:p-5 rounded-xl lg:rounded-2xl gap-4",
                               schedule.active ? "bg-slate-50" : "bg-slate-50 opacity-50 grayscale"
                             )}>
-                               <div className="flex items-center gap-4 lg:gap-6">
+                               <div className="flex items-center gap-4 lg:gap-6 w-full sm:w-auto">
                                   <div className="p-2 lg:p-3 bg-white rounded-lg lg:rounded-xl text-primary font-black text-[8px] lg:text-[10px] uppercase shadow-sm shrink-0">{day.slice(0,3)}</div>
-                                  <span className={cn("text-xs lg:text-sm font-black uppercase tracking-tight", schedule.active ? "text-text-primary" : "text-slate-400")}>{day}</span>
+                                  <span className={cn("text-xs lg:text-sm font-black uppercase tracking-tight truncate", schedule.active ? "text-text-primary" : "text-slate-400")}>{day}</span>
                                 </div>
-                               <div className="flex items-center justify-between sm:justify-end gap-3 lg:gap-4">
-                                  <div className="flex items-center gap-2">
-                                     <span className="text-[7px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest">Open</span>
-                                     <input 
-                                       type="time" 
-                                       value={schedule.open} 
-                                       onChange={(e) => handleTimeChange(day, 'open', e.target.value)}
-                                       disabled={!schedule.active}
-                                       className="bg-white border-none rounded-lg px-2 lg:px-3 py-1.5 text-[10px] lg:text-xs font-bold outline-none disabled:cursor-not-allowed shrink-0" 
-                                     />
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                     <span className="text-[7px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest">Close</span>
-                                     <input 
-                                       type="time" 
-                                       value={schedule.close} 
-                                       onChange={(e) => handleTimeChange(day, 'close', e.target.value)}
-                                       disabled={!schedule.active}
-                                       className="bg-white border-none rounded-lg px-2 lg:px-3 py-1.5 text-[10px] lg:text-xs font-bold outline-none disabled:cursor-not-allowed shrink-0" 
-                                     />
+                               <div className="flex items-center justify-between sm:justify-end gap-4 lg:gap-6 w-full sm:w-auto">
+                                  <div className="flex flex-col sm:flex-row gap-2 lg:gap-4 flex-1 sm:flex-none">
+                                     <div className="flex items-center gap-2 justify-end sm:justify-start">
+                                        <span className="text-[7px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest shrink-0">Open</span>
+                                        <input 
+                                          type="time" 
+                                          value={schedule.open} 
+                                          onChange={(e) => handleTimeChange(day, 'open', e.target.value)}
+                                          disabled={!schedule.active}
+                                          className="bg-white border-none rounded-lg px-2 lg:px-3 py-1.5 text-[10px] lg:text-xs font-bold outline-none disabled:cursor-not-allowed w-20 lg:w-24 shrink-0" 
+                                        />
+                                     </div>
+                                     <div className="flex items-center gap-2 justify-end sm:justify-start">
+                                        <span className="text-[7px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest shrink-0">Close</span>
+                                        <input 
+                                          type="time" 
+                                          value={schedule.close} 
+                                          onChange={(e) => handleTimeChange(day, 'close', e.target.value)}
+                                          disabled={!schedule.active}
+                                          className="bg-white border-none rounded-lg px-2 lg:px-3 py-1.5 text-[10px] lg:text-xs font-bold outline-none disabled:cursor-not-allowed w-20 lg:w-24 shrink-0" 
+                                        />
+                                     </div>
                                   </div>
                                   <div 
                                     onClick={() => toggleDay(day)}
@@ -357,20 +359,7 @@ const Settings = () => {
                    </div>
                     <div className="card p-6 lg:p-10 bg-white rounded-[2rem] lg:rounded-[3rem] shadow-2xl border-none relative overflow-hidden">
                       <h3 className="text-lg lg:text-xl font-black uppercase tracking-tight mb-6 lg:mb-8 leading-none">Identity</h3>
-                      <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
-                         <div className="flex-1 space-y-3 lg:space-y-4">
-                            <p className="text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 leading-none">Logo Asset</p>
-                            <div 
-                              onClick={simulateLogoUpload}
-                              className="w-full h-36 lg:h-48 bg-slate-50 border-2 lg:border-4 border-dashed border-slate-100 rounded-[1.5rem] lg:rounded-[2.5rem] flex flex-col items-center justify-center group cursor-pointer hover:bg-slate-100 active:scale-95 transition-all"
-                            >
-                               <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-xl lg:rounded-2xl flex items-center justify-center mb-3 lg:mb-4 shadow-sm">
-                                  <Plus className="w-6 h-6 lg:w-8 lg:h-8 text-slate-300 group-hover:text-primary" />
-                               </div>
-                               <p className="text-[7px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Update Asset</p>
-                            </div>
-                         </div>
-                         <div className="flex-1 space-y-5 lg:space-y-6">
+                      <div className="w-full space-y-5 lg:space-y-6">
                             <div className="space-y-3 lg:space-y-4">
                                <p className="text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 leading-none">Accent Theme</p>
                                <div className="flex flex-wrap gap-3 lg:gap-4">
@@ -408,7 +397,6 @@ const Settings = () => {
                                  className="w-full px-5 lg:px-6 py-3 lg:py-4 bg-slate-50 border-2 border-transparent focus:border-primary focus:bg-white rounded-xl lg:rounded-2xl outline-none text-xs lg:text-sm font-bold" 
                                />
                             </div>
-                         </div>
                       </div>
                    </div>
                 </div>
@@ -482,14 +470,14 @@ const Settings = () => {
                         { id: 'orderAlerts', label: 'Orders', desc: 'Sound & popups', icon: Zap },
                         { id: 'kitchenAlerts', label: 'KDS', desc: 'Delay threshold', icon: Activity }
                       ].map(item => (
-                        <div key={item.id} className="flex items-center justify-between p-4 lg:p-6 bg-slate-50 rounded-xl lg:rounded-[2rem] active:bg-slate-100 transition-colors shrink-0" onClick={() => toggleSetting(item.id)}>
-                           <div className="flex items-center gap-4 lg:gap-6 shrink-0">
+                        <div key={item.id} className="flex items-center justify-between p-4 lg:p-6 bg-slate-50 rounded-xl lg:rounded-[2rem] active:bg-slate-100 transition-colors gap-4" onClick={() => toggleSetting(item.id)}>
+                           <div className="flex items-center gap-4 lg:gap-6 min-w-0">
                                <div className="p-3 lg:p-4 bg-white rounded-xl lg:rounded-2xl text-primary shadow-sm shrink-0">
                                   <item.icon className="w-5 lg:w-6 h-5 lg:h-6" />
                                </div>
-                               <div className="shrink-0">
-                                  <p className="text-[11px] lg:text-sm font-black uppercase tracking-tight leading-none">{item.label}</p>
-                                  <p className="text-[8px] lg:text-[10px] font-bold text-slate-400 mt-1.5 leading-none">{item.desc}</p>
+                               <div className="min-w-0">
+                                  <p className="text-[11px] lg:text-sm font-black uppercase tracking-tight leading-none truncate">{item.label}</p>
+                                  <p className="text-[8px] lg:text-[10px] font-bold text-slate-400 mt-1.5 leading-none truncate">{item.desc}</p>
                                </div>
                            </div>
                            <div className={cn("w-10 lg:w-12 h-5 lg:h-6 rounded-full p-1 border border-transparent transition-colors shrink-0", settings[item.id] ? "bg-primary border-primary" : "bg-slate-200")}>
@@ -529,7 +517,7 @@ const Settings = () => {
                             <div className="p-4 lg:p-6 bg-indigo-50 border border-primary/10 rounded-xl lg:rounded-[2rem] flex items-center justify-between group cursor-pointer active:scale-[0.98] transition-all" onClick={() => toggleSetting('printerConnected')}>
                                <div className="flex items-center gap-3 lg:gap-4 shrink-0">
                                   <div className="p-2.5 lg:p-3 bg-white rounded-lg lg:rounded-xl shadow-sm text-primary shrink-0"><Printer className="w-4 lg:w-5 h-4 lg:h-5" /></div>
-                                  <p className="text-[10px] lg:text-[11px] font-black uppercase tracking-tight leading-none shrink-0">Main Billing</p>
+                                  <p className="text-[10px] lg:text-[11px] font-black uppercase tracking-tight leading-none truncate">Main Billing</p>
                                </div>
                                <div className={cn("w-2 lg:w-2.5 h-2 lg:h-2.5 rounded-full shadow-lg shrink-0 transition-colors", settings.printerConnected ? "bg-emerald-500 shadow-emerald-200" : "bg-slate-300")} />
                             </div>

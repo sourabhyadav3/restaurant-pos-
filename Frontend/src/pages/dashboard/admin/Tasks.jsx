@@ -28,16 +28,17 @@ import printContent from "../../../utils/printUtil";
 
 const Tasks = () => {
   const { tasks, staff, addTask, updateTaskStatus, deleteTask } = useHospitality();
-  const [activeTab, setActiveTab] = useState('Pending');
+  const [activeTab, setActiveTab] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
 
   const filteredTasks = tasks.map(t => ({
     ...t,
-    assignee: t.assigned_staff || 'Unassigned'
+    assignee: t.assigned_staff || 'Unassigned',
+    displayStatus: t.task_status?.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') || 'Pending'
   })).filter(t => {
-    const matchesTab = activeTab === 'All' || t.status === activeTab;
+    const matchesTab = activeTab === 'All' || t.displayStatus === activeTab;
     const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           t.assignee.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
@@ -103,7 +104,7 @@ const Tasks = () => {
       <div className="flex-1 flex flex-col gap-4 overflow-hidden">
         {/* Tabs */}
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1 shrink-0">
-          {['Pending', 'In Progress', 'Completed', 'All'].map(tab => (
+          {['All', 'Pending', 'In Progress', 'Completed'].map(tab => (
             <button 
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -142,9 +143,11 @@ const Tasks = () => {
                         </div>
                         <span className={cn(
                           "px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border shadow-sm",
-                          task.status === 'Completed' ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"
+                          task.task_status === 'completed' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : 
+                          task.task_status === 'in_progress' ? "bg-blue-50 text-blue-600 border-blue-100" :
+                          "bg-orange-50 text-orange-600 border-orange-100"
                         )}>
-                           {task.status}
+                           {task.displayStatus}
                         </span>
                      </div>
 
@@ -209,19 +212,29 @@ const Tasks = () => {
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100/50">
                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Location</p>
-                       <p className="text-xs font-black text-text-primary uppercase tracking-tight">{selectedTask.target}</p>
+                       <p className="text-xs font-black text-text-primary uppercase tracking-tight">{selectedTask.location || selectedTask.target || 'N/A'}</p>
+                    </div>
+                    <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100/50">
+                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Category</p>
+                       <p className="text-xs font-black text-text-primary uppercase tracking-tight">{selectedTask.category || selectedTask.type || 'N/A'}</p>
                     </div>
                     <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100/50">
                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Priority</p>
                        <p className={cn("text-xs font-black uppercase tracking-widest", 
-                         selectedTask.priority === 'Urgent' ? "text-rose-600" : "text-primary"
+                         selectedTask.priority === 'urgent' || selectedTask.priority === 'Urgent' ? "text-rose-600" : "text-primary"
                        )}>{selectedTask.priority}</p>
+                    </div>
+                    <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100/50">
+                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Deadline</p>
+                       <p className="text-xs font-black text-text-primary uppercase tracking-tight">
+                         {selectedTask.deadline ? new Date(selectedTask.deadline).toLocaleDateString() : 'No Deadline'}
+                       </p>
                     </div>
                  </div>
 
                  <div className="p-5 bg-indigo-50/50 rounded-[2rem] border border-indigo-100 flex items-center gap-4">
                     <div className="w-10 md:w-12 h-10 md:h-12 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm font-black uppercase text-[10px] md:text-xs shrink-0 border border-indigo-100/50">
-                       {selectedTask.assignee.split(' ').map(n => n[0]).join('')}
+                       {selectedTask.assignee?.split(' ').map(n => n[0]).join('') || 'U'}
                     </div>
                     <div className="min-w-0">
                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate leading-none mb-1.5">Assigned Specialist</p>
@@ -230,17 +243,17 @@ const Tasks = () => {
                  </div>
               </div>
 
-              <div className="p-6 md:p-8 border-t border-slate-50 flex flex-col sm:flex-row gap-3 md:gap-4 bg-white shrink-0 relative z-20">
-                 {selectedTask.status === 'Pending' ? (
+               <div className="p-6 md:p-8 border-t border-slate-50 flex flex-col sm:flex-row gap-3 md:gap-4 bg-white shrink-0 relative z-20">
+                 {selectedTask.task_status === 'pending' ? (
                    <button 
-                     onClick={() => { updateTaskStatus(selectedTask.id, 'In Progress'); setSelectedTask(null); }}
+                     onClick={() => { updateTaskStatus(selectedTask.id, 'in_progress'); setSelectedTask(null); }}
                      className="flex-1 py-4 bg-primary text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/30 active:scale-95 transition-all"
                    >
                       Start Operation
                    </button>
-                 ) : selectedTask.status === 'In Progress' ? (
+                 ) : selectedTask.task_status === 'in_progress' ? (
                     <button 
-                      onClick={() => { updateTaskStatus(selectedTask.id, 'Completed'); setSelectedTask(null); }}
+                      onClick={() => { updateTaskStatus(selectedTask.id, 'completed'); setSelectedTask(null); }}
                       className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-emerald-200 active:scale-95 transition-all"
                     >
                        Mark Completed
@@ -250,7 +263,7 @@ const Tasks = () => {
                       onClick={() => { deleteTask(selectedTask.id); setSelectedTask(null); }}
                       className="flex-1 py-4 bg-rose-50 text-rose-500 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-rose-100 active:scale-95 transition-all"
                     >
-                       Archive Task
+                       Delete Duty
                     </button>
                  )}
                  <button onClick={() => setSelectedTask(null)} className="flex-1 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-100 transition-all">Close</button>

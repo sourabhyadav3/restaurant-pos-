@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useNotifications } from './NotificationContext';
 import { useAuth } from './AuthContext';
 import api from '../services/api';
+import socketService from '../sockets/socket.service';
 
 const CommunicationContext = createContext();
 
@@ -41,21 +42,50 @@ export const CommunicationProvider = ({ children }) => {
       if (response.data.success) {
         const formattedMessages = response.data.data.map(msg => ({
           id: msg.id,
-          guestId: msg.guest_id, // Might need to adjust based on DB schema
           ticketId: msg.ticket_id,
           content: msg.message,
           sender: msg.sender_id === user?.id ? 'Staff' : 'Guest',
           timestamp: msg.createdAt
         }));
         setMessages(prev => {
-          // Merge and avoid duplicates
           const otherMessages = prev.filter(m => m.ticketId !== ticketId);
           return [...otherMessages, ...formattedMessages];
         });
+        
+        // Join the ticket room for real-time updates
+      socketService.emit('join_room', `user_${user?.id}`);
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
+  }, [user]);
+
+  // Handle real-time messages
+  useEffect(() => {
+    const handleNewMessage = (msg) => {
+      const formattedMsg = {
+        id: msg.id,
+        ticketId: msg.ticket_id,
+        content: msg.message,
+        sender: msg.sender_id === user?.id ? 'Staff' : 'Guest',
+        timestamp: new Date().toISOString()
+      };
+      
+      setMessages(prev => {
+        if (prev.some(m => m.id === msg.id)) return prev;
+        return [...prev, formattedMsg];
+      });
+
+      // Update chat summary
+      setActiveChats(prev => prev.map(chat => 
+        chat.ticketId === msg.ticket_id 
+        ? { ...chat, lastMessage: msg.message, lastTimestamp: formattedMsg.timestamp } 
+        : chat
+      ));
+    };
+
+    socketService.on('new_message', handleNewMessage);
+    return () => socketService.off('new_message', handleNewMessage);
   }, [user]);
 
   useEffect(() => {

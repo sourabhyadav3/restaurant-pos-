@@ -16,7 +16,8 @@ class TablesService {
     
     // If status is occupied and extraData is provided, handle order creation/update
     if (status === 'occupied' && extraData) {
-      const { orders, total } = extraData;
+      const orders = extraData.orders || [];
+      const total = parseFloat(extraData.total || 0) || 0;
       
       // Check if there's already an active order for this table
       const [existingOrders] = await pool.execute(

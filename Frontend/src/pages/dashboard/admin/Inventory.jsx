@@ -39,9 +39,9 @@ const Inventory = () => {
       status: status
     };
   }).filter(item => {
-    const matchesTab = activeTab === 'All' || item.category === activeTab;
+    const matchesTab = activeTab === 'All' || item.category?.toLowerCase() === activeTab.toLowerCase();
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          item.id.toLowerCase().includes(searchQuery.toLowerCase());
+                          item.id.toString().toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
   });
 
@@ -132,7 +132,9 @@ const Inventory = () => {
                   >
                      <div className="flex justify-between items-start mb-6 relative z-10">
                         <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-xl shadow-inner group-hover:bg-primary group-hover:text-white transition-all">
-                           {item.category === 'Kitchen' ? '🍳' : item.category === 'Bar' ? '🍷' : item.category === 'Rooms' ? '🛏️' : '🔧'}
+                           {item.category?.toLowerCase() === 'kitchen' ? '🍳' : 
+                            item.category?.toLowerCase() === 'bar' ? '🍷' : 
+                            item.category?.toLowerCase() === 'rooms' ? '🛏️' : '🔧'}
                         </div>
                         <span className={cn(
                           "px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border shadow-sm",
@@ -317,7 +319,11 @@ const InventoryModal = ({ onClose, onSave, categories }) => {
           </div>
           
           <form 
-            onSubmit={(e) => { e.preventDefault(); onSave(formData); onClose(); }} 
+            onSubmit={(e) => { 
+              e.preventDefault(); 
+              onSave({ ...formData, category: formData.category.toLowerCase() }); 
+              onClose(); 
+            }} 
             className="flex-1 overflow-y-auto"
           >
              <div className="p-6 md:p-8 space-y-6">

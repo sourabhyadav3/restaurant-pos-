@@ -14,7 +14,20 @@ class ServiceController {
   async getAllBookings(req, res) {
     try {
       const bookings = await serviceRepository.getAllBookings();
-      res.json({ success: true, data: bookings });
+      const mappedBookings = bookings.map(b => ({
+        id: b.id,
+        serviceId: b.service_id,
+        guestId: b.guest_id,
+        serviceName: b.service_name,
+        category: b.service_type,
+        guestName: b.guest_name,
+        date: b.booking_date,
+        time: b.booking_time,
+        guests: b.total_guests,
+        total: b.total_amount,
+        status: b.booking_status?.charAt(0).toUpperCase() + b.booking_status?.slice(1) || 'Pending'
+      }));
+      res.json({ success: true, data: mappedBookings });
     } catch (error) {
       console.error('Error fetching bookings:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
@@ -25,7 +38,7 @@ class ServiceController {
     try {
       const { id } = req.params;
       const { status } = req.body;
-      const success = await serviceRepository.updateBookingStatus(id, status);
+      const success = await serviceRepository.updateBookingStatus(id, status.toLowerCase());
       if (success) {
         res.json({ success: true, message: 'Booking status updated' });
       } else {

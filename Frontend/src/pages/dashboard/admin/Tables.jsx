@@ -21,10 +21,13 @@ import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
 import { useOrders } from "../../../context/OrdersContext";
 import { useToast } from "../../../context/ToastContext";
+import { useMenu } from "../../../context/MenuContext";
+import printContent from "../../../utils/printUtil";
 
 const Tables = () => {
   const { tables, addTable, updateTableStatus, deleteTable } = useHospitality();
   const { addOrder } = useOrders();
+  const { items: menuItems = [] } = useMenu();
   const { showToast } = useToast();
   const [selectedTable, setSelectedTable] = useState(null);
   const [showBilling, setShowBilling] = useState(false);
@@ -82,41 +85,59 @@ const Tables = () => {
 
   const handleFinalize = () => {
     setIsProcessing(true);
+    // Trigger print
+    printContent('bill-printable-area');
+    
     setTimeout(() => {
-      updateTableStatus(selectedTable.id, 'available');
+      updateTableStatus(selectedTable.id, 'available', { orders: [], total: 0 });
       setIsProcessing(false);
       setShowBilling(false);
       setSelectedTable(null);
+      showToast("Table settled and receipt printed!", "success");
     }, 1500);
   };
 
   const handleSendToKitchen = () => {
-    if (!selectedTable || selectedTable.orders.length === 0) return;
+    // Get latest table data from context to avoid stale state issues
+    const currentTable = processedTables.find(t => t.id === selectedTable?.id);
+    if (!currentTable || currentTable.orders.length === 0) {
+      showToast("Please add items to the table first!", "warning");
+      return;
+    }
     
-    const pendingItems = selectedTable.orders.filter(item => item.status === 'pending');
+    const pendingItems = currentTable.orders.filter(item => item.status === 'pending');
     if (pendingItems.length === 0) {
       showToast("All items already sent to kitchen!", "info");
       return;
     }
 
     const orderData = {
-      type: 'Dine-in',
-      table: selectedTable.name,
-      customer: `Table ${selectedTable.name}`,
-      status: 'Pending',
-      amount: `₹${pendingItems.reduce((acc, i) => acc + i.price, 0)}`,
-      items: pendingItems.length,
-      itemsList: pendingItems.map(i => ({ name: i.name, quantity: 1, price: i.price })),
-      priority: 'medium'
+      orderData: {
+        order_number: `ORD-TBL-${currentTable.name}-${Date.now()}`,
+        order_type: 'dine-in',
+        table_id: currentTable.id,
+        subtotal: pendingItems.reduce((acc, i) => acc + i.price, 0),
+        tax: Math.round(pendingItems.reduce((acc, i) => acc + i.price, 0) * 0.05),
+        grand_total: Math.round(pendingItems.reduce((acc, i) => acc + i.price, 0) * 1.05),
+        order_status: 'pending'
+      },
+      items: pendingItems.map(i => ({
+        menu_item_id: i.menu_item_id || 1,
+        quantity: 1,
+        unit_price: i.price,
+        total_price: i.price
+      }))
     };
 
     addOrder(orderData);
     
     // Update table items status
-    const updatedOrders = selectedTable.orders.map(i => ({ ...i, status: 'kitchen' }));
-    updateTableStatus(selectedTable.id, 'occupied', { orders: updatedOrders });
+    const updatedOrders = currentTable.orders.map(i => ({ ...i, status: 'kitchen' }));
+    const currentTotal = currentTable.total || 0;
+    updateTableStatus(currentTable.id, 'occupied', { orders: updatedOrders, total: currentTotal });
     
     showToast(`Sent ${pendingItems.length} items to Kitchen!`, "success");
+    setSelectedTable(null);
   };
 
   const handleCreateTable = (e) => {
@@ -592,24 +613,24 @@ const Tables = () => {
              </div>
              <div className="flex-1 overflow-y-auto scrollbar-hide pr-1">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
-              {[
-                { name: 'Fresh Lime', price: 90 },
-                { name: 'Garlic Bread', price: 180 },
-                { name: 'Brownie Shake', price: 240 },
-                { name: 'Extra Cheese', price: 60 }
-              ].map(item => (
+              {((menuItems && menuItems.length > 0) ? menuItems.slice(0, 6) : [
+                { id: 1, item_name: 'Fresh Lime', price: 90 },
+                { id: 2, item_name: 'Garlic Bread', price: 180 },
+                { id: 3, item_name: 'Brownie Shake', price: 240 },
+                { id: 4, item_name: 'Extra Cheese', price: 60 }
+              ]).map(item => (
                 <button 
-                  key={item.name}
+                  key={item.id}
                   onClick={() => {
                     updateTableStatus(selectedTable.id, 'occupied', { 
-                      orders: [...selectedTable.orders, { name: item.name, price: item.price, status: 'pending' }],
+                      orders: [...selectedTable.orders, { name: item.item_name || item.name, price: item.price, status: 'pending', menu_item_id: item.id }],
                       total: selectedTable.total + item.price
                     });
                     setShowAddItems(false);
                   }}
                   className="p-4 lg:p-6 bg-slate-50 rounded-2xl lg:rounded-[2rem] border-2 border-transparent hover:border-primary/20 hover:bg-white transition-all text-left group"
                 >
-                  <p className="text-xs lg:text-sm font-black text-text-primary group-hover:text-primary">{item.name}</p>
+                  <p className="text-xs lg:text-sm font-black text-text-primary group-hover:text-primary">{item.item_name || item.name}</p>
                   <p className="text-[9px] lg:text-[10px] font-bold text-text-secondary mt-0.5 lg:mt-1">₹{item.price}</p>
                 </button>
               ))}
@@ -729,6 +750,65 @@ const Tables = () => {
                 ) : 'Finalize & Print'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Hidden Printable Bill */}
+      {selectedTable && (
+        <div id="bill-printable-area" className="hidden print:block printable-area receipt-print">
+          <div className="text-center border-b-2 border-slate-900 pb-4 mb-4">
+            <h1 className="text-xl font-black uppercase tracking-tighter">The Luxe Grande</h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest mt-1">Table Final Bill</p>
+          </div>
+          
+          <div className="flex justify-between text-[10px] font-bold mb-4">
+            <div>
+              <p>TABLE: {selectedTable.name}</p>
+              <p>FLOOR: {selectedTable.floor}</p>
+              <p>DATE: {new Date().toLocaleDateString()}</p>
+            </div>
+            <div className="text-right">
+              <p>TIME: {new Date().toLocaleTimeString()}</p>
+              <p>METHOD: {paymentMethod}</p>
+            </div>
+          </div>
+
+          <table className="w-full text-[10px] mb-4">
+            <thead>
+              <tr className="border-b border-slate-300">
+                <th className="text-left py-2">ITEM</th>
+                <th className="text-center py-2">QTY</th>
+                <th className="text-right py-2">PRICE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedTable.orders?.map((item, i) => (
+                <tr key={i} className="border-b border-slate-100">
+                  <td className="py-2 uppercase font-medium">{item.name}</td>
+                  <td className="py-2 text-center">{item.quantity || 1}</td>
+                  <td className="py-2 text-right">₹{item.price.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td className="py-4 font-black uppercase text-right pr-4">Subtotal</td>
+                <td className="py-4 text-right font-black">₹{selectedTable.total}</td>
+              </tr>
+              <tr>
+                <td className="py-1 font-black uppercase text-right pr-4">Tax (5%)</td>
+                <td className="py-1 text-right font-black">₹{Math.round(selectedTable.total * 0.05)}</td>
+              </tr>
+              <tr className="border-t-2 border-slate-900">
+                <td className="py-4 font-black uppercase text-right pr-4 text-lg">Grand Total</td>
+                <td className="py-4 text-right font-black text-lg">₹{Math.round(selectedTable.total * 1.05)}</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div className="text-center pt-4 border-t border-slate-200">
+            <p className="text-[9px] font-black uppercase tracking-widest">Thank you for dining with us!</p>
+            <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Visit again soon • Gila House Systems</p>
           </div>
         </div>
       )}

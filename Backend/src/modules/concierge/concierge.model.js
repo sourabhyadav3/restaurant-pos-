@@ -8,10 +8,13 @@ class ConciergeModel extends BaseModel {
 
   async findActiveTickets() {
     const sql = `
-      SELECT t.*, g.full_name as guest_name 
+      SELECT t.*, g.full_name as guest_name,
+      (SELECT message FROM support_messages WHERE ticket_id = t.id ORDER BY createdAt DESC LIMIT 1) as last_message,
+      (SELECT createdAt FROM support_messages WHERE ticket_id = t.id ORDER BY createdAt DESC LIMIT 1) as last_message_at
       FROM support_tickets t 
       JOIN guests g ON t.guest_id = g.id 
       WHERE t.ticket_status != "closed" AND t.deletedAt IS NULL
+      ORDER BY last_message_at DESC, t.createdAt DESC
     `;
     const [rows] = await pool.execute(sql);
     return rows;

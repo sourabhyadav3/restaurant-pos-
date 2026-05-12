@@ -27,7 +27,7 @@ const ServiceManager = () => {
   const { services, serviceBookings, updateServiceBookingStatus } = useHospitality();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('Pending');
+  const [activeTab, setActiveTab] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleBack = () => {
@@ -40,9 +40,9 @@ const ServiceManager = () => {
   };
 
   const filteredBookings = serviceBookings.filter(b => {
-    const matchesTab = b.status === activeTab;
-    const matchesSearch = b.guestName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          b.serviceName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesTab = activeTab === 'All' || b.status === activeTab;
+    const matchesSearch = (b.guestName || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (b.serviceName || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
   });
 
@@ -126,7 +126,7 @@ const ServiceManager = () => {
       <div className="flex-1 flex flex-col gap-4 overflow-hidden">
         {/* Tabs */}
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1 shrink-0">
-          {['Pending', 'Confirmed', 'Completed', 'Cancelled'].map(tab => (
+          {['All', 'Pending', 'Confirmed', 'Completed', 'Cancelled'].map(tab => (
             <button 
               key={tab}
               onClick={() => setActiveTab(tab)}

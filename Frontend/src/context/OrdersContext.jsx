@@ -58,12 +58,14 @@ export const OrdersProvider = ({ children }) => {
     };
 
     const handleStatusUpdate = (data) => {
-      setOrders(prev => prev.map(o => o.id === data.order_id ? { ...o, order_status: data.status } : o));
+      // Backend sends { id, status }, map it to the orders state
+      setOrders(prev => prev.map(o => (o.id === data.id || o.id === data.order_id) ? { ...o, order_status: data.status } : o));
     };
 
     import('@/sockets/socket.service').then(module => {
       const socketService = module.default;
       socketService.on('new_order', handleNewOrder);
+      socketService.on('order_update', handleStatusUpdate);
       socketService.on('order_status_updated', handleStatusUpdate);
     });
 
@@ -114,7 +116,8 @@ export const OrdersProvider = ({ children }) => {
 
   const updateOrderStatus = async (orderId, status) => {
     try {
-      await api.patch(`/orders/${orderId}/status`, { status });
+      const normalizedStatus = status.toLowerCase();
+      await api.patch(`/orders/${orderId}/status`, { status: normalizedStatus });
       // UI will update via socket event or manual refresh
     } catch (error) {
       console.error('Error updating order status:', error);

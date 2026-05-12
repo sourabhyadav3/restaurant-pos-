@@ -7,12 +7,21 @@ class TasksService {
   }
 
   async createTask(data) {
-    const taskId = await tasksModel.create(data);
+    const payload = {
+      title: data.title,
+      category: data.type || data.category,
+      priority: (data.priority === 'Normal' ? 'medium' : data.priority === 'Urgent' ? 'urgent' : data.priority?.toLowerCase() || 'medium'),
+      assigned_to: data.assignee_id || data.assigned_to,
+      location: data.target || data.location,
+      deadline: data.deadline === 'Today' ? new Date() : null
+    };
+    
+    const taskId = await tasksModel.create(payload);
     
     // Notify staff
-    if (data.assigned_to) {
+    if (payload.assigned_to) {
       const io = getIO();
-      io.to(`user_${data.assigned_to}`).emit('new_task', { id: taskId, title: data.title });
+      io.emit('new_task', { id: taskId, title: payload.title, assigned_to: payload.assigned_to });
     }
     
     return taskId;

@@ -37,16 +37,6 @@ const POS = () => {
   const { rooms, reservations, addToFolio } = useHospitality();
   const { orders, addOrder } = useOrders();
 
-  if (menuLoading && items.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Syncing Menu...</p>
-        </div>
-      </div>
-    );
-  }
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem('pos-cart');
@@ -61,6 +51,7 @@ const POS = () => {
   React.useEffect(() => {
     localStorage.setItem('pos-cart', JSON.stringify(cart));
   }, [cart]);
+
   const [activeCategory, setActiveCategory] = useState('All Items');
   const [searchQuery, setSearchQuery] = useState('');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -74,6 +65,30 @@ const POS = () => {
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const [selectedGuestId, setSelectedGuestId] = useState('');
   const [orderForReceipt, setOrderForReceipt] = useState(null);
+
+  const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+  const discountAmount = Math.round(subtotal * (discount / 100));
+  const gst = Math.round((subtotal - discountAmount) * 0.05);
+  const total = subtotal - discountAmount + gst;
+
+  // Sync cart info with MainLayout header
+  React.useEffect(() => {
+    const count = cart.reduce((acc, item) => acc + item.qty, 0);
+    window.dispatchEvent(new CustomEvent('pos-cart-updated', { 
+      detail: { count, total } 
+    }));
+  }, [cart, total]);
+
+  if (menuLoading && items.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Syncing Menu...</p>
+        </div>
+      </div>
+    );
+  }
 
   const orderHistory = orders.map(o => ({
     id: o.order_number,
@@ -124,18 +139,8 @@ const POS = () => {
     setEditingNote(null);
   };
 
-  const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-  const discountAmount = Math.round(subtotal * (discount / 100));
-  const gst = Math.round((subtotal - discountAmount) * 0.05);
-  const total = subtotal - discountAmount + gst;
+  // Calculation functions moved up
 
-  // Sync cart info with MainLayout header
-  React.useEffect(() => {
-    const count = cart.reduce((acc, item) => acc + item.qty, 0);
-    window.dispatchEvent(new CustomEvent('pos-cart-updated', { 
-      detail: { count, total } 
-    }));
-  }, [cart, total]);
 
   const showToastMessage = (message, type = 'success') => {
     setToast({ message, type });

@@ -5,7 +5,10 @@ export const getImageUrl = (imagePath) => {
   if (imagePath.length <= 2) return imagePath;
   
   // If it's a base64 string
-  if (imagePath.startsWith('data:')) return imagePath;
+  if (imagePath.trim().startsWith('data:')) {
+    // Sanitize: remove any spaces or newlines that might break the URL
+    return imagePath.trim().replace(/\s/g, '');
+  }
   
   // If it's already a full URL
   if (imagePath.startsWith('http')) return imagePath;
@@ -14,7 +17,7 @@ export const getImageUrl = (imagePath) => {
   const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
   
   // Ensure we don't have double slashes
-  const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  const cleanPath = imagePath.trim().startsWith('/') ? imagePath.trim() : `/${imagePath.trim()}`;
   
   return `${baseUrl}${cleanPath}`;
 };

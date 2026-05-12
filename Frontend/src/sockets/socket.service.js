@@ -32,7 +32,7 @@ class SocketService {
       console.log('✅ Connected to socket server');
       this.reconnectAttempts = 0;
       if (this.userId) {
-        this.socket.emit('join', `user_${this.userId}`);
+        this.socket.emit('join_room', `user_${this.userId}`);
       }
     });
 

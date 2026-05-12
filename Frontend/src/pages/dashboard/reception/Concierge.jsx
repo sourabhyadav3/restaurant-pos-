@@ -28,9 +28,6 @@ const Concierge = () => {
     if (selectedTicketId) {
       fetchMessages(selectedTicketId);
       markAsRead(selectedTicketId);
-      // Poll for new messages in the active ticket
-      const interval = setInterval(() => fetchMessages(selectedTicketId), 5000);
-      return () => clearInterval(interval);
     }
   }, [selectedTicketId, fetchMessages]);
 

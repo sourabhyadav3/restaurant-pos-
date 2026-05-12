@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Clock, 
+  Plus, 
   ChefHat, 
   CheckCircle2, 
   Timer, 
@@ -178,7 +179,7 @@ const Kitchen = () => {
 
       {/* Tickets Scrollable Area */}
       <div className="flex-1 overflow-y-auto pr-1 lg:pr-2 scrollbar-hide">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-5 pb-20 lg:pb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-4 lg:gap-5 pb-20 lg:pb-10">
           {filteredOrders.length > 0 ? (
             filteredOrders.map((order) => {
               const config = getStatusConfig(order.status);
@@ -256,50 +257,47 @@ const Kitchen = () => {
                     </div>
                   </div>
 
-                  {/* Order List */}
-                  <div className="flex-1 p-4 space-y-4 overflow-y-auto max-h-[300px] scrollbar-hide">
-                    {order.items?.map((item, idx) => {
+                  {/* Order List - Limited View */}
+                  <div className="flex-1 p-4 space-y-3 overflow-y-auto min-h-[180px] max-h-[220px] scrollbar-hide">
+                    {(order.items?.slice(0, 3) || []).map((item, idx) => {
                       const isCompleted = item.kitchen_status === 'ready';
                       return (
                         <div 
                           key={idx} 
-                          className="flex gap-4 group/item relative"
+                          className="flex gap-3 group/item relative"
                         >
                           <div className={cn(
-                            "w-10 h-10 border-2 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 shadow-lg",
+                            "w-8 h-8 border-2 rounded-lg flex items-center justify-center font-black text-xs shrink-0 shadow-sm",
                             isCompleted ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-white border-slate-50 text-text-primary group-hover/item:border-primary/20"
                           )}>
                             {item.quantity}
-                            <span className="text-[8px] ml-0.5 text-slate-300">x</span>
                           </div>
-                          <div className="flex-1 pt-0.5">
+                          <div className="flex-1 pt-0.5 min-w-0">
                             <p className={cn(
-                              "text-sm font-bold leading-tight",
+                              "text-[11px] font-bold leading-tight truncate",
                               isCompleted ? "text-slate-300 line-through" : "text-text-primary group-hover/item:text-primary"
                             )}>{item.item_name}</p>
-                            {item.notes && !isCompleted && (
-                              <div className="mt-3 flex flex-col gap-1">
-                                 <p className="text-[8px] font-bold text-rose-500 uppercase tracking-widest flex items-center gap-1.5">
-                                    <AlertCircle className="w-3 h-3" /> Special Request
-                                 </p>
-                                 <p className="text-[10px] font-medium text-text-secondary bg-white p-1.5 rounded-lg border border-border mt-1 shadow-sm italic">
-                                    "{item.notes}"
-                                 </p>
-                              </div>
-                            )}
                           </div>
                           <button 
                              onClick={() => handleToggleItem(order.id, idx)}
                              className={cn(
-                               "w-8 h-8 rounded-xl border-2 flex items-center justify-center shadow-sm",
+                               "w-6 h-6 rounded-lg border flex items-center justify-center shadow-sm shrink-0",
                                isCompleted ? "bg-emerald-500 border-emerald-500 text-white" : "bg-white border-slate-100 text-slate-200 hover:text-emerald-500 hover:border-emerald-500"
                              )}
                            >
-                            <Check className="w-4 h-4 stroke-[3]" />
+                            <Check className="w-3 h-3 stroke-[3]" />
                           </button>
                         </div>
                       );
                     })}
+                    {order.items?.length > 3 && (
+                      <button 
+                        onClick={() => setViewingOrder(order)}
+                        className="w-full py-2 bg-slate-50 rounded-xl text-[8px] font-black uppercase tracking-widest text-slate-400 hover:bg-indigo-50 hover:text-primary transition-all flex items-center justify-center gap-2"
+                      >
+                         <Plus className="w-3 h-3" /> {order.items.length - 3} more items
+                      </button>
+                    )}
                   </div>
 
                   {/* Action Footer */}

@@ -73,10 +73,13 @@ const Kitchen = () => {
   };
 
   const getStatusConfig = (status) => {
-    switch (status) {
-      case 'Pending': return { border: 'border-orange-200', bg: 'bg-orange-50/30', accent: 'bg-orange-500', text: 'text-orange-700', badge: 'bg-orange-100 text-orange-700' };
-      case 'Cooking': return { border: 'border-primary/20', bg: 'bg-indigo-50/30', accent: 'bg-primary', text: 'text-primary', badge: 'bg-indigo-100 text-primary' };
-      case 'Ready': return { border: 'border-emerald-200', bg: 'bg-emerald-50/30', accent: 'bg-emerald-500', text: 'text-emerald-700', badge: 'bg-emerald-100 text-emerald-700' };
+    const s = status?.toLowerCase();
+    switch (s) {
+      case 'new':
+      case 'pending': return { border: 'border-orange-200', bg: 'bg-orange-50/30', accent: 'bg-orange-500', text: 'text-orange-700', badge: 'bg-orange-100 text-orange-700' };
+      case 'cooking': 
+      case 'preparing': return { border: 'border-primary/20', bg: 'bg-indigo-50/30', accent: 'bg-primary', text: 'text-primary', badge: 'bg-indigo-100 text-primary' };
+      case 'ready': return { border: 'border-emerald-200', bg: 'bg-emerald-50/30', accent: 'bg-emerald-500', text: 'text-emerald-700', badge: 'bg-emerald-100 text-emerald-700' };
       default: return { border: 'border-border', bg: 'bg-slate-50', accent: 'bg-slate-400', text: 'text-slate-700', badge: 'bg-slate-100 text-slate-700' };
     }
   };
@@ -182,7 +185,7 @@ const Kitchen = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-4 lg:gap-5 pb-20 lg:pb-10">
           {filteredOrders.length > 0 ? (
             filteredOrders.map((order) => {
-              const config = getStatusConfig(order.status);
+              const config = getStatusConfig(order.order_status);
               return (
                 <div 
                   key={order.id} 
@@ -245,12 +248,12 @@ const Kitchen = () => {
                     {/* Timer Bar */}
                     <div className="mt-4 flex items-center justify-between gap-4">
                        <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-border shadow-sm shrink-0">
-                          <Clock className={cn("w-3.5 h-3.5", order.status === 'Pending' ? 'text-orange-500' : 'text-primary')} />
+                          <Clock className={cn("w-3.5 h-3.5", (order.order_status === 'new' || order.order_status === 'pending') ? 'text-orange-500' : 'text-primary')} />
                           <span className="text-[9px] font-bold text-text-primary uppercase tracking-widest">{order.time}</span>
                        </div>
                         <div className="flex-1 h-1 bg-slate-200 rounded-full overflow-hidden">
                            <div 
-                              style={{ width: order.status === 'Cooking' ? '65%' : '15%' }}
+                              style={{ width: order.order_status === 'cooking' ? '65%' : '15%' }}
                               className={cn("h-full rounded-full shadow-[0_0_8px_rgba(0,0,0,0.1)]", config.accent)} 
                            />
                         </div>
@@ -302,17 +305,17 @@ const Kitchen = () => {
 
                   {/* Action Footer */}
                   <div className="p-4 bg-white border-t border-inherit">
-                    {order.status === 'Pending' ? (
+                    {order.order_status === 'new' || order.order_status === 'pending' ? (
                       <button 
-                        onClick={() => updateStatus(order.id, 'Cooking')}
+                        onClick={() => updateStatus(order.id, 'cooking')}
                         className="w-full py-3.5 bg-primary text-white rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark flex items-center justify-center gap-3 group/btn"
                       >
                         <Play className="w-4 h-4 fill-current" /> 
-                        Start Order
+                        Start Work
                       </button>
                     ) : (
                       <button 
-                        onClick={() => updateStatus(order.id, 'Ready')}
+                        onClick={() => updateStatus(order.id, 'ready')}
                         className="w-full py-3.5 bg-emerald-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] shadow-xl shadow-emerald-400/20 hover:bg-emerald-700 flex items-center justify-center gap-3 group/btn"
                       >
                         <CheckCircle2 className="w-4 h-4" /> 

@@ -56,6 +56,7 @@ const Dashboard = () => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [newItemIcon, setNewItemIcon] = useState('🍽️');
+  const [selectedImage, setSelectedImage] = useState(null);
   const [newItemCategory, setNewItemCategory] = useState('');
   const [toast, setToast] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -118,9 +119,26 @@ const Dashboard = () => {
   const handleAddItem = (newItem) => {
     addItem(newItem);
     setShowAddItemModal(false);
+    setSelectedImage(null);
     setNewItemIcon('🍽️');
     setNewItemCategory('');
     showToastMessage('Item added to POS menu successfully');
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB Limit
+        showToastMessage('Image size must be less than 2MB', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result);
+        setNewItemIcon(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const updateAutoIcon = (category) => {
@@ -493,15 +511,36 @@ const Dashboard = () => {
                         <input name="price" type="number" step="0.01" placeholder="99.00" className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm transition-all" required />
                      </div>
                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Emoji / Icon</label>
-                        <input 
-                           name="image" 
-                           type="text" 
-                           value={newItemIcon}
-                           onChange={(e) => setNewItemIcon(e.target.value)}
-                           placeholder="🍟" 
-                           className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-sm transition-all" 
-                        />
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Item Image / Icon</label>
+                        <div className="flex items-center gap-3">
+                           <div className="w-12 h-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden text-xl shadow-inner shrink-0">
+                              {selectedImage ? (
+                                <img src={selectedImage} alt="Preview" className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-2xl">{newItemIcon}</span>
+                              )}
+                           </div>
+                           <div className="flex-1 relative group/upload">
+                              <input 
+                                 type="file" 
+                                 accept="image/*"
+                                 onChange={handleImageChange}
+                                 className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                              />
+                              <div className="w-full px-5 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center justify-center gap-2 group-hover/upload:border-primary/20 group-hover/upload:bg-white transition-all">
+                                 <Plus className="w-4 h-4" /> Upload
+                              </div>
+                           </div>
+                           {selectedImage && (
+                             <button 
+                               type="button"
+                               onClick={() => { setSelectedImage(null); setNewItemIcon('🍽️'); }}
+                               className="p-2.5 bg-rose-50 text-rose-500 hover:bg-rose-100 rounded-xl transition-all"
+                             >
+                                <X className="w-4 h-4" />
+                             </button>
+                           )}
+                        </div>
                      </div>
                   </div>
 

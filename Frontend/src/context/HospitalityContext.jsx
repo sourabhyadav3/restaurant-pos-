@@ -225,9 +225,9 @@ export const HospitalityProvider = ({ children }) => {
     }
   }, [fetchData, addActivity]);
 
-  const updateTableStatus = useCallback(async (id, status) => {
+  const updateTableStatus = useCallback(async (id, status, extraData = null) => {
     try {
-      await api.patch(`/tables/${id}/status`, { status });
+      await api.patch(`/tables/${id}/status`, { status, ...extraData });
       await fetchData(true);
       addActivity(`Table status updated to ${status}`, 'info');
     } catch (error) {

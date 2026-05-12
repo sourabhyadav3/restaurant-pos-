@@ -35,8 +35,8 @@ class TablesController {
 
   async updateStatus(req, res) {
     try {
-      const { status } = req.body;
-      await tablesService.updateTableStatus(req.params.id, status);
+      const { status, ...extraData } = req.body;
+      await tablesService.updateTableStatus(req.params.id, status, Object.keys(extraData).length > 0 ? extraData : null);
       res.json({
         success: true,
         message: 'Table status updated successfully'

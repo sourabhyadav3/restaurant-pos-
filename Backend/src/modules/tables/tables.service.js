@@ -11,9 +11,76 @@ class TablesService {
     return await tablesModel.getZones();
   }
 
-  async updateTableStatus(id, status) {
+  async updateTableStatus(id, status, extraData = null) {
     const result = await tablesModel.update(id, { status });
     
+    // If status is occupied and extraData is provided, handle order creation/update
+    if (status === 'occupied' && extraData) {
+      const { orders, total } = extraData;
+      
+      // Check if there's already an active order for this table
+      const [existingOrders] = await pool.execute(
+        'SELECT id FROM orders WHERE table_id = ? AND payment_status = "pending" AND deletedAt IS NULL',
+        [id]
+      );
+
+      if (existingOrders.length > 0) {
+        const orderId = existingOrders[0].id;
+        // Update existing order
+        await pool.execute(
+          'UPDATE orders SET subtotal = ?, grand_total = ? WHERE id = ?',
+          [total, total, orderId]
+        );
+
+        // Add new items (this is a simplified logic for "Quick Add")
+        // We'll just add the last item if orders length increased
+        if (orders && orders.length > 0) {
+          const lastItem = orders[orders.length - 1];
+          
+          // Get menu_item_id from name
+          const [menuItems] = await pool.execute(
+            'SELECT id FROM menu_items WHERE item_name = ?',
+            [lastItem.name]
+          );
+
+          if (menuItems.length > 0) {
+            await pool.execute(
+              'INSERT INTO order_items (order_id, menu_item_id, quantity, unit_price, total_price) VALUES (?, ?, ?, ?, ?)',
+              [orderId, menuItems[0].id, 1, lastItem.price, lastItem.price]
+            );
+          }
+        }
+      } else {
+        // Create new order
+        const order_number = `ORD-TBL-${id}-${Date.now()}`;
+        const [orderResult] = await pool.execute(
+          'INSERT INTO orders (order_number, table_id, subtotal, grand_total, payment_status, order_status) VALUES (?, ?, ?, ?, "pending", "new")',
+          [order_number, id, total || 0, total || 0]
+        );
+        
+        const orderId = orderResult.insertId;
+
+        // Add initial items if any
+        if (orders && orders.length > 0) {
+          for (let item of orders) {
+             const [menuItems] = await pool.execute(
+               'SELECT id FROM menu_items WHERE item_name = ?',
+               [item.name]
+             );
+             if (menuItems.length > 0) {
+               await pool.execute(
+                 'INSERT INTO order_items (order_id, menu_item_id, quantity, unit_price, total_price) VALUES (?, ?, ?, ?, ?)',
+                 [orderId, menuItems[0].id, 1, item.price, item.price]
+               );
+             }
+          }
+        }
+      }
+    } else if (status === 'available') {
+      // If table becomes available, we might want to mark the pending order as cancelled or handled
+      // But usually it's handled via "Finalize" in the UI which marks it as paid.
+    }
+
     // Notify all clients about table status change
     const io = getIO();
     io.emit('table_status_update', { id, status });

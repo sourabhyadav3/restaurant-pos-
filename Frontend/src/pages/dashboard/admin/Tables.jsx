@@ -255,31 +255,30 @@ const Tables = () => {
           })}
         </div>
       </div>
-      
-
-
-      {/* Table Side Drawer */}
-      {selectedTable && (
+        {/* Table Side Drawer */}
+      {selectedTable && (() => {
+        const liveTable = processedTables.find(t => t.id === selectedTable.id) || selectedTable;
+        return (
         <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6">
           <div 
             onClick={() => setSelectedTable(null)}
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
           />
           <div 
-            className="relative w-full max-w-[95%] md:max-w-[520px] max-h-[90vh] bg-white shadow-2xl z-[201] flex flex-col rounded-[2rem] md:rounded-[2.5rem] overflow-hidden self-center"
+            className="relative w-full max-w-[95%] md:max-w-[500px] bg-white shadow-2xl z-[201] flex flex-col rounded-[2rem] md:rounded-[2.5rem] overflow-hidden self-end sm:self-center max-h-[90vh]"
           >
              <div className="px-5 py-4 md:px-6 md:py-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/30 shrink-0">
               <div className="flex items-center gap-3 lg:gap-4">
-                <div className={cn("w-10 lg:w-12 h-10 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center font-black text-base lg:text-lg text-white shadow-xl", getStatusConfig(selectedTable.status).color)}>
-                  {selectedTable.name}
+                <div className={cn("w-10 lg:w-12 h-10 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center font-black text-base lg:text-lg text-white shadow-xl", getStatusConfig(liveTable.status).color)}>
+                  {liveTable.name}
                 </div>
                 <div>
                   <h3 className="text-sm lg:text-lg font-black tracking-tight uppercase leading-none">Active Session</h3>
                   <div className="flex items-center gap-2 mt-1">
-                     <span className={cn("badge px-1.5 py-0.5 text-[7px] lg:text-[9px]", getStatusConfig(selectedTable.status).bg, getStatusConfig(selectedTable.status).text)}>
-                      {selectedTable.status}
+                     <span className={cn("badge px-1.5 py-0.5 text-[7px] lg:text-[9px]", getStatusConfig(liveTable.status).bg, getStatusConfig(liveTable.status).text)}>
+                      {liveTable.status}
                      </span>
-                     <span className="hidden sm:inline text-[8px] lg:text-[9px] font-bold text-slate-300 uppercase tracking-widest">ID: #TBL-{selectedTable.id}04</span>
+                     <span className="hidden sm:inline text-[8px] lg:text-[9px] font-bold text-slate-300 uppercase tracking-widest">ID: #TBL-{liveTable.id}04</span>
                   </div>
                 </div>
               </div>
@@ -292,7 +291,7 @@ const Tables = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 lg:space-y-8 scrollbar-hide">
-              {selectedTable.status === 'occupied' ? (
+              {liveTable.status === 'occupied' ? (
                 <>
                   <div className="space-y-4 lg:space-y-6">
                     <div className="flex items-center justify-between">
@@ -304,24 +303,24 @@ const Tables = () => {
                       </div>
                     </div>
                     <div className="space-y-3 lg:space-y-4">
-                      {selectedTable.orders.length > 0 ? (
-                        selectedTable.orders.map((item, i) => (
+                      {liveTable.orders.length > 0 ? (
+                        liveTable.orders.map((item, i) => (
                           <div 
                             key={i} 
                             className="flex items-center justify-between p-3 lg:p-4 bg-slate-50 rounded-xl lg:rounded-2xl group hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-slate-100"
                           >
                             <div className="flex items-center gap-3 lg:gap-4">
                               <div className="w-8 lg:w-10 h-8 lg:h-10 bg-white rounded-lg lg:rounded-xl flex items-center justify-center font-bold text-[10px] lg:text-xs border border-slate-100 group-hover:border-primary/20">
-                                1x
+                                {item.quantity || 1}x
                               </div>
                               <div>
                                 <p className="text-xs lg:text-sm font-bold text-text-primary leading-tight">{item.name}</p>
                                 <p className={cn(
                                   "text-[8px] lg:text-[9px] font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5",
-                                  item.status === 'kitchen' ? "text-emerald-500" : "text-amber-500"
+                                  item.status === 'kitchen' || item.status === 'ready' || item.status === 'delivered' ? "text-emerald-500" : "text-amber-500"
                                 )}>
                                    <UtensilsCrossed className="w-2.5 h-2.5 lg:w-3 lg:h-3" /> 
-                                   {item.status === 'kitchen' ? 'Kitchen Confirmed' : 'Pending Send'}
+                                   {item.status === 'kitchen' || item.status === 'ready' || item.status === 'delivered' ? 'Kitchen Confirmed' : 'Pending Send'}
                                 </p>
                               </div>
                             </div>
@@ -341,16 +340,16 @@ const Tables = () => {
                     <div className="space-y-3 lg:space-y-4 relative z-10">
                       <div className="flex justify-between text-indigo-100 text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.2em]">
                         <span>Net Subtotal</span>
-                        <span className="text-white">₹{selectedTable.total}</span>
+                        <span className="text-white">₹{liveTable.total}</span>
                       </div>
                       <div className="flex justify-between text-indigo-100 text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.2em]">
                         <span>Tax (5%)</span>
-                        <span className="text-white">₹{Math.round(selectedTable.total * 0.05)}</span>
+                        <span className="text-white">₹{Math.round(liveTable.total * 0.05)}</span>
                       </div>
                       <div className="pt-4 lg:pt-6 border-t border-indigo-500/30 flex justify-between items-end">
                         <div>
                            <p className="text-indigo-200 text-[7px] lg:text-[8px] font-bold uppercase tracking-[0.2em] mb-1">Total Due</p>
-                           <h4 className="text-2xl lg:text-3xl font-black text-white tracking-tighter">₹{Math.round(selectedTable.total * 1.05)}</h4>
+                           <h4 className="text-2xl lg:text-3xl font-black text-white tracking-tighter">₹{Math.round(liveTable.total * 1.05)}</h4>
                         </div>
                         <div className="p-2.5 lg:p-3 bg-white/10 rounded-xl lg:rounded-2xl border border-white/20">
                            <Receipt className="w-4 lg:w-5 h-4 lg:h-5 text-white" />
@@ -360,27 +359,27 @@ const Tables = () => {
                     <Sparkles className="absolute -bottom-4 -right-4 w-24 lg:w-32 h-24 lg:h-32 text-white/10 rotate-12" />
                   </div>
                 </>
-              ) : selectedTable.status === 'reserved' ? (
+              ) : liveTable.status === 'reserved' ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-6 lg:p-12 bg-indigo-50/50 rounded-[2rem] lg:rounded-[3rem] border-4 border-dashed border-primary/20">
                   <div className="w-16 lg:w-24 h-16 lg:h-24 bg-white rounded-2xl lg:rounded-[2rem] shadow-2xl flex items-center justify-center mb-6 lg:mb-8">
                     <Clock className="w-8 lg:w-10 h-8 lg:h-10 text-primary" />
                   </div>
                   <h4 className="text-2xl lg:text-3xl font-black text-text-primary tracking-tight">Table Reserved</h4>
                   <p className="text-text-secondary text-xs lg:text-sm font-medium mt-3 lg:mt-4 max-w-[240px] lg:max-w-[280px] leading-relaxed italic">
-                     Reserved for <span className="font-black text-primary">{selectedTable.reservedBy}</span> at <span className="font-black text-primary uppercase tracking-widest">{selectedTable.time}</span>
+                     Reserved for <span className="font-black text-primary">{liveTable.reservedBy}</span> at <span className="font-black text-primary uppercase tracking-widest">{liveTable.time}</span>
                   </p>
                   <div className="mt-8 lg:mt-12 w-full space-y-3 lg:space-y-4">
                      <button 
-                      onClick={() => handleMarkArrived(selectedTable)}
+                      onClick={() => handleMarkArrived(liveTable)}
                       className="w-full btn-primary py-4 lg:py-5 text-sm lg:text-base font-black tracking-widest uppercase"
                      >
                        Mark as Arrived
                      </button>
                      <button 
-                      onClick={() => handleCancelBooking(selectedTable)}
+                      onClick={() => handleCancelBooking(liveTable)}
                       className="w-full btn-secondary py-4 lg:py-5 text-sm lg:text-base font-black tracking-widest uppercase text-danger border-none hover:bg-red-50"
                      >
-                      Cancel Booking
+                       Cancel Booking
                      </button>
                   </div>
                 </div>
@@ -390,7 +389,7 @@ const Tables = () => {
                     <Users className="w-6 lg:w-8 h-6 lg:h-8 text-slate-300" />
                   </div>
                   <h4 className="text-xl lg:text-2xl font-black text-text-primary">Table Available</h4>
-                  <p className="text-text-secondary text-[10px] lg:text-xs font-medium mt-1.5 lg:mt-2">Ready for up to {selectedTable.capacity} guests.</p>
+                  <p className="text-text-secondary text-[10px] lg:text-xs font-medium mt-1.5 lg:mt-2">Ready for up to {liveTable.capacity} guests.</p>
                   
                   <div className="mt-6 lg:mt-8 w-full space-y-4 lg:space-y-6">
                     <div className="space-y-2 lg:space-y-3">
@@ -411,7 +410,7 @@ const Tables = () => {
                        </div>
                     </div>
                     <button 
-                      onClick={() => handleOpenSession(selectedTable)}
+                      onClick={() => handleOpenSession(liveTable)}
                       className="w-full btn-primary py-4 lg:py-5 text-sm lg:text-base font-black tracking-widest uppercase shadow-2xl shadow-primary/30"
                     >
                       Start Session
@@ -421,7 +420,7 @@ const Tables = () => {
               )}
             </div>
 
-            {selectedTable.status === 'occupied' && (
+            {liveTable.status === 'occupied' && (
               <div className="px-6 py-6 bg-white border-t border-slate-50 space-y-2 lg:space-y-3">
                 <button 
                   onClick={() => setShowAddItems(true)}
@@ -449,7 +448,8 @@ const Tables = () => {
             )}
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* Modern Compact Add Table Modal */}
       {showAddTable && createPortal(
@@ -584,11 +584,14 @@ const Tables = () => {
             onClick={() => setShowAddItems(false)}
             className="absolute inset-0 bg-slate-900/60"
           />
-          <div 
-            className="relative w-full max-w-[95%] md:max-w-lg bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl p-6 md:p-10 self-center max-h-[90vh] overflow-y-auto"
+           <div 
+            className="relative w-full max-w-[95%] md:max-w-md bg-white rounded-[2rem] md:rounded-[3.5rem] shadow-2xl p-6 md:p-10 self-end sm:self-center max-h-[90vh] overflow-hidden flex flex-col"
           >
-            <h3 className="text-xl lg:text-2xl font-black tracking-tight mb-6 lg:mb-8">Quick Add Items</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
+             <div className="shrink-0">
+                <h3 className="text-xl lg:text-2xl font-black tracking-tight mb-6 lg:mb-8 text-text-primary uppercase tracking-wider">Quick Add Items</h3>
+             </div>
+             <div className="flex-1 overflow-y-auto scrollbar-hide pr-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
               {[
                 { name: 'Fresh Lime', price: 90 },
                 { name: 'Garlic Bread', price: 180 },
@@ -610,10 +613,13 @@ const Tables = () => {
                   <p className="text-[9px] lg:text-[10px] font-bold text-text-secondary mt-0.5 lg:mt-1">₹{item.price}</p>
                 </button>
               ))}
-            </div>
-            <button onClick={() => setShowAddItems(false)} className="w-full mt-6 lg:mt-10 py-4 bg-slate-100 rounded-xl lg:rounded-2xl font-black uppercase text-[10px] lg:text-xs tracking-widest hover:bg-slate-200 transition-all">
-              Cancel
-            </button>
+                </div>
+             </div>
+             <div className="shrink-0 mt-6 lg:mt-8">
+                <button onClick={() => setShowAddItems(false)} className="w-full py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black uppercase text-[10px] lg:text-xs tracking-widest text-slate-400 hover:bg-slate-100 transition-all">
+                  Cancel
+                </button>
+             </div>
           </div>
         </div>
       )}

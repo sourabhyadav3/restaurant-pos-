@@ -18,6 +18,7 @@ import { cn } from "../../../utils/cn";
 import { useNavigate } from 'react-router-dom';
 import { useCustomer } from "../../../context/CustomerContext";
 import { useOrders } from "../../../context/OrdersContext";
+import { getImageUrl } from "../../../utils/imageUtils";
 
 const CustomerCart = () => {
   const navigate = useNavigate();
@@ -31,32 +32,35 @@ const CustomerCart = () => {
   const serviceCharge = cartItems.length > 0 ? 25 : 0;
   const total = subtotal + tax + serviceCharge;
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (cartItems.length === 0) return;
     
     setIsOrdering(true);
     
-    // Simulate real delay
-    setTimeout(() => {
-      const orderData = {
-        type: profile.diningType,
-        table: profile.diningType === 'Room Service' ? profile.tableId : `T-${profile.tableId}`,
-        status: 'Pending',
-        amount: `₹${total.toFixed(0)}`,
-        items: cartItems.reduce((acc, i) => acc + i.quantity, 0),
-        customer: profile.name,
-        payment: 'Pending',
-        itemsList: cartItems.map(i => ({ name: i.name, quantity: i.quantity, price: i.price, size: i.size })),
+    try {
+      const extraData = {
+        userId: profile?.id,
+        tableId: profile?.tableId !== '-' ? profile?.tableId : null,
+        type: profile?.diningType || 'dine-in',
+        total: total,
+        tax: tax,
+        serviceFee: serviceCharge,
+        paymentStatus: 'pending'
       };
       
-      addOrder(orderData);
+      await addOrder(cartItems, extraData);
+      
       clearCart();
       setIsOrdering(false);
       setOrderSuccess(true);
       
       // Navigate after success message
       setTimeout(() => navigate('/customer/orders'), 2000);
-    }, 1500);
+    } catch (error) {
+      console.error('Order placement failed:', error);
+      alert('Failed to place order. Please try again.');
+      setIsOrdering(false);
+    }
   };
 
   const handleCallWaiter = () => {
@@ -111,8 +115,12 @@ const CustomerCart = () => {
         <div className="space-y-4">
           {cartItems.map((item) => (
             <div key={item.id} className="card p-4 lg:p-5 bg-white border-none shadow-xl shadow-slate-100/50 flex gap-4 lg:gap-6 group transition-all hover:bg-slate-50">
-               <div className="w-20 h-20 lg:w-24 lg:h-24 bg-slate-50 rounded-2xl flex items-center justify-center text-4xl shadow-inner group-hover:scale-105 transition-transform">
-                  {item.image}
+               <div className="w-20 h-20 lg:w-24 lg:h-24 bg-slate-50 rounded-2xl flex items-center justify-center text-4xl shadow-inner group-hover:scale-105 transition-transform overflow-hidden">
+                  {item.image && item.image.length > 2 ? (
+                    <img src={getImageUrl(item.image)} alt={item.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{getImageUrl(item.image)}</span>
+                  )}
                </div>
                <div className="flex-1 flex flex-col justify-between">
                   <div>

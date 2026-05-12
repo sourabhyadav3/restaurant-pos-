@@ -80,14 +80,14 @@ const Dashboard = () => {
 
   const stats = dashboardData ? (isChef ? [
     { id: 'pending', name: 'Pending Orders', value: dashboardData.stats?.pending_orders?.toString() || '0', icon: Clock, change: 'Urgent', isUp: false, color: 'bg-orange-50 text-orange-600' },
-    { id: 'cooking', name: 'Cooking Orders', value: dashboardData.stats?.cooking_orders?.toString() || '0', icon: CookingPot, change: 'In Progress', isUp: true, color: 'bg-indigo-50 text-primary' },
+    { id: 'cooking', name: 'Cooking Orders', value: dashboardData.stats?.cooking_orders?.toString() || '0', icon: CookingPot, change: 'Active', isUp: true, color: 'bg-indigo-50 text-primary' },
     { id: 'ready', name: 'Ready Orders', value: dashboardData.stats?.ready_orders?.toString() || '0', icon: CheckCircle2, change: 'Completed', isUp: true, color: 'bg-emerald-50 text-emerald-600' },
-    { id: 'stock', name: 'Low Stock Alerts', value: dashboardData.stats?.low_stock?.toString() || '0', icon: Package, change: 'Action Needed', isUp: false, color: 'bg-rose-50 text-rose-600' },
+    { id: 'stock', name: 'Low Stock Alerts', value: dashboardData.stats?.low_stock?.toString() || '0', icon: Package, change: 'Status', isUp: false, color: 'bg-rose-50 text-rose-600' },
   ] : [
-    { id: 'revenue', name: 'Total Revenue', value: `₹${(dashboardData.stats?.total_revenue || 0).toLocaleString()}`, icon: TrendingUp, change: '+12.5%', isUp: true, color: 'bg-indigo-50 text-primary' },
+    { id: 'revenue', name: 'Total Revenue', value: `₹${(dashboardData.stats?.total_revenue || 0).toLocaleString()}`, icon: TrendingUp, change: 'Live', isUp: true, color: 'bg-indigo-50 text-primary' },
     { id: 'occupancy', name: 'Total Orders', value: dashboardData.stats?.total_orders?.toString() || '0', icon: Bed, change: `Live Feed`, isUp: true, color: 'bg-emerald-50 text-emerald-600' },
     { id: 'guests', name: 'Active Staff', value: dashboardData.stats?.active_staff?.toString() || '0', icon: Users, change: 'On Duty', isUp: true, color: 'bg-orange-50 text-orange-600' },
-    { id: 'kitchen', name: 'Pending Resv', value: dashboardData.stats?.pending_reservations?.toString() || '0', icon: Activity, change: 'High Demand', isUp: false, color: 'bg-rose-50 text-rose-600' },
+    { id: 'kitchen', name: 'Pending Resv', value: dashboardData.stats?.pending_reservations?.toString() || '0', icon: Activity, change: 'Pending', isUp: false, color: 'bg-rose-50 text-rose-600' },
   ]) : [];
 
   const currentRevenueData = dashboardData?.charts?.monthlyRevenue?.map(d => ({

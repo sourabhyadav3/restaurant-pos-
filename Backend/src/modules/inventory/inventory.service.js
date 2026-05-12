@@ -45,6 +45,7 @@ class InventoryService {
 
   async addItem(data) {
     const payload = {
+      inventory_code: data.inventory_code || `INV-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
       product_name: data.name,
       category: data.category,
       current_stock: data.stock,

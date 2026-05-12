@@ -4,8 +4,8 @@ const { sendSuccess, sendError } = require('../../utils/response.formatter');
 class OrdersController {
   async getAllOrders(req, res) {
     try {
-      const { status, customerId } = req.query;
-      const orders = await ordersService.getAllOrders({ status, customerId });
+      const { status, customerId, userId } = req.query;
+      const orders = await ordersService.getAllOrders({ status, customerId, userId });
       return sendSuccess(res, 'Orders fetched successfully', orders);
     } catch (err) {
       return sendError(res, err.message);

@@ -14,15 +14,37 @@ import { cn } from "../../../utils/cn";
 import { useCommunication } from "../../../context/CommunicationContext";
 
 const Concierge = () => {
-  const { messages, activeChats, sendMessage, markAsRead } = useCommunication();
-  const [selectedChatId, setSelectedChatId] = useState(activeChats[0]?.guestId || null);
+  const { messages, activeChats, sendMessage, markAsRead, fetchMessages } = useCommunication();
+  const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const messagesContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
 
-  const selectedChat = activeChats.find(c => c.guestId === selectedChatId);
-  const chatMessages = messages.filter(m => m.guestId === selectedChatId);
+  const selectedChat = activeChats.find(c => c.ticketId === selectedTicketId);
+  const chatMessages = messages.filter(m => m.ticketId === selectedTicketId);
+
+  useEffect(() => {
+    if (selectedTicketId) {
+      fetchMessages(selectedTicketId);
+      markAsRead(selectedTicketId);
+      // Poll for new messages in the active ticket
+      const interval = setInterval(() => fetchMessages(selectedTicketId), 5000);
+      return () => clearInterval(interval);
+    }
+  }, [selectedTicketId, fetchMessages]);
+
+  const handleSend = (e) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !selectedChat) return;
+    sendMessage(selectedChat.ticketId, selectedChat.guestName, newMessage, 'Staff');
+    setNewMessage('');
+  };
+
+  const filteredChats = activeChats.filter(c => 
+    (c.guestName || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (c.lastMessage || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
@@ -31,28 +53,10 @@ const Concierge = () => {
   };
 
   useEffect(() => {
-    if (selectedChatId) {
-      markAsRead(selectedChatId);
-    }
-  }, [selectedChatId, messages]);
-
-  useEffect(() => {
     if (chatMessages.length > 0) {
       scrollToBottom();
     }
   }, [chatMessages]);
-
-  const handleSend = (e) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !selectedChat) return;
-    sendMessage(selectedChat.guestId, selectedChat.guestName, newMessage, 'Staff');
-    setNewMessage('');
-  };
-
-  const filteredChats = activeChats.filter(c => 
-    c.guestName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="w-full min-w-0 space-y-6">
@@ -79,29 +83,29 @@ const Concierge = () => {
           <div className="space-y-2 flex-1 overflow-y-auto pr-1 scrollbar-hide">
              {filteredChats.map(chat => (
                <button 
-                 key={chat.guestId}
-                 onClick={() => setSelectedChatId(chat.guestId)}
+                 key={chat.ticketId}
+                 onClick={() => setSelectedTicketId(chat.ticketId)}
                  className={cn(
                    "w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group relative",
-                   selectedChatId === chat.guestId 
+                   selectedTicketId === chat.ticketId 
                    ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" 
                    : "bg-white text-text-primary border-transparent hover:bg-slate-50"
                  )}
                >
                   <div className={cn(
                     "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                    selectedChatId === chat.guestId ? "bg-white/20" : "bg-slate-100"
+                    selectedTicketId === chat.ticketId ? "bg-white/20" : "bg-slate-100"
                   )}>
-                     <User className={cn("w-5 h-5", selectedChatId === chat.guestId ? "text-white" : "text-slate-400")} />
+                     <User className={cn("w-5 h-5", selectedTicketId === chat.ticketId ? "text-white" : "text-slate-400")} />
                   </div>
                   <div className="flex-1 min-w-0">
                      <div className="flex justify-between items-center mb-1">
                         <h4 className="text-[11px] font-black uppercase truncate tracking-tight">{chat.guestName}</h4>
-                        <span className={cn("text-[8px] font-black uppercase opacity-60", selectedChatId === chat.guestId ? "text-white" : "text-slate-300")}>
+                        <span className={cn("text-[8px] font-black uppercase opacity-60", selectedTicketId === chat.ticketId ? "text-white" : "text-slate-300")}>
                            {new Date(chat.lastTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                      </div>
-                     <p className={cn("text-[10px] font-bold truncate opacity-80 uppercase tracking-widest", selectedChatId === chat.guestId ? "text-white" : "text-slate-400")}>
+                     <p className={cn("text-[10px] font-bold truncate opacity-80 uppercase tracking-widest", selectedTicketId === chat.ticketId ? "text-white" : "text-slate-400")}>
                         {chat.lastMessage}
                      </p>
                   </div>
@@ -122,7 +126,7 @@ const Concierge = () => {
               {/* Chat Header */}
               <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
                  <div className="flex items-center gap-4">
-                    <button onClick={() => setSelectedChatId(null)} className="md:hidden p-2 hover:bg-white rounded-xl transition-all">
+                    <button onClick={() => setSelectedTicketId(null)} className="md:hidden p-2 hover:bg-white rounded-xl transition-all">
                        <ChevronLeft className="w-5 h-5" />
                     </button>
                     <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-primary shadow-sm">

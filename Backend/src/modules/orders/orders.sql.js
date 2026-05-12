@@ -1,15 +1,17 @@
 const queries = {
   findWithItems: `
-    SELECT o.*, g.full_name as guest_name, t.table_code
+    SELECT o.*, COALESCE(g.full_name, u.full_name) as guest_name, t.table_code
     FROM orders o 
     LEFT JOIN guests g ON o.customer_id = g.id 
+    LEFT JOIN users u ON o.user_id = u.id
     LEFT JOIN restaurant_tables t ON o.table_id = t.id 
     WHERE o.deletedAt IS NULL
   `,
   getOrderById: `
-    SELECT o.*, g.full_name as guest_name, t.table_code 
+    SELECT o.*, COALESCE(g.full_name, u.full_name) as guest_name, t.table_code 
     FROM orders o 
     LEFT JOIN guests g ON o.customer_id = g.id 
+    LEFT JOIN users u ON o.user_id = u.id
     LEFT JOIN restaurant_tables t ON o.table_id = t.id 
     WHERE o.id = ? AND o.deletedAt IS NULL
   `,

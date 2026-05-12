@@ -28,36 +28,34 @@ const NotificationsPage = () => {
   const [activeTab, setActiveTab] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const myNotifications = notifications.filter(n => n.targetRole === user?.role?.toUpperCase() || n.targetRole === 'ALL');
+  const myNotifications = notifications; // Context already filters by role
   
   const filteredNotifications = myNotifications.filter(n => {
-    const matchesTab = activeTab === 'All' || n.type === activeTab;
-    const matchesSearch = n.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          n.message.toLowerCase().includes(searchQuery.toLowerCase());
+    const type = n.notification_type || n.type || 'System';
+    const matchesTab = activeTab === 'All' || type.toLowerCase() === activeTab.toLowerCase();
+    const matchesSearch = (n.title || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (n.message || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
   });
 
   const getIcon = (type) => {
-    switch (type) {
-      case 'Reservation': return <CalendarCheck className="w-5 h-5" />;
-      case 'Message': return <MessageSquare className="w-5 h-5" />;
-      case 'Room Service': return <UtensilsCrossed className="w-5 h-5" />;
-      case 'Check-In': return <Bed className="w-5 h-5" />;
-      case 'Check-Out': return <History className="w-5 h-5" />;
-      case 'Kitchen': return <Activity className="w-5 h-5" />;
-      default: return <Bell className="w-5 h-5" />;
-    }
+    const t = (type || '').toLowerCase();
+    if (t.includes('reservation')) return <CalendarCheck className="w-5 h-5" />;
+    if (t.includes('message')) return <MessageSquare className="w-5 h-5" />;
+    if (t.includes('service')) return <UtensilsCrossed className="w-5 h-5" />;
+    if (t.includes('check')) return <Bed className="w-5 h-5" />;
+    if (t.includes('kitchen')) return <Activity className="w-5 h-5" />;
+    return <Bell className="w-5 h-5" />;
   };
 
   const getColor = (type) => {
-    switch (type) {
-      case 'Reservation': return 'bg-indigo-50 text-primary';
-      case 'Message': return 'bg-amber-50 text-amber-600';
-      case 'Room Service': return 'bg-rose-50 text-rose-600';
-      case 'Check-In': return 'bg-emerald-50 text-emerald-600';
-      case 'Kitchen': return 'bg-blue-50 text-blue-600';
-      default: return 'bg-slate-50 text-slate-600';
-    }
+    const t = (type || '').toLowerCase();
+    if (t.includes('reservation')) return 'bg-indigo-50 text-primary';
+    if (t.includes('message')) return 'bg-amber-50 text-amber-600';
+    if (t.includes('service')) return 'bg-rose-50 text-rose-600';
+    if (t.includes('check')) return 'bg-emerald-50 text-emerald-600';
+    if (t.includes('kitchen')) return 'bg-blue-50 text-blue-600';
+    return 'bg-slate-50 text-slate-600';
   };
 
   return (

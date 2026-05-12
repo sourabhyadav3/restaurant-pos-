@@ -91,9 +91,13 @@ const Orders = () => {
 
   const processedOrders = orders
     .filter(o => {
-      const isMatchingTab = activeTab === 'All' || o.status === activeTab;
-      const orderIdStr = o.id || "";
-      const custNameStr = o.customer || "";
+      const status = (o.order_status || o.status || '').toLowerCase();
+      const activeTabLower = activeTab.toLowerCase();
+      const isMatchingTab = activeTab === 'All' || status === activeTabLower;
+      
+      const orderIdStr = (o.order_number || o.id || "").toString();
+      const custNameStr = (o.customer_name || o.guest_name || o.full_name || o.customer || "").toString();
+      
       const isMatchingSearch = orderIdStr.toLowerCase().includes(searchQuery.toLowerCase()) || 
                                custNameStr.toLowerCase().includes(searchQuery.toLowerCase());
       return isMatchingTab && isMatchingSearch;
@@ -101,13 +105,13 @@ const Orders = () => {
     .sort((a, b) => {
       if (!sortBy) return 0;
       if (sortBy === 'Amount') {
-        const amtA = parseInt(a.amount.replace('₹', '').replace(',', ''));
-        const amtB = parseInt(b.amount.replace('₹', '').replace(',', ''));
+        const amtA = parseFloat((a.grand_total || a.amount || 0).toString().replace(/[₹,]/g, ''));
+        const amtB = parseFloat((b.grand_total || b.amount || 0).toString().replace(/[₹,]/g, ''));
         return amtB - amtA;
       }
-      if (sortBy === 'Date') return a.time.localeCompare(b.time);
-      if (sortBy === 'Payment') return a.payment.localeCompare(b.payment);
-      if (sortBy === 'Table') return a.table.localeCompare(b.table);
+      if (sortBy === 'Date') return (b.createdAt || '').localeCompare(a.createdAt || '');
+      if (sortBy === 'Payment') return (a.payment_status || a.payment || '').localeCompare(b.payment_status || b.payment || '');
+      if (sortBy === 'Table') return (a.table_code || a.table || '').localeCompare(b.table_code || b.table || '');
       return 0;
     });
 
@@ -216,34 +220,36 @@ const Orders = () => {
                               <ShoppingBag className="w-5 h-5 text-primary" />
                           </div>
                           <div>
-                              <span className="font-black text-text-primary text-base tracking-tight">{order.id}</span>
-                              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-1">{order.time}</p>
+                              <span className="font-black text-text-primary text-base tracking-tight">{order.order_number || order.id}</span>
+                              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-1">
+                                {order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : (order.time || 'Recent')}
+                              </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-8 py-5">
-                        <p className="font-black text-text-primary text-sm leading-tight">{order.customer}</p>
+                        <p className="font-black text-text-primary text-sm leading-tight">{order.customer_name || order.guest_name || order.full_name || order.customer || 'Guest'}</p>
                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1.5">
-                          {order.table !== '-' ? `TABLE ${order.table}` : 'WALK-IN'}
+                          {order.table_code || order.table || 'WALK-IN'}
                         </p>
                       </td>
                       <td className="px-8 py-5">
                         <div className={cn(
                           "badge font-black uppercase tracking-wider border text-[8px] px-2 py-1",
-                          order.type === 'Dine-in' ? "bg-indigo-50 text-primary border-indigo-100" : 
-                          order.type === 'Takeaway' ? "bg-orange-50 text-orange-600 border-orange-100" : "bg-emerald-50 text-emerald-600 border-emerald-100"
+                          (order.order_type || order.type || '').toLowerCase() === 'dine-in' ? "bg-indigo-50 text-primary border-indigo-100" : 
+                          (order.order_type || order.type || '').toLowerCase() === 'takeaway' ? "bg-orange-50 text-orange-600 border-orange-100" : "bg-emerald-50 text-emerald-600 border-emerald-100"
                         )}>
-                          {order.type}
+                          {order.order_type || order.type}
                         </div>
                       </td>
                       <td className="px-8 py-5">
-                        <span className={cn("badge font-black border py-1 px-2 text-[8px]", getStatusStyle(order.status))}>
-                          {order.status}
+                        <span className={cn("badge font-black border py-1 px-2 text-[8px] uppercase", getStatusStyle(order.order_status || order.status))}>
+                          {order.order_status || order.status}
                         </span>
                       </td>
                       <td className="px-8 py-5 text-right">
                         <div className="flex items-center justify-end gap-2 font-black text-text-primary text-base tracking-tight">
-                            {order.amount}
+                            ₹{(order.grand_total || order.amount || 0).toString().replace(/[₹,]/g, '')}
                             <ChevronRight className="w-4 h-4 text-slate-200 group-hover:text-primary" />
                         </div>
                       </td>
@@ -359,13 +365,15 @@ const Orders = () => {
                     <div className="p-6 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col gap-8 relative overflow-hidden">
                       <div className="flex items-center justify-between relative z-10">
                           <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl border border-slate-50 text-primary">
-                                {selectedOrder.customer?.charAt(0) || 'G'}
+                            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl border border-slate-50 text-primary uppercase">
+                                {(order.customer_name || order.guest_name || order.full_name || order.customer || 'G').charAt(0)}
                             </div>
                             <div>
-                                <h4 className="text-xl font-black tracking-tight leading-none">{selectedOrder.customer}</h4>
+                                <h4 className="text-xl font-black tracking-tight leading-none">
+                                  {order.customer_name || order.guest_name || order.full_name || order.customer || 'Guest'}
+                                </h4>
                                 <p className="text-[10px] font-black text-text-secondary flex items-center gap-2 mt-2 uppercase tracking-widest">
-                                  <MapPin className="w-3 h-3 text-primary" /> {selectedOrder.type}
+                                  <MapPin className="w-3 h-3 text-primary" /> {order.order_type || order.type || 'N/A'}
                                 </p>
                             </div>
                           </div>
@@ -414,7 +422,7 @@ const Orders = () => {
                           <span className="text-[9px] font-black text-primary px-3 py-1 bg-indigo-50 rounded-full tracking-widest">{(selectedOrder.itemsList?.length || 0)} ITEMS</span>
                       </div>
                       <div className="space-y-4">
-                          {(selectedOrder.itemsList || []).map((item, i) => (
+                          {(selectedOrder.items || selectedOrder.itemsList || []).map((item, i) => (
                             <div 
                               key={i} 
                               className="flex justify-between items-center group p-4 bg-slate-50/50 hover:bg-slate-50 rounded-[1.5rem] border border-transparent hover:border-slate-100 shadow-sm"
@@ -424,13 +432,13 @@ const Orders = () => {
                                     {item.quantity}<span className="text-[10px] ml-0.5">x</span>
                                   </div>
                                   <div>
-                                    <p className="font-black text-text-primary text-sm leading-none transition-colors">{item.name}</p>
+                                    <p className="font-black text-text-primary text-sm leading-none transition-colors">{item.item_name || item.name}</p>
                                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2 flex items-center gap-1.5">
-                                        <Sparkles className="w-2.5 h-2.5 opacity-40" /> Unit: ₹{item.price} {item.size && `• ${item.size}`}
+                                        <Sparkles className="w-2.5 h-2.5 opacity-40" /> Unit: ₹{item.unit_price || item.price} {item.size && `• ${item.size}`}
                                     </p>
                                   </div>
                               </div>
-                              <p className="font-black text-text-primary text-lg tracking-tighter">₹{item.price * item.quantity}</p>
+                              <p className="font-black text-text-primary text-lg tracking-tighter">₹{(item.total_price || (item.price * item.quantity) || 0)}</p>
                             </div>
                           ))}
                       </div>
@@ -440,7 +448,7 @@ const Orders = () => {
                       <div className="space-y-4 relative z-10">
                           <div className="flex justify-between text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">
                             <span>Subtotal Gross</span>
-                            <span className="text-white">₹{parseInt(selectedOrder.amount.replace('₹','').replace(',','')) - 45}</span>
+                            <span className="text-white">₹{(parseFloat((selectedOrder.grand_total || selectedOrder.amount || 0).toString().replace(/[₹,]/g, '')) - 45).toFixed(2)}</span>
                           </div>
                           <div className="flex justify-between text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">
                             <span>Govt Tax (GST 5%)</span>
@@ -450,8 +458,8 @@ const Orders = () => {
                             <div>
                                 <p className="text-slate-500 text-[8px] font-black uppercase tracking-[0.3em] mb-2">Net Settlement</p>
                                 <div className="flex items-baseline gap-2">
-                                  <h4 className="text-4xl font-black text-primary tracking-tighter">{selectedOrder.amount}</h4>
-                                  <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">INR</span>
+                                  <h4 className="text-4xl font-black text-white tracking-tighter">₹{(selectedOrder.grand_total || selectedOrder.amount || 0).toString().replace(/[₹,]/g, '')}</h4>
+                                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">INR</span>
                                 </div>
                             </div>
                             <div className="badge bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 font-black px-5 py-2 rounded-xl shadow-lg text-[10px] uppercase tracking-widest">

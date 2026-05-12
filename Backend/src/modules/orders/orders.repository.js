@@ -21,6 +21,11 @@ class OrdersRepository extends BaseModel {
       params.push(filters.customerId);
     }
 
+    if (filters.userId) {
+      sql += ` AND o.user_id = ?`;
+      params.push(filters.userId);
+    }
+
     sql += ` ORDER BY o.createdAt DESC`;
 
     const [rows] = await pool.execute(sql, params);

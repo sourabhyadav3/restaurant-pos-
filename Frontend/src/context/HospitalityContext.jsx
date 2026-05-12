@@ -21,6 +21,8 @@ export const HospitalityProvider = ({ children }) => {
   const [staff, setStaff] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [services, setServices] = useState([]);
+  const [serviceBookings, setServiceBookings] = useState([]);
   const [activityLog, setActivityLog] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -52,7 +54,9 @@ export const HospitalityProvider = ({ children }) => {
         { key: 'reservations', url: '/reservations' },
         { key: 'staff', url: '/staff' },
         { key: 'tasks', url: '/tasks' },
-        { key: 'inventory', url: '/inventory' }
+        { key: 'inventory', url: '/inventory' },
+        { key: 'services', url: '/services' },
+        { key: 'bookings', url: '/services/bookings' }
       ];
 
       const results = await Promise.allSettled(
@@ -70,6 +74,8 @@ export const HospitalityProvider = ({ children }) => {
             case 'staff': setStaff(data || []); break;
             case 'tasks': setTasks(data || []); break;
             case 'inventory': setInventory(data || []); break;
+            case 'services': setServices(data || []); break;
+            case 'bookings': setServiceBookings(data || []); break;
             default: break;
           }
         } else if (result.reason.name !== 'CanceledError') {
@@ -355,6 +361,16 @@ export const HospitalityProvider = ({ children }) => {
     }
   }, [fetchData, addActivity]);
 
+  const updateServiceBookingStatus = useCallback(async (id, status) => {
+    try {
+      await api.patch(`/services/bookings/${id}/status`, { status });
+      await fetchData(true);
+      addActivity(`Service booking status updated to ${status}`, 'info');
+    } catch (error) {
+      console.error('Error updating service booking status:', error);
+    }
+  }, [fetchData, addActivity]);
+
   const value = React.useMemo(() => ({
     rooms, updateRoomStatus, updateRoom, addRoom, deleteRoom,
     tables, addTable, updateTableStatus, deleteTable,
@@ -363,6 +379,7 @@ export const HospitalityProvider = ({ children }) => {
     staff, addStaff, updateStaff, deleteStaff,
     tasks, addTask, updateTaskStatus, deleteTask,
     inventory, updateStock, addInventoryItem, deleteInventoryItem,
+    services, serviceBookings, updateServiceBookingStatus,
     activityLog, addActivity,
     loading, error, refreshData: () => fetchData(true)
   }), [
@@ -373,6 +390,7 @@ export const HospitalityProvider = ({ children }) => {
     staff, addStaff, updateStaff, deleteStaff,
     tasks, addTask, updateTaskStatus, deleteTask,
     inventory, updateStock, addInventoryItem, deleteInventoryItem,
+    services, serviceBookings, updateServiceBookingStatus,
     activityLog, addActivity,
     loading, error, fetchData
   ]);

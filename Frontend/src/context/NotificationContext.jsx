@@ -1,116 +1,105 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useAuth } from './AuthContext';
+import api from '../services/api';
 
 const NotificationContext = createContext();
 
 export const useNotifications = () => useContext(NotificationContext);
 
 export const NotificationProvider = ({ children }) => {
-  const [notifications, setNotifications] = useState(() => {
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchNotifications = useCallback(async () => {
+    if (!user) return;
     try {
-      const saved = localStorage.getItem('resto-notifications');
-      if (!saved) return [
-        {
-          id: 1,
-          type: 'Reservation',
-          title: 'VIP Reservation',
-          message: 'Alexander Wright requested ROYAL SUITE for May 10.',
-          targetRole: 'ADMIN',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          read: false
-        },
-        {
-          id: 2,
-          type: 'Message',
-          title: 'Priority Request',
-          message: 'Elena Gilbert: "Need late checkout for Room 102."',
-          targetRole: 'MANAGER',
-          timestamp: new Date(Date.now() - 7200000).toISOString(),
-          read: true
-        },
-        {
-          id: 3,
-          type: 'Inventory',
-          title: 'Stock Alert',
-          message: 'Seafood Grill is running low in stock (Kitchen).',
-          targetRole: 'CHEF',
-          timestamp: new Date(Date.now() - 10000000).toISOString(),
-          read: false
-        },
-        {
-          id: 4,
-          type: 'System',
-          title: 'Payroll Processed',
-          message: 'Monthly payroll for staff has been finalized.',
-          targetRole: 'ADMIN',
-          timestamp: new Date(Date.now() - 86400000).toISOString(),
-          read: true
-        },
-        {
-          id: 5,
-          type: 'Service',
-          title: 'New Service Booking',
-          message: 'Sarah Jenkins booked a "Sunset Cruise" for tomorrow.',
-          targetRole: 'WAITER',
-          timestamp: new Date(Date.now() - 1800000).toISOString(),
-          read: false
-        }
-      ];
-      const parsed = JSON.parse(saved);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      console.error("Error parsing notifications:", e);
-      return [];
+      const userRole = (user.role || user.role_name || '').toUpperCase();
+      const response = await api.get('/notifications', {
+        params: { userId: user.id, role: userRole }
+      });
+      setNotifications(response.data.data);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
     }
-  });
+  }, [user]);
 
   useEffect(() => {
-    localStorage.setItem('resto-notifications', JSON.stringify(notifications));
-  }, [notifications]);
+    if (user) {
+      fetchNotifications();
+      // Poll for new notifications every 30 seconds
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user, fetchNotifications]);
 
-  const addNotification = useCallback((notif) => {
-    setNotifications(prev => {
-      const newNotif = {
+  const addNotification = useCallback(async (notif) => {
+    try {
+      await api.post('/notifications', {
+        user_id: notif.userId || user?.id,
+        notification_type: notif.type || 'system',
+        message: notif.message,
+        targetRole: notif.targetRole?.toUpperCase() || 'ALL'
+      });
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error adding notification:', error);
+      // Fallback to local state if backend fails
+      setNotifications(prev => [{
         id: Date.now(),
         timestamp: new Date().toISOString(),
         read: false,
-        ...notif,
-        targetRole: notif.targetRole?.toUpperCase() || 'ALL'
-      };
-      return [newNotif, ...prev].slice(0, 50);
-    });
+        ...notif
+      }, ...prev]);
+    }
+  }, [user, fetchNotifications]);
+
+  const markAsRead = useCallback(async (id) => {
+    try {
+      await api.patch(`/notifications/${id}/read`);
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: 1, read: true } : n));
+    } catch (error) {
+      console.error('Error marking as read:', error);
+    }
   }, []);
 
-  const markAsRead = useCallback((id) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-  }, []);
+  const markAllAsRead = useCallback(async (role) => {
+    try {
+      const userRole = role || (user?.role || user?.role_name || '').toUpperCase();
+      await api.post('/notifications/mark-all-read', { userId: user?.id, role: userRole });
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: 1, read: true })));
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
+  }, [user]);
 
-  const markAllAsRead = useCallback((role) => {
-    const roleUpper = role?.toUpperCase();
-    setNotifications(prev => prev.map(n => (n.targetRole === roleUpper || n.targetRole === 'ALL') ? { ...n, read: true } : n));
-  }, []);
-
-  const clearNotifications = useCallback(() => {
-    setNotifications([]);
-  }, []);
-
-  const deleteNotification = useCallback((id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+  const deleteNotification = useCallback(async (id) => {
+    try {
+      await api.delete(`/notifications/${id}`);
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
   }, []);
 
   const getUnreadCount = useCallback((role) => {
-    const roleUpper = role?.toUpperCase();
-    return notifications.filter(n => !n.read && (n.targetRole === roleUpper || n.targetRole === 'ALL')).length;
+    return notifications.filter(n => !n.is_read && !n.read).length;
   }, [notifications]);
 
   return (
     <NotificationContext.Provider value={{
-      notifications,
+      notifications: notifications.map(n => ({
+        ...n,
+        title: n.notification_type?.toUpperCase() || 'SYSTEM ALERT',
+        read: n.is_read === 1 || n.read === true,
+        timestamp: n.createdAt || n.timestamp
+      })),
       addNotification,
       markAsRead,
       markAllAsRead,
-      clearNotifications,
       getUnreadCount,
-      deleteNotification
+      deleteNotification,
+      refreshNotifications: fetchNotifications
     }}>
       {children}
     </NotificationContext.Provider>

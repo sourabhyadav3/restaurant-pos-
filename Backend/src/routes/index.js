@@ -15,6 +15,8 @@ const billingRoutes = require('../modules/billing/billing.routes');
 const roomRoutes = require('../modules/rooms/rooms.routes');
 const conciergeRoutes = require('../modules/concierge/concierge.routes');
 const customerRoutes = require('../modules/customer/customer.routes');
+const notificationRoutes = require('../modules/notifications/notifications.routes');
+const serviceRoutes = require('../modules/services/services.routes');
 
 // Use routes
 router.use('/auth', authRoutes);
@@ -30,5 +32,7 @@ router.use('/billing', billingRoutes);
 router.use('/rooms', roomRoutes);
 router.use('/concierge', conciergeRoutes);
 router.use('/customer', customerRoutes);
+router.use('/notifications', notificationRoutes);
+router.use('/services', serviceRoutes);
 
 module.exports = router;

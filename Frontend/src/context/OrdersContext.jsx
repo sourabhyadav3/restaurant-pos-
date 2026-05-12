@@ -18,7 +18,15 @@ export const OrdersProvider = ({ children }) => {
   const fetchOrders = useCallback(async () => {
     if (!user) return;
     try {
-      const response = await api.get('/orders');
+      const params = {};
+      const userRole = (user.role || user.role_name || '').toUpperCase();
+      
+      // If customer, only show their orders. If admin/staff, show all.
+      if (userRole === 'CUSTOMER') {
+        params.userId = user.id;
+      }
+
+      const response = await api.get('/orders', { params });
       setOrders(response.data.data);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -70,24 +78,29 @@ export const OrdersProvider = ({ children }) => {
 
   const addOrder = async (cartItems, extraData = {}) => {
     try {
+      const subtotal = cartItems.reduce((acc, i) => acc + (i.price * (i.qty || i.quantity || 0)), 0);
+      const tax = extraData.tax || subtotal * 0.05;
+      const total = extraData.total || (subtotal + tax + (extraData.serviceFee || 0));
+
       const orderData = {
         order_number: `ORD-${Date.now()}`,
-        subtotal: cartItems.reduce((acc, i) => acc + (i.price * i.qty), 0),
-        tax: extraData.tax || 0,
+        subtotal: subtotal,
+        tax: tax,
         discount: extraData.discount || 0,
-        grand_total: extraData.total || 0,
+        grand_total: total,
         order_type: extraData.type?.toLowerCase() || 'dine-in',
         table_id: extraData.tableId || null,
         customer_id: extraData.customerId || null,
+        user_id: extraData.userId || null,
         payment_status: extraData.paymentStatus || 'pending',
         order_status: 'new'
       };
 
       const items = cartItems.map(item => ({
-        menu_item_id: item.id,
-        quantity: item.qty,
+        menu_item_id: item.itemId || item.id,
+        quantity: item.qty || item.quantity,
         unit_price: item.price,
-        total_price: item.price * item.qty
+        total_price: item.price * (item.qty || item.quantity)
       }));
 
       const response = await api.post('/orders', { orderData, items });

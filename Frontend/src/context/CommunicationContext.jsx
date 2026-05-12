@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNotifications } from './NotificationContext';
+import { useAuth } from './AuthContext';
+import api from '../services/api';
 
 const CommunicationContext = createContext();
 
@@ -7,116 +9,95 @@ export const useCommunication = () => useContext(CommunicationContext);
 
 export const CommunicationProvider = ({ children }) => {
   const { addNotification } = useNotifications();
-  const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem('resto-communication-messages');
-    return saved ? JSON.parse(saved) : [
-      { 
-        id: 1, 
-        guestName: 'Sarah Jenkins', 
-        guestId: 'CUST-001', 
-        content: 'Hi, can I get extra towels in room LENA?', 
-        sender: 'Guest', 
-        timestamp: new Date(Date.now() - 3600000).toISOString(),
-        status: 'read'
-      },
-      { 
-        id: 2, 
-        guestName: 'Sarah Jenkins', 
-        guestId: 'CUST-001', 
-        content: 'Sure, our staff will deliver them shortly.', 
-        sender: 'Staff', 
-        timestamp: new Date(Date.now() - 3500000).toISOString(),
-        status: 'delivered'
-      },
-      { 
-        id: 3, 
-        guestName: 'John Doe', 
-        guestId: 'CUST-002', 
-        content: 'What are the gym timings today?', 
-        sender: 'Guest', 
-        timestamp: new Date(Date.now() - 7200000).toISOString(),
-        status: 'read'
-      },
-      { 
-        id: 4, 
-        guestName: 'Michael Scott', 
-        guestId: 'CUST-003', 
-        content: 'I need a wake up call at 6:00 AM.', 
-        sender: 'Guest', 
-        timestamp: new Date(Date.now() - 1800000).toISOString(),
-        status: 'sent'
+  const { user } = useAuth();
+  const [messages, setMessages] = useState([]);
+  const [activeChats, setActiveChats] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchActiveChats = useCallback(async () => {
+    if (!user) return;
+    try {
+      const response = await api.get('/concierge/tickets');
+      if (response.data.success) {
+        const chats = response.data.data.map(ticket => ({
+          guestId: ticket.guest_id,
+          ticketId: ticket.id,
+          guestName: ticket.guest_name,
+          lastMessage: ticket.last_message || 'New request',
+          lastTimestamp: ticket.updatedAt,
+          unreadCount: 0, // In a real app, track this in DB
+          status: ticket.ticket_status
+        }));
+        setActiveChats(chats);
       }
-    ];
-  });
-
-  const [activeChats, setActiveChats] = useState(() => {
-    const saved = localStorage.getItem('resto-communication-chats');
-    return saved ? JSON.parse(saved) : [
-      { guestId: 'CUST-001', guestName: 'Sarah Jenkins', lastMessage: 'Sure, our staff will deliver them shortly.', lastTimestamp: new Date(Date.now() - 3500000).toISOString(), unreadCount: 0 },
-      { guestId: 'CUST-002', guestName: 'John Doe', lastMessage: 'What are the gym timings today?', lastTimestamp: new Date(Date.now() - 7200000).toISOString(), unreadCount: 0 },
-      { guestId: 'CUST-003', guestName: 'Michael Scott', lastMessage: 'I need a wake up call at 6:00 AM.', lastTimestamp: new Date(Date.now() - 1800000).toISOString(), unreadCount: 1 }
-    ];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('resto-communication-messages', JSON.stringify(messages));
-  }, [messages]);
-
-  useEffect(() => {
-    localStorage.setItem('resto-communication-chats', JSON.stringify(activeChats));
-  }, [activeChats]);
-
-  const sendMessage = (guestId, guestName, content, sender = 'Guest') => {
-    const newMessage = {
-      id: Date.now(),
-      guestId,
-      guestName,
-      content,
-      sender,
-      timestamp: new Date().toISOString(),
-      status: 'sent'
-    };
-
-    setMessages(prev => [...prev, newMessage]);
-
-    if (sender === 'Guest') {
-      addNotification({
-        type: 'Message',
-        title: 'New Guest Message',
-        message: `${guestName}: "${content.slice(0, 30)}${content.length > 30 ? '...' : ''}"`,
-        targetRole: 'WAITER'
-      });
+    } catch (error) {
+      console.error('Error fetching concierge chats:', error);
     }
+  }, [user]);
 
-    // Update active chats summary
-    setActiveChats(prev => {
-      const existingChatIndex = prev.findIndex(c => c.guestId === guestId);
-      if (existingChatIndex > -1) {
-        const updatedChats = [...prev];
-        updatedChats[existingChatIndex] = {
-          ...updatedChats[existingChatIndex],
-          lastMessage: content,
-          lastTimestamp: newMessage.timestamp,
-          unreadCount: sender === 'Guest' ? updatedChats[existingChatIndex].unreadCount + 1 : 0
-        };
-        // Move to top
-        const chat = updatedChats.splice(existingChatIndex, 1)[0];
-        return [chat, ...updatedChats];
-      } else {
-        return [{
-          guestId,
-          guestName,
-          lastMessage: content,
-          lastTimestamp: newMessage.timestamp,
-          unreadCount: sender === 'Guest' ? 1 : 0
-        }, ...prev];
+  const fetchMessages = useCallback(async (ticketId) => {
+    try {
+      const response = await api.get(`/concierge/tickets/${ticketId}/messages`);
+      if (response.data.success) {
+        const formattedMessages = response.data.data.map(msg => ({
+          id: msg.id,
+          guestId: msg.guest_id, // Might need to adjust based on DB schema
+          ticketId: msg.ticket_id,
+          content: msg.message,
+          sender: msg.sender_id === user?.id ? 'Staff' : 'Guest',
+          timestamp: msg.createdAt
+        }));
+        setMessages(prev => {
+          // Merge and avoid duplicates
+          const otherMessages = prev.filter(m => m.ticketId !== ticketId);
+          return [...otherMessages, ...formattedMessages];
+        });
       }
-    });
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user && (user.role === 'WAITER' || user.role === 'ADMIN' || user.role === 'MANAGER')) {
+      fetchActiveChats();
+      const interval = setInterval(fetchActiveChats, 15000); // Poll for new tickets
+      return () => clearInterval(interval);
+    }
+  }, [user, fetchActiveChats]);
+
+  const sendMessage = async (ticketId, guestName, content, sender = 'Staff') => {
+    try {
+      const response = await api.post('/concierge/messages', {
+        ticket_id: ticketId,
+        message: content
+      });
+
+      if (response.data.success) {
+        const newMessage = {
+          id: response.data.data.id,
+          ticketId,
+          content,
+          sender,
+          timestamp: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, newMessage]);
+        
+        // Update local chat summary
+        setActiveChats(prev => prev.map(chat => 
+          chat.ticketId === ticketId 
+          ? { ...chat, lastMessage: content, lastTimestamp: newMessage.timestamp } 
+          : chat
+        ));
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
-  const markAsRead = (guestId) => {
+  const markAsRead = (ticketId) => {
     setActiveChats(prev => prev.map(c => 
-      c.guestId === guestId ? { ...c, unreadCount: 0 } : c
+      c.ticketId === ticketId ? { ...c, unreadCount: 0 } : c
     ));
   };
 
@@ -125,7 +106,9 @@ export const CommunicationProvider = ({ children }) => {
       messages,
       activeChats,
       sendMessage,
-      markAsRead
+      markAsRead,
+      fetchMessages,
+      loading
     }}>
       {children}
     </CommunicationContext.Provider>

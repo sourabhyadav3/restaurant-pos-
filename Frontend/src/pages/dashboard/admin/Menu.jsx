@@ -19,7 +19,8 @@ import {
   CheckCircle2,
   AlertCircle,
   CookingPot,
-  ArrowUpRight
+  ArrowUpRight,
+  Eye
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
 import { getImageUrl } from "../../../utils/imageUtils";
@@ -33,6 +34,7 @@ const Menu = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
+  const [isViewOnly, setIsViewOnly] = useState(false);
   const [toast, setToast] = useState(null);
 
   const categories = [
@@ -59,7 +61,9 @@ const Menu = () => {
       price: itemData.price,
       category_id: category ? category.id : null,
       image: itemData.image,
-      available: itemData.status === 'In Stock'
+      available: itemData.status,
+      rating: itemData.rating,
+      popular: itemData.popular
     };
 
     if (editingItem) {
@@ -82,7 +86,8 @@ const Menu = () => {
   const toggleAvailability = (id) => {
     const item = items.find(i => i.id === id);
     if (item) {
-      updateItem(id, { available: !item.available, status: !item.available ? 'In Stock' : 'Out of Stock' });
+      const nextStatus = item.available === 'In Stock' ? 'Out of Stock' : 'In Stock';
+      updateItem(id, { available: nextStatus });
       showToast('Availability status updated');
     }
   };
@@ -93,7 +98,7 @@ const Menu = () => {
     category: item.category_name || item.category, // Handle both cases
     image: item.image || '🍽️',
     rating: item.rating || 5.0,
-    status: item.available ? 'In Stock' : 'Out of Stock'
+    status: item.status || (item.available === '1' || item.available === true ? 'In Stock' : 'Out of Stock')
   }))
     .filter(item => activeCategory === 'All Items' || item.category === activeCategory)
     .filter(item => 
@@ -123,7 +128,7 @@ const Menu = () => {
           <p className="text-text-secondary mt-1 text-xs lg:text-sm font-medium">Manage dishes and availability.</p>
         </div>
         <button 
-          onClick={() => { setEditingItem(null); setShowAddModal(true); }}
+          onClick={() => { setEditingItem(null); setIsViewOnly(false); setShowAddModal(true); }}
           className="btn-primary flex items-center justify-center gap-2 py-3 lg:py-2.5 px-6 shadow-xl shadow-primary/20 text-[10px] lg:text-sm uppercase tracking-widest font-black"
         >
           <Plus className="w-4 h-4 stroke-[3]" /> Add Item
@@ -206,7 +211,7 @@ const Menu = () => {
                               <div>
                                  <span className="font-black text-text-primary text-base tracking-tight leading-none">{item.name}</span>
                                  <p className="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-widest flex items-center gap-2">
-                                    <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" /> {item.rating} • Popular
+                                    <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" /> {item.rating} {item.popular ? '• Popular' : ''}
                                  </p>
                               </div>
                             </div>
@@ -231,7 +236,13 @@ const Menu = () => {
                           <td className="px-8 py-5 text-right">
                             <div className="flex items-center justify-end gap-2">
                               <button 
-                                onClick={(e) => { e.stopPropagation(); setEditingItem(item); setShowAddModal(true); }}
+                                onClick={(e) => { e.stopPropagation(); setEditingItem(item); setIsViewOnly(true); setShowAddModal(true); }}
+                                className="p-2.5 bg-white text-slate-400 hover:text-primary hover:shadow-xl rounded-xl border border-slate-100"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); setEditingItem(item); setIsViewOnly(false); setShowAddModal(true); }}
                                 className="p-2.5 bg-white text-slate-400 hover:text-primary hover:shadow-xl rounded-xl border border-slate-100"
                               >
                                 <Edit2 className="w-4 h-4" />
@@ -292,7 +303,7 @@ const Menu = () => {
                           <h4 className="font-black text-text-primary text-sm uppercase tracking-tight truncate">{item.name}</h4>
                           <p className="font-black text-primary text-sm ml-2">₹{item.price}</p>
                         </div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{item.category}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{item.category} • <Star className="w-2.5 h-2.5 fill-yellow-500 text-yellow-500 inline mb-0.5" /> {item.rating} {item.popular ? '• Popular' : ''}</p>
                         <div className="flex items-center justify-between mt-3">
                           <span className={cn(
                             "px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest",
@@ -302,7 +313,13 @@ const Menu = () => {
                           </span>
                           <div className="flex gap-2">
                             <button 
-                              onClick={(e) => { e.stopPropagation(); setEditingItem(item); setShowAddModal(true); }}
+                              onClick={(e) => { e.stopPropagation(); setEditingItem(item); setIsViewOnly(true); setShowAddModal(true); }}
+                              className="p-2 bg-slate-50 rounded-lg text-slate-400"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); setEditingItem(item); setIsViewOnly(false); setShowAddModal(true); }}
                               className="p-2 bg-slate-50 rounded-lg text-slate-400"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
@@ -335,7 +352,8 @@ const Menu = () => {
         {showAddModal && (
           <AddItemModal 
             item={editingItem} 
-            onClose={() => { setShowAddModal(false); setEditingItem(null); }}
+            isViewOnly={isViewOnly}
+            onClose={() => { setShowAddModal(false); setEditingItem(null); setIsViewOnly(false); }}
             onSave={handleSaveItem}
             categories={categories.filter(c => c.name !== 'All Items')}
           />
@@ -359,80 +377,20 @@ const Menu = () => {
         </div>,
         document.body
       )}
-
-      {selectedItem && createPortal(
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
-           <div onClick={() => setSelectedItem(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-           <div 
-             className="relative w-full sm:max-w-[480px] max-h-[95vh] sm:max-h-[90vh] bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col self-end sm:self-center animate-in fade-in slide-in-from-bottom-4 sm:zoom-in duration-300"
-           >
-              <div className="h-48 md:h-56 bg-slate-100 flex items-center justify-center relative overflow-hidden group shrink-0">
-                {getImageUrl(selectedItem.image).length > 2 ? (
-                  <img src={getImageUrl(selectedItem.image)} alt={selectedItem.name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="text-7xl">{getImageUrl(selectedItem.image)}</div>
-                )}
-                <div className="absolute top-6 right-6">
-                  <button onClick={() => setSelectedItem(null)} className="p-2 bg-black/20 hover:bg-black/40 rounded-xl text-white transition-all"><X className="w-5 h-5" /></button>
-                </div>
-                <CookingPot className="absolute -bottom-10 -left-10 w-40 h-40 text-white/5 -rotate-12" />
-              </div>
-              <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8 scrollbar-hide">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-2xl md:text-3xl font-black text-text-primary tracking-tighter uppercase">{selectedItem.name}</h3>
-                    <div className="flex items-center gap-3 mt-3">
-                       <span className="badge bg-indigo-50 text-primary border-none text-[8px] font-black uppercase tracking-[0.2em]">{selectedItem.category}</span>
-                       <div className="flex items-center gap-1.5 text-[10px] font-black text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-lg">
-                         <Star className="w-3.5 h-3.5 fill-current" /> {selectedItem.rating}
-                       </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                     <p className="text-2xl md:text-3xl font-black text-primary tracking-tighter uppercase">₹{selectedItem.price}</p>
-                     <span className={cn(
-                       "badge font-black border-2 py-1 px-3 text-[7px] uppercase tracking-widest mt-2 inline-block",
-                       selectedItem.status === 'In Stock' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-rose-50 text-rose-600 border-rose-100"
-                     )}>
-                       {selectedItem.status}
-                     </span>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Product Intelligence</h4>
-                   <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"{selectedItem.description || 'No description available for this premium offering.'}"</p>
-                </div>
-              </div>
-              <div className="p-6 md:p-8 border-t border-slate-50 flex gap-3 md:gap-4 shrink-0 bg-white relative z-20">
-                <button 
-                  onClick={() => { setEditingItem(selectedItem); setSelectedItem(null); setShowAddModal(true); }}
-                  className="flex-1 py-4 border-2 border-slate-100 rounded-2xl font-black uppercase tracking-widest text-[8px] md:text-[9px] hover:bg-slate-50 flex items-center justify-center gap-2 md:gap-3 transition-all"
-                >
-                  <Edit2 className="w-3.5 h-3.5 md:w-4 md:h-4" /> Edit Entry
-                </button>
-                <button 
-                  onClick={() => { setSelectedItem(null); }}
-                  className="flex-1 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[8px] md:text-[9px] shadow-xl shadow-primary/20 active:scale-95 transition-all"
-                >
-                  Close
-                </button>
-              </div>
-           </div>
-        </div>,
-        document.body
-      )}
     </div>
   );
 };
 
-const AddItemModal = ({ item, onClose, onSave, categories }) => {
+const AddItemModal = ({ item, isViewOnly, onClose, onSave, categories }) => {
   const [formData, setFormData] = useState({
-    name: item?.item_name || '',
-    category: item?.category_name || categories[0]?.name || '',
+    name: item?.name || item?.item_name || '',
+    category: item?.category || item?.category_name || categories[0]?.name || '',
     price: item?.price || '',
     description: item?.description || '',
-    status: item?.available !== false ? 'In Stock' : 'Out of Stock',
-    image: item?.image || ''
+    status: item?.status || 'In Stock',
+    image: item?.image || '',
+    rating: item?.rating || 5,
+    popular: !!item?.popular
   });
   const [errors, setErrors] = useState({});
   const [previewUrl, setPreviewUrl] = useState(item?.image || '');
@@ -477,8 +435,12 @@ const AddItemModal = ({ item, onClose, onSave, categories }) => {
                 <Plus className="w-4 h-4 md:w-5 md:h-5 text-primary md:stroke-[3]" />
              </div>
              <div>
-                <h3 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none">{item ? 'Edit' : 'Add'} Menu Item</h3>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1 leading-none">{item ? 'Modify existing entry' : 'Define new experience'}</p>
+                <h3 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none">
+                  {isViewOnly ? 'View' : (item ? 'Edit' : 'Add')} Menu Item
+                </h3>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1 leading-none">
+                  {isViewOnly ? 'Product details' : (item ? 'Modify existing entry' : 'Define new experience')}
+                </p>
              </div>
           </div>
           <button onClick={onClose} className="p-2 md:p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 shadow-sm transition-all"><X className="w-5 h-5 text-slate-400" /></button>
@@ -492,7 +454,8 @@ const AddItemModal = ({ item, onClose, onSave, categories }) => {
                       type="file" 
                       accept="image/*"
                       onChange={handleImageChange}
-                      className="absolute inset-0 opacity-0 cursor-pointer z-20"
+                      className="absolute inset-0 opacity-0 cursor-pointer z-20 disabled:cursor-default"
+                      disabled={isViewOnly}
                     />
                     {previewUrl ? (
                       <img src={previewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover z-10" />
@@ -517,9 +480,10 @@ const AddItemModal = ({ item, onClose, onSave, categories }) => {
                          onChange={(e) => setFormData({...formData, name: e.target.value})}
                          placeholder="e.g. Classic Margherita" 
                          className={cn(
-                           "w-full px-5 py-3.5 bg-slate-50 border rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none font-bold text-xs md:text-sm transition-all",
+                           "w-full px-5 py-3.5 bg-slate-50 border rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none font-bold text-xs md:text-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed",
                            errors.name ? "border-rose-300 bg-rose-50/20" : "border-slate-100"
                          )}
+                         disabled={isViewOnly}
                        />
                        {errors.name && <p className="text-[9px] font-bold text-rose-500 ml-1 mt-1">{errors.name}</p>}
                     </div>
@@ -532,9 +496,10 @@ const AddItemModal = ({ item, onClose, onSave, categories }) => {
                             onChange={(e) => setFormData({...formData, price: e.target.value})}
                             placeholder="299" 
                             className={cn(
-                              "w-full px-5 py-3.5 bg-slate-50 border rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none font-bold text-xs md:text-sm transition-all",
+                              "w-full px-5 py-3.5 bg-slate-50 border rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none font-bold text-xs md:text-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed",
                               errors.price ? "border-rose-300 bg-rose-50/20" : "border-slate-100"
                             )}
+                            disabled={isViewOnly}
                           />
                           {errors.price && <p className="text-[9px] font-bold text-rose-500 ml-1 mt-1">{errors.price}</p>}
                        </div>
@@ -544,7 +509,8 @@ const AddItemModal = ({ item, onClose, onSave, categories }) => {
                             <select 
                               value={formData.category}
                               onChange={(e) => setFormData({...formData, category: e.target.value})}
-                              className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none font-bold text-xs md:text-sm appearance-none transition-all"
+                              className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none font-bold text-xs md:text-sm appearance-none transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                              disabled={isViewOnly}
                             >
                                {categories.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
                             </select>
@@ -561,16 +527,67 @@ const AddItemModal = ({ item, onClose, onSave, categories }) => {
                    onChange={(e) => setFormData({...formData, description: e.target.value})}
                    placeholder="Describe flavors and ingredients..." 
                    rows="3" 
-                   className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none font-bold text-xs md:text-sm transition-all resize-none"
+                   className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none font-bold text-xs md:text-sm transition-all resize-none disabled:opacity-70 disabled:cursor-not-allowed"
+                   disabled={isViewOnly}
                  />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                 <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Rating (0-5)</label>
+                    <input 
+                      type="number" 
+                      min="0"
+                      max="5"
+                      step="0.1"
+                      value={formData.rating}
+                      onChange={(e) => setFormData({...formData, rating: e.target.value})}
+                      className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none font-bold text-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                      disabled={isViewOnly}
+                    />
+                 </div>
+                 <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Stock Status</label>
+                    <div className="relative">
+                      <select 
+                        value={formData.status}
+                        onChange={(e) => setFormData({...formData, status: e.target.value})}
+                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none font-bold text-sm appearance-none transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                        disabled={isViewOnly}
+                      >
+                         <option value="In Stock">In Stock</option>
+                         <option value="Low Stock">Low Stock</option>
+                         <option value="Out of Stock">Out of Stock</option>
+                      </select>
+                      <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 rotate-90 pointer-events-none" />
+                    </div>
+                 </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                 <label className="relative inline-flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={formData.popular}
+                      onChange={(e) => setFormData({...formData, popular: e.target.checked})}
+                      className="sr-only peer"
+                      disabled={isViewOnly}
+                    />
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                 </label>
+                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mark as Popular Item</span>
               </div>
            </div>
 
            <div className="px-6 py-6 md:px-8 md:py-8 border-t border-slate-50 flex flex-col sm:flex-row gap-3 md:gap-4 bg-white shrink-0 relative z-20">
-              <button type="button" onClick={onClose} className="flex-1 py-4 border-2 border-slate-100 rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] text-slate-400 hover:bg-slate-50 transition-all">Cancel</button>
-              <button type="submit" className="flex-1 btn-primary py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 text-[9px] md:text-[10px] active:scale-95 transition-all">
-                {item ? 'Update Entry' : 'Deploy Item'}
+              <button type="button" onClick={onClose} className="flex-1 py-4 border-2 border-slate-100 rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] text-slate-400 hover:bg-slate-50 transition-all">
+                {isViewOnly ? 'Close' : 'Cancel'}
               </button>
+              {!isViewOnly && (
+                <button type="submit" className="flex-1 btn-primary py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 text-[9px] md:text-[10px] active:scale-95 transition-all">
+                  {item ? 'Update Entry' : 'Deploy Item'}
+                </button>
+              )}
            </div>
         </form>
       </div>

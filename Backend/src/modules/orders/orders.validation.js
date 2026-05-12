@@ -1,19 +1,25 @@
 const Joi = require('joi');
 
 const createOrderSchema = Joi.object({
-  customer_id: Joi.number().integer().allow(null).optional(),
-  table_id: Joi.number().integer().allow(null).optional(),
-  order_type: Joi.string().valid('dine-in', 'takeaway', 'delivery').required(),
-  subtotal: Joi.number().precision(2).required(),
-  tax: Joi.number().precision(2).required(),
-  discount: Joi.number().precision(2).default(0),
-  grand_total: Joi.number().precision(2).required(),
+  orderData: Joi.object({
+    customer_id: Joi.number().integer().allow(null).optional(),
+    user_id: Joi.number().integer().allow(null).optional(),
+    table_id: Joi.number().integer().allow(null).optional(),
+    order_number: Joi.string().required(),
+    order_type: Joi.string().valid('dine-in', 'takeaway', 'delivery', 'room service').required(),
+    subtotal: Joi.number().required(),
+    tax: Joi.number().required(),
+    discount: Joi.number().default(0),
+    grand_total: Joi.number().required(),
+    payment_status: Joi.string().optional(),
+    order_status: Joi.string().optional()
+  }).required(),
   items: Joi.array().items(
     Joi.object({
       menu_item_id: Joi.number().integer().required(),
       quantity: Joi.number().integer().min(1).required(),
-      unit_price: Joi.number().precision(2).required(),
-      total_price: Joi.number().precision(2).required()
+      unit_price: Joi.number().required(),
+      total_price: Joi.number().required()
     })
   ).min(1).required()
 });

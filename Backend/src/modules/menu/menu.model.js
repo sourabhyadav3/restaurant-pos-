@@ -8,9 +8,9 @@ class MenuModel extends BaseModel {
 
   async findWithCategory(filters = {}) {
     let sql = `
-      SELECT m.*, c.category_name 
+      SELECT m.*, m.availability as available, m.availability as status, c.category_name 
       FROM menu_items m 
-      JOIN menu_categories c ON m.category_id = c.id 
+      LEFT JOIN menu_categories c ON m.category_id = c.id 
       WHERE m.deletedAt IS NULL
     `;
     const params = [];
@@ -34,11 +34,12 @@ class MenuModel extends BaseModel {
   }
 
   async create(data) {
-    const { name, category, price, image, description } = data;
+    const { name, item_name, category, category_id, price, image, description, available } = data;
     
     // 1. Resolve Category ID
-    let categoryId = null;
-    if (category) {
+    let categoryId = category_id || null;
+    
+    if (!categoryId && category) {
       // Clean up category name (remove "All Items" if it was sent by mistake)
       const cleanCategory = category === 'All Items' ? 'General' : category;
       
@@ -61,15 +62,18 @@ class MenuModel extends BaseModel {
 
     // 2. Insert Item
     const sql = `
-      INSERT INTO menu_items (item_name, category_id, price, image, description) 
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO menu_items (item_name, category_id, price, image, description, availability, rating, popular) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const params = [
-      name || 'New Item',
+      item_name || name || 'New Item',
       categoryId,
       price || 0,
       image || '🍽️',
-      description || ''
+      description || '',
+      available || 'In Stock',
+      data.rating || 0,
+      data.popular ? 1 : 0
     ];
 
     const [insertResult] = await pool.execute(sql, params);
@@ -87,6 +91,8 @@ class MenuModel extends BaseModel {
     if (image !== undefined) updateData.image = image;
     if (description !== undefined) updateData.description = description;
     if (available !== undefined) updateData.availability = available;
+    if (data.rating !== undefined) updateData.rating = data.rating;
+    if (data.popular !== undefined) updateData.popular = data.popular ? 1 : 0;
 
     // Resolve Category if name is provided
     if (category && !category_id) {

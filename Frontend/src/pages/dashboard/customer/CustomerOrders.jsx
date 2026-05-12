@@ -28,24 +28,21 @@ const CustomerOrders = () => {
   const [activeTab, setActiveTab] = useState('Active');
   const [selectedTrackOrder, setSelectedTrackOrder] = useState(null);
 
-  // Filter orders for the current customer/table
-  const customerOrders = orders.filter(o => 
-    (o.customer === profile.name || o.table === `T-${profile.tableId}`)
-  );
-
-  const filteredOrders = customerOrders.filter(order => {
-    const isActive = ['Pending', 'New', 'Cooking', 'Ready'].includes(order.status);
+  const filteredOrders = orders.filter(order => {
+    const status = (order.order_status || order.status || '').toLowerCase();
+    const isActive = ['pending', 'new', 'cooking', 'ready'].includes(status);
     return activeTab === 'Active' ? isActive : !isActive;
   });
 
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'New': return 'text-blue-500 bg-blue-50 border-blue-100';
-      case 'Pending': return 'text-orange-500 bg-orange-50 border-orange-100';
-      case 'Cooking': return 'text-indigo-500 bg-indigo-50 border-indigo-100';
-      case 'Ready': return 'text-emerald-500 bg-emerald-50 border-emerald-100';
-      case 'Delivered': return 'text-slate-500 bg-slate-50 border-slate-100';
-      case 'Cancelled': return 'text-rose-500 bg-rose-50 border-rose-100';
+  const getStatusColor = (status = '') => {
+    const s = status.toLowerCase();
+    switch(s) {
+      case 'new': return 'text-blue-500 bg-blue-50 border-blue-100';
+      case 'pending': return 'text-orange-500 bg-orange-50 border-orange-100';
+      case 'cooking': return 'text-indigo-500 bg-indigo-50 border-indigo-100';
+      case 'ready': return 'text-emerald-500 bg-emerald-50 border-emerald-100';
+      case 'delivered': return 'text-slate-500 bg-slate-50 border-slate-100';
+      case 'cancelled': return 'text-rose-500 bg-rose-50 border-rose-100';
       default: return 'text-slate-500 bg-slate-50 border-slate-100';
     }
   };
@@ -105,17 +102,27 @@ const CustomerOrders = () => {
                       </div>
                       <div className="space-y-1.5 flex-1 min-w-0">
                          <div className="flex flex-wrap items-center gap-2">
-                            <span className={cn("px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border shrink-0", getStatusColor(order.status))}>
-                               {order.status}
+                            <span className={cn("px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border shrink-0", getStatusColor(order.order_status || order.status))}>
+                               {order.order_status || order.status}
                             </span>
-                            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest truncate">• {order.id}</span>
+                            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest truncate">• {order.order_number || order.id}</span>
                          </div>
                          <h4 className="text-base lg:text-lg font-black text-text-primary uppercase tracking-tight leading-tight pt-0.5 break-words line-clamp-2">
-                            {order.itemsList ? order.itemsList.map(i => i.name).join(', ') : 'Custom Order'}
+                            {order.items && order.items.length > 0 
+                              ? order.items.map(i => i.item_name || i.name).join(', ') 
+                              : order.itemsList 
+                                ? order.itemsList.map(i => i.name).join(', ') 
+                                : 'Food Order'}
                          </h4>
                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-0.5">
-                            <span className="flex items-center gap-1 shrink-0"><Clock className="w-3 h-3" /> {order.time || 'Recent'}</span>
-                            <span className="flex items-center gap-1 shrink-0"><MapPin className="w-3 h-3" /> {order.table}</span>
+                            <span className="flex items-center gap-1 shrink-0">
+                               <Clock className="w-3 h-3" /> 
+                               {order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (order.time || 'Recent')}
+                            </span>
+                            <span className="flex items-center gap-1 shrink-0">
+                               <MapPin className="w-3 h-3" /> 
+                               {order.table_code || order.table || 'N/A'}
+                            </span>
                          </div>
                       </div>
                   </div>
@@ -124,7 +131,7 @@ const CustomerOrders = () => {
                      <div className="text-right">
                         <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-0.5">Order Total</p>
                         <p className="text-lg lg:text-xl font-black text-text-primary tracking-tighter">
-                           {order.amount?.startsWith('₹') ? order.amount : `₹${order.amount || 0}`}
+                           ₹{(order.grand_total || order.amount || 0).toString().replace('₹', '')}
                         </p>
                      </div>
                      <div className="flex items-center gap-2">
@@ -137,7 +144,7 @@ const CustomerOrders = () => {
                              </button>
                         ) : (
                           <div className="flex items-center gap-2 w-full md:w-auto">
-                             {order.status === 'Pending' && (
+                             {(order.order_status || order.status || '').toLowerCase() === 'new' && (
                                <button 
                                  onClick={() => cancelOrder(order.id)}
                                  className="px-4 py-2.5 bg-rose-50 text-rose-500 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all shadow-sm flex-1 md:flex-none"
@@ -164,19 +171,22 @@ const CustomerOrders = () => {
                </div>
 
                {/* Mini Tracking Summary (Only for Active) */}
-               {activeTab === 'Active' && order.status !== 'Cancelled' && (
+               {activeTab === 'Active' && (order.order_status || order.status || '').toLowerCase() !== 'cancelled' && (
                  <div className="mt-6 pt-6 border-t border-slate-50">
                     <div className="flex items-center justify-between mb-3 text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">
                        <span>Preparation Progress</span>
-                       <span className="text-primary">
-                          {order.status === 'Pending' ? '20%' : order.status === 'Cooking' ? '65%' : order.status === 'Ready' ? '95%' : '100%'} Completed
-                       </span>
+                        <span className="text-primary uppercase">
+                           {(order.order_status || order.status || '').toLowerCase() === 'new' ? '20%' : 
+                            (order.order_status || order.status || '').toLowerCase() === 'pending' ? '40%' :
+                            (order.order_status || order.status || '').toLowerCase() === 'cooking' ? '75%' : 
+                            (order.order_status || order.status || '').toLowerCase() === 'ready' ? '95%' : '100%'} Completed
+                        </span>
                     </div>
                     <div className="flex gap-1.5 h-2">
-                       <div className={cn("flex-1 rounded-full", (order.status === 'Pending' || order.status === 'Cooking' || order.status === 'Ready') ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
-                       <div className={cn("flex-1 rounded-full", (order.status === 'Cooking' || order.status === 'Ready') ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
-                       <div className={cn("flex-1 rounded-full", (order.status === 'Cooking' || order.status === 'Ready') ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100", order.status === 'Cooking' && "opacity-40 animate-pulse")} />
-                       <div className={cn("flex-1 rounded-full", (order.status === 'Ready') ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
+                       <div className={cn("flex-1 rounded-full", ['new', 'pending', 'cooking', 'ready'].includes((order.order_status || order.status || '').toLowerCase()) ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
+                       <div className={cn("flex-1 rounded-full", ['pending', 'cooking', 'ready'].includes((order.order_status || order.status || '').toLowerCase()) ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
+                       <div className={cn("flex-1 rounded-full", ['cooking', 'ready'].includes((order.order_status || order.status || '').toLowerCase()) ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
+                       <div className={cn("flex-1 rounded-full", ['ready'].includes((order.order_status || order.status || '').toLowerCase()) ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
                     </div>
                  </div>
                )}
@@ -197,7 +207,7 @@ const CustomerOrders = () => {
                    </div>
                    <div>
                       <h3 className="text-lg sm:text-xl font-black text-text-primary uppercase tracking-tight">Order Tracker</h3>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Ticket #{selectedTrackOrder.id}</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Ticket #{selectedTrackOrder.order_number || selectedTrackOrder.id}</p>
                    </div>
                 </div>
                 <button onClick={() => setSelectedTrackOrder(null)} className="p-2 bg-white rounded-xl text-slate-300 hover:text-text-primary transition-all">
@@ -233,12 +243,12 @@ const CustomerOrders = () => {
                 <div className="card p-4 sm:p-6 bg-slate-50 border-none space-y-3 sm:space-y-4">
                    <div className="flex justify-between items-center text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">
                       <span>Order Items</span>
-                      <span>{selectedTrackOrder.amount?.startsWith('₹') ? selectedTrackOrder.amount : `₹${selectedTrackOrder.amount || 0}`}</span>
+                      <span>₹{selectedTrackOrder.grand_total || selectedTrackOrder.amount || 0}</span>
                    </div>
                    <div className="space-y-2.5 sm:space-y-3">
-                      {selectedTrackOrder.itemsList?.map((item, i) => (
+                      {(selectedTrackOrder.items || selectedTrackOrder.itemsList || []).map((item, i) => (
                         <div key={i} className="flex justify-between items-center gap-4">
-                           <p className="text-xs sm:text-sm font-black text-text-primary uppercase truncate flex-1">{item.name}</p>
+                           <p className="text-xs sm:text-sm font-black text-text-primary uppercase truncate flex-1">{item.item_name || item.name}</p>
                            <p className="text-[10px] sm:text-xs font-bold text-slate-400 shrink-0">x{item.quantity || 1}</p>
                         </div>
                       ))}

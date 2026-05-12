@@ -22,6 +22,7 @@ import { useCustomer } from "../../../context/CustomerContext";
 import { useOrders } from "../../../context/OrdersContext";
 import { useHospitality } from "../../../context/HospitalityContext";
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getImageUrl } from "../../../utils/imageUtils";
 
 const CartSummary = ({ 
   isMobile = false, 
@@ -35,16 +36,13 @@ const CartSummary = ({
   total, 
   onCheckout 
 }) => (
-  <div className={cn(
-    "flex flex-col h-full bg-white",
-    isMobile ? "p-6" : "p-0"
-  )}>
-     <div className="flex items-center justify-between mb-6">
+  <div className="flex flex-col h-full bg-white p-5 lg:p-6">
+     <div className="flex items-center justify-between mb-4 lg:mb-6 shrink-0">
         <div>
-          <h3 className="text-xl font-black text-text-primary uppercase tracking-tight flex items-center gap-3">
-             <ShoppingBag className="w-6 h-6 text-primary" /> Your Cart
+          <h3 className="text-lg lg:text-xl font-black text-text-primary uppercase tracking-tight flex items-center gap-2 lg:gap-3">
+             <ShoppingBag className="w-5 h-5 lg:w-6 lg:h-6 text-primary" /> Your Cart
           </h3>
-          <span className="text-[10px] font-black text-primary bg-primary/5 px-3 py-1 rounded-lg uppercase tracking-widest mt-2 inline-block">{cartItems.length} Items</span>
+          <span className="text-[9px] lg:text-[10px] font-black text-primary bg-primary/5 px-2.5 lg:px-3 py-1 rounded-lg uppercase tracking-widest mt-1.5 lg:mt-2 inline-block">{cartItems.length} Items</span>
         </div>
         {cartItems.length > 0 && (
           <button 
@@ -68,26 +66,35 @@ const CartSummary = ({
        <>
          <div className="flex-1 overflow-y-auto scrollbar-hide space-y-4 mb-6 pr-1">
             {cartItems.map((item) => (
-              <div key={item.id} className="flex gap-4 p-3 bg-slate-50 rounded-2xl group relative">
-                 <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center text-3xl shadow-sm shrink-0">
-                    {item.image}
-                 </div>
-                 <div className="flex-1 min-w-0 flex flex-col justify-between">
+              <div key={item.id} className="flex gap-4 p-3 bg-slate-50 rounded-2xl group relative border border-transparent hover:border-primary/10 transition-all">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm shrink-0 relative">
+                     {getImageUrl(item.image).length > 2 && !getImageUrl(item.image).includes('🍽️') ? (
+                        <>
+                           <img src={getImageUrl(item.image)} alt="" className="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-150" />
+                           <img src={getImageUrl(item.image)} alt={item.name} className="relative z-10 w-full h-full object-contain p-1" />
+                        </>
+                     ) : (
+                        <span className="text-2xl">{getImageUrl(item.image)}</span>
+                     )}
+                  </div>
+                 <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                     <div>
-                       <div className="flex justify-between items-start">
-                          <h4 className="text-[11px] font-black text-text-primary uppercase truncate pr-4">{item.name}</h4>
-                          <button onClick={() => removeFromCart(item.id)} className="p-1 text-slate-300 hover:text-rose-500 transition-colors">
-                             <Trash2 className="w-3 h-3" />
+                       <div className="flex justify-between items-start gap-2">
+                          <h4 className="text-[11px] font-black text-text-primary uppercase truncate flex-1">{item.name}</h4>
+                          <button onClick={() => removeFromCart(item.id)} className="p-1 text-slate-300 hover:text-rose-500 transition-colors shrink-0">
+                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                        </div>
-                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{item.size}</p>
+                       <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[8px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded-md uppercase tracking-widest">{item.size}</span>
+                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                       <p className="text-xs font-black text-primary tracking-tighter">₹{item.price * item.quantity}</p>
-                       <div className="flex items-center gap-3 bg-white px-2 py-1 rounded-lg shadow-sm">
-                          <button onClick={() => updateCartQuantity(item.id, -1)} className="text-slate-400 hover:text-primary"><Minus className="w-3 h-3" /></button>
-                          <span className="text-[10px] font-black w-2 text-center">{item.quantity}</span>
-                          <button onClick={() => updateCartQuantity(item.id, 1)} className="text-slate-400 hover:text-primary"><Plus className="w-3 h-3" /></button>
+                    <div className="flex items-center justify-between mt-2">
+                       <p className="text-xs font-black text-text-primary tracking-tighter">₹{item.price * item.quantity}</p>
+                       <div className="flex items-center gap-3 bg-white px-2 py-1.5 rounded-xl shadow-sm border border-slate-100">
+                          <button onClick={() => updateCartQuantity(item.id, -1)} className="text-slate-400 hover:text-primary transition-colors"><Minus className="w-3.5 h-3.5" /></button>
+                          <span className="text-[10px] font-black w-3 text-center">{item.quantity}</span>
+                          <button onClick={() => updateCartQuantity(item.id, 1)} className="text-slate-400 hover:text-primary transition-colors"><Plus className="w-3.5 h-3.5" /></button>
                        </div>
                     </div>
                  </div>
@@ -110,7 +117,7 @@ const CartSummary = ({
                   <span className="text-text-primary font-black">₹{serviceCharge}</span>
                </div>
             </div>
-            <div className="flex justify-between items-center pt-2">
+            <div className="flex justify-between items-center pt-3 border-t border-slate-100">
                <span className="text-xs font-black text-text-primary uppercase tracking-tight">Total Payable</span>
                <span className="text-2xl font-black text-primary tracking-tighter">₹{total.toFixed(0)}</span>
             </div>
@@ -159,9 +166,11 @@ const CustomerOrderNow = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
 
   const filteredItems = items.filter(item => {
-    const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          item.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const itemName = item.name || item.item_name || '';
+    const itemDesc = item.description || '';
+    const matchesCategory = activeCategory === 'All' || activeCategory === 'All Items' || item.category === activeCategory || item.category_name === activeCategory;
+    const matchesSearch = itemName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          itemDesc.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -193,30 +202,26 @@ const CustomerOrderNow = () => {
   const serviceCharge = cartItems.length > 0 ? 25 : 0;
   const total = subtotal + tax + serviceCharge;
 
-
-  const handleFinalPlaceOrder = (method) => {
+  const handleFinalPlaceOrder = async (method) => {
     setPaymentProcessing(true);
     
-    // Simulate processing
-    setTimeout(() => {
-      const newOrder = {
-        customer: profile.name,
-        table: isRoomService ? activeStay.targetId : (profile.tableId !== '-' ? `T-${profile.tableId}` : '-'),
-        type: isRoomService ? 'Room Service' : profile.diningType,
-        status: 'Pending',
-        amount: `₹${total.toFixed(0)}`,
-        items: cartItems.length,
-        itemsList: cartItems.map(i => ({ name: i.name, quantity: i.quantity, price: i.price, size: i.size })),
-        source: isRoomService ? 'Room Service' : 'Customer',
-        paymentStatus: method === 'Pay at Counter' ? 'Unpaid' : 'Paid',
+    try {
+      const extraData = {
+        userId: profile?.id,
+        tableId: isRoomService ? activeStay.targetId : (profile?.tableId !== '-' ? profile?.tableId : null),
+        type: isRoomService ? 'Room Service' : profile?.diningType,
+        total: total,
+        tax: tax,
+        serviceFee: serviceCharge,
+        paymentStatus: method === 'Pay at Counter' ? 'pending' : 'paid',
         paymentMethod: method
       };
       
-      const placedOrder = addOrder(newOrder);
+      const placedOrder = await addOrder(cartItems, extraData);
       
-      if (isRoomService) {
-        addToFolio(profile.name, {
-          description: `Room Service: Order ${placedOrder.id}`,
+      if (isRoomService && profile?.name) {
+        await addToFolio(profile.name, {
+          description: `Room Service: Order ${placedOrder.id || 'N/A'}`,
           amount: total,
           date: new Date().toLocaleDateString(),
           type: 'Food'
@@ -228,16 +233,19 @@ const CustomerOrderNow = () => {
       setShowMobileCart(false);
       clearCart();
       navigate('/customer/orders');
-    }, 2000);
+    } catch (error) {
+      console.error('Order placement failed:', error);
+      alert('Failed to place order. Please try again.');
+      setPaymentProcessing(false);
+    }
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-8rem)] lg:h-full gap-8 relative pb-24 lg:pb-0">
-      {/* Menu Side */}
-      <div className="flex-1 flex flex-col gap-6 min-w-0">
+    <div className="min-h-[calc(100vh-8rem)] lg:h-full relative pb-24 lg:pb-0">
+      <div className="flex flex-col gap-6 w-full">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
            <div className="shrink-0">
-              <h2 className="text-3xl lg:text-4xl font-black text-text-primary uppercase tracking-tight leading-none italic">Order <span className="text-primary">Now</span></h2>
+              <h2 className="text-2xl lg:text-3xl font-black text-text-primary uppercase tracking-tight leading-none italic">Order <span className="text-primary">Now</span></h2>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 bg-slate-100 w-fit px-2 py-1 rounded-md">{profile.diningType} • Table {profile.tableId}</p>
            </div>
            <div className="flex-1 max-w-lg relative group w-full">
@@ -274,19 +282,33 @@ const CustomerOrderNow = () => {
 
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 flex-1">
         {/* Main Menu Grid */}
-        <div className="flex-1 space-y-6 lg:space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-6 pb-20">
+        <div className="w-full space-y-6 lg:space-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 lg:gap-6 pb-20">
             {filteredItems.map((item) => (
               <div 
-                key={item.id} 
-                onClick={() => openItemModal(item)}
-                className="card group cursor-pointer border-none shadow-xl shadow-slate-100/50 p-4 lg:p-5 bg-white hover:bg-slate-50 transition-all active:scale-95 flex flex-col relative overflow-hidden aspect-[1/1.3] lg:aspect-[3/4]"
-              >
-                   <div className="absolute top-3 left-3 z-20 w-3.5 h-3.5 border-2 border-white rounded-sm flex items-center justify-center bg-white shadow-sm">
-                     <div className={cn("w-1.5 h-1.5 rounded-full", item.id % 2 === 0 ? "bg-rose-500" : "bg-emerald-500")} />
-                   </div>
-                   <div className="flex-1 min-h-0 bg-slate-50 rounded-[2rem] flex items-center justify-center text-5xl sm:text-6xl mb-4 shadow-inner relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-500">
-                      {item.image}
+                  key={item.id} 
+                  onClick={() => openItemModal(item)}
+                  className="card group cursor-pointer border-none shadow-xl shadow-slate-100/50 p-4 lg:p-5 bg-white hover:bg-slate-50 transition-all active:scale-95 flex flex-col relative overflow-hidden aspect-[1/1.1] sm:aspect-[1/1.2]"
+                >
+                    <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
+                       <div className="w-3.5 h-3.5 border-2 border-white rounded-sm flex items-center justify-center bg-white shadow-sm">
+                         <div className={cn("w-1.5 h-1.5 rounded-full", item.id % 2 === 0 ? "bg-rose-500" : "bg-emerald-500")} />
+                       </div>
+                       {!!item.popular && (
+                         <div className="bg-primary text-white text-[7px] font-black uppercase px-2 py-0.5 rounded-full shadow-lg shadow-primary/20 flex items-center gap-1">
+                            <Sparkles className="w-2 h-2" /> Popular
+                         </div>
+                       )}
+                    </div>
+                    <div className="flex-1 min-h-0 bg-slate-50 rounded-[1.5rem] sm:rounded-[2rem] flex items-center justify-center mb-4 shadow-inner relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-500">
+                       {item.image && item.image.length > 2 ? (
+                          <>
+                             <img src={getImageUrl(item.image)} alt="" className="absolute inset-0 w-full h-full object-cover blur-xl opacity-20 scale-150" />
+                             <img src={getImageUrl(item.image)} alt={item.name} className="relative z-10 w-full h-full object-contain p-4 lg:p-6" />
+                          </>
+                       ) : (
+                          <span className="text-5xl sm:text-6xl">{getImageUrl(item.image)}</span>
+                       )}
                       <button 
                         onClick={(e) => handleToggleFavorite(item.id, e)}
                         className={cn(
@@ -298,12 +320,16 @@ const CustomerOrderNow = () => {
                       </button>
                    </div>
                    <div className="space-y-1 mb-2">
-                      <div className="flex items-center gap-1.5 mb-1">
-                         <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
-                         <span className="text-[9px] font-black text-slate-400 uppercase">{item.category}</span>
-                      </div>
-                      <h4 className="font-black text-text-primary text-xs lg:text-sm uppercase tracking-tight leading-tight group-hover:text-primary transition-colors line-clamp-2">{item.name}</h4>
-                      <p className="text-[10px] font-medium text-slate-400 line-clamp-2 leading-relaxed">{item.description}</p>
+                      <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-1">
+                             <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                             <span className="text-[10px] font-black text-text-primary">{item.rating || '4.8'}</span>
+                             <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tighter">(120+ Reviews)</span>
+                          </div>
+                          <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{item.category}</span>
+                       </div>
+                       <h4 className="font-black text-text-primary text-xs lg:text-sm uppercase tracking-tight leading-tight group-hover:text-primary transition-colors line-clamp-1">{item.name}</h4>
+                       <p className="text-[10px] font-medium text-slate-400 line-clamp-2 leading-relaxed h-8">{item.description}</p>
                    </div>
                    <div className="mt-auto pt-3 border-t border-slate-50 flex items-center justify-between shrink-0">
                       <p className="text-lg lg:text-xl font-black text-text-primary tracking-tighter">₹{item.price}</p>
@@ -313,34 +339,12 @@ const CustomerOrderNow = () => {
                    </div>
                 </div>
               ))}
-           </div>
-        </div>
-      </div>
-    </div>
-
-      {/* Cart Sidebar (Desktop) */}
-      <div className="hidden lg:block w-80 xl:w-[400px] shrink-0">
-          <div className="sticky top-6 card p-0 bg-white border-none shadow-2xl shadow-slate-200/50 rounded-[3rem] h-[calc(100vh-12rem)] flex flex-col overflow-hidden">
-            <CartSummary 
-              cartItems={cartItems}
-              clearCart={clearCart}
-              removeFromCart={removeFromCart}
-              updateCartQuantity={updateCartQuantity}
-              subtotal={subtotal}
-              tax={tax}
-              serviceCharge={serviceCharge}
-              total={total}
-              onCheckout={() => {
-                if (cartItems.length === 0) return;
-                if (isRoomService) handleFinalPlaceOrder('Charged to Room');
-                else setShowPaymentModal(true);
-              }}
-            />
+            </div>
           </div>
+        </div>
       </div>
 
       {/* Mobile Cart Toggle & Slide-up removed - now in Header */}
-
 
 
 
@@ -350,9 +354,17 @@ const CustomerOrderNow = () => {
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
           <div onClick={() => setShowItemModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
           <div className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] animate-in fade-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center">
-             <div className="relative h-40 sm:h-48 lg:h-56 bg-slate-50 flex items-center justify-center text-6xl lg:text-8xl shrink-0">
-                {selectedItem.image}
-                <button onClick={() => setShowItemModal(false)} className="absolute top-4 lg:top-6 right-4 lg:right-6 p-2 lg:p-3 bg-white/80 backdrop-blur-md rounded-2xl text-slate-400 hover:text-rose-500 shadow-xl transition-all">
+             <div className="relative h-32 sm:h-40 lg:h-44 bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden">
+                {selectedItem.image && selectedItem.image.length > 2 ? (
+                   <>
+                      <img src={getImageUrl(selectedItem.image)} alt="" className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-150" />
+                      <img src={getImageUrl(selectedItem.image)} alt={selectedItem.name} className="relative z-10 w-full h-full object-contain p-4 lg:p-6" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent z-15" />
+                   </>
+                ) : (
+                   <span className="text-5xl lg:text-7xl">{getImageUrl(selectedItem.image)}</span>
+                )}
+                <button onClick={() => setShowItemModal(false)} className="absolute top-4 lg:top-6 right-4 lg:right-6 p-2 lg:p-3 bg-white/80 backdrop-blur-md rounded-2xl text-slate-400 hover:text-rose-500 shadow-xl transition-all z-30">
                    <X className="w-5 h-5 lg:w-6 lg:h-6" />
                 </button>
              </div>
@@ -360,12 +372,12 @@ const CustomerOrderNow = () => {
                 <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-3 sm:gap-4">
                    <div>
                       <div className="flex items-center gap-2 mb-2">
-                         <span className="px-2 py-0.5 bg-primary/10 text-primary text-[8px] font-black uppercase tracking-widest rounded-md">{selectedItem.category}</span>
+                         <span className="px-2 py-0.5 bg-primary/10 text-primary text-[8px] font-black uppercase tracking-widest rounded-md">{selectedItem.category || selectedItem.category_name}</span>
                          <div className="flex items-center gap-1 text-[9px] font-black text-yellow-500 uppercase">
                             <Star className="w-3 h-3 fill-current" /> 4.8 Ratings
                          </div>
                       </div>
-                      <h3 className="text-xl lg:text-2xl font-black text-text-primary uppercase tracking-tight leading-tight">{selectedItem.name}</h3>
+                      <h3 className="text-xl lg:text-2xl font-black text-text-primary uppercase tracking-tight leading-tight">{selectedItem.name || selectedItem.item_name}</h3>
                    </div>
                    <div className="sm:text-right shrink-0">
                       <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Total</p>

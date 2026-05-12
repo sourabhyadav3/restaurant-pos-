@@ -84,12 +84,18 @@ const Kitchen = () => {
     }
   };
 
-  const filteredOrders = orders
-    .filter(o => activeTab === 'Active' ? ['new', 'pending', 'cooking'].includes(o.order_status) : o.order_status === 'ready')
-    .filter(o => 
-      o.order_number.includes(searchQuery) || 
-      (o.table_code && o.table_code.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+  const filteredOrders = orders.filter(o => {
+    const status = (o.order_status || 'new').toLowerCase();
+    const matchesTab = activeTab === 'Active' 
+      ? ['new', 'pending', 'cooking', 'preparing'].includes(status) 
+      : status === 'ready';
+    
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch = (o.order_number || '').toLowerCase().includes(searchLower) || 
+                          (o.table_code || '').toLowerCase().includes(searchLower);
+    
+    return matchesTab && matchesSearch;
+  });
 
   const stats = {
     queue: orders.filter(o => ['new', 'pending', 'cooking'].includes(o.order_status)).length,

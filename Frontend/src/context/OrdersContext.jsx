@@ -59,7 +59,8 @@ export const OrdersProvider = ({ children }) => {
 
     const handleStatusUpdate = (data) => {
       // Backend sends { id, status }, map it to the orders state
-      setOrders(prev => prev.map(o => (o.id === data.id || o.id === data.order_id) ? { ...o, order_status: data.status } : o));
+      const orderId = String(data.id || data.order_id);
+      setOrders(prev => prev.map(o => String(o.id) === orderId ? { ...o, order_status: data.status } : o));
     };
 
     import('@/sockets/socket.service').then(module => {
@@ -115,12 +116,26 @@ export const OrdersProvider = ({ children }) => {
   };
 
   const updateOrderStatus = async (orderId, status) => {
+    // Optimistic UI update
+    const previousOrders = [...orders];
+    const normalizedStatus = status.toLowerCase();
+    
+    setOrders(prev => prev.map(o => 
+      String(o.id) === String(orderId) ? { ...o, order_status: normalizedStatus } : o
+    ));
+
     try {
-      const normalizedStatus = status.toLowerCase();
       await api.patch(`/orders/${orderId}/status`, { status: normalizedStatus });
-      // UI will update via socket event or manual refresh
+      addNotification({
+        type: 'Order',
+        title: 'Status Updated',
+        message: `Order #${orderId} is now ${status}`,
+        targetRole: 'WAITER'
+      });
     } catch (error) {
       console.error('Error updating order status:', error);
+      // Rollback on error
+      setOrders(previousOrders);
     }
   };
 

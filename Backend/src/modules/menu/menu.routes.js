@@ -6,9 +6,11 @@ const { authenticate, authorize } = require('../../middleware/auth.middleware');
 router.get('/items', menuController.getAllItems);
 router.get('/categories', menuController.getCategories);
 
-// Only admin and manager can create items
-router.post('/items', authenticate, authorize('admin', 'manager'), menuController.createItem);
-router.patch('/items/:id', authenticate, authorize('admin', 'manager'), menuController.updateItem);
-router.delete('/items/:id', authenticate, authorize('admin', 'manager'), menuController.deleteItem);
+// Roles that can manage menu items
+const authorizedMenuRoles = ['admin', 'manager', 'superadmin', 'master_admin', 'waiter', 'chef'];
+
+router.post('/items', authenticate, authorize(authorizedMenuRoles), menuController.createItem);
+router.patch('/items/:id', authenticate, authorize(authorizedMenuRoles), menuController.updateItem);
+router.delete('/items/:id', authenticate, authorize(authorizedMenuRoles), menuController.deleteItem);
 
 module.exports = router;

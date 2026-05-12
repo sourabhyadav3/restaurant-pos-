@@ -1,12 +1,21 @@
 const pool = require('./src/database/connection');
 
-(async () => {
+async function checkRoles() {
   try {
-    const [rows] = await pool.execute('DESCRIBE menu_items');
-    console.log(JSON.stringify(rows, null, 2));
-    process.exit(0);
+    const [rows] = await pool.execute('SELECT * FROM roles');
+    console.log('Roles:', JSON.stringify(rows, null, 2));
+    
+    const [users] = await pool.execute(`
+      SELECT u.email, r.role_name 
+      FROM users u 
+      JOIN roles r ON u.role_id = r.id
+    `);
+    console.log('Users and Roles:', JSON.stringify(users, null, 2));
   } catch (err) {
-    console.error(err);
-    process.exit(1);
+    console.error('Error:', err.message);
+  } finally {
+    process.exit(0);
   }
-})();
+}
+
+checkRoles();

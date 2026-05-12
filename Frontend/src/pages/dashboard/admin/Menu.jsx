@@ -67,14 +67,26 @@ const Menu = () => {
     };
 
     if (editingItem) {
-      updateItem(editingItem.id, payload);
-      showToast('Item updated successfully');
+      updateItem(editingItem.id, payload).then(res => {
+        if (res.success) {
+          showToast('Item updated successfully');
+          setShowAddModal(false);
+          setEditingItem(null);
+        } else {
+          showToast(res.message || 'Failed to update item', 'error');
+        }
+      });
     } else {
-      addItem(payload);
-      showToast('New item added to menu');
+      addItem(payload).then(res => {
+        if (res.success) {
+          showToast('New item added to menu');
+          setShowAddModal(false);
+          setEditingItem(null);
+        } else {
+          showToast(res.message || 'Failed to add item', 'error');
+        }
+      });
     }
-    setShowAddModal(false);
-    setEditingItem(null);
   };
 
   const handleDelete = (id) => {

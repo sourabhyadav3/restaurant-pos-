@@ -408,7 +408,7 @@ const Orders = () => {
                                 <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center text-primary">
                                   <CreditCard className="w-4 h-4" />
                                 </div>
-                                <p className="text-xs font-black text-text-primary uppercase tracking-tight">{selectedOrder.payment}</p>
+                                <p className="text-xs font-black text-text-primary uppercase tracking-tight">{selectedOrder.payment_status || selectedOrder.payment || 'CREDIT'}</p>
                             </div>
                           </div>
                          <div className="p-5 bg-white/60 rounded-2xl shadow-sm border border-white">
@@ -427,7 +427,7 @@ const Orders = () => {
                     <div className="space-y-6">
                       <div className="flex items-center justify-between px-2">
                           <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Kitchen Token List</h4>
-                          <span className="text-[9px] font-black text-primary px-3 py-1 bg-indigo-50 rounded-full tracking-widest">{(selectedOrder.itemsList?.length || 0)} ITEMS</span>
+                          <span className="text-[9px] font-black text-primary px-3 py-1 bg-indigo-50 rounded-full tracking-widest">{(selectedOrder.items?.length || selectedOrder.itemsList?.length || 0)} ITEMS</span>
                       </div>
                       <div className="space-y-4">
                           {(selectedOrder.items || selectedOrder.itemsList || []).map((item, i) => (
@@ -456,11 +456,11 @@ const Orders = () => {
                       <div className="space-y-4 relative z-10">
                           <div className="flex justify-between text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">
                             <span>Subtotal Gross</span>
-                            <span className="text-white">₹{(parseFloat((selectedOrder.grand_total || selectedOrder.amount || 0).toString().replace(/[₹,]/g, '')) - 45).toFixed(2)}</span>
+                            <span className="text-white">₹{(parseFloat((selectedOrder.grand_total || selectedOrder.amount || 0).toString().replace(/[₹,]/g, '')) / 1.05).toFixed(2)}</span>
                           </div>
                           <div className="flex justify-between text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">
                             <span>Govt Tax (GST 5%)</span>
-                            <span className="text-white">₹45.00</span>
+                            <span className="text-white">₹{(parseFloat((selectedOrder.grand_total || selectedOrder.amount || 0).toString().replace(/[₹,]/g, '')) - (parseFloat((selectedOrder.grand_total || selectedOrder.amount || 0).toString().replace(/[₹,]/g, '')) / 1.05)).toFixed(2)}</span>
                           </div>
                           <div className="pt-8 mt-4 border-t border-primary/20 flex justify-between items-end">
                             <div>

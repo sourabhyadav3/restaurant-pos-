@@ -41,7 +41,7 @@ const authenticate = async (req, res, next) => {
 const authorize = (...roles) => {
   return (req, res, next) => {
     const userRole = (req.user.role_name || '').trim().toLowerCase();
-    const authorizedRoles = roles.map(r => r.trim().toLowerCase());
+    const authorizedRoles = roles.flat().map(r => String(r).trim().toLowerCase());
     
     if (!authorizedRoles.includes(userRole)) {
       return res.status(403).json({

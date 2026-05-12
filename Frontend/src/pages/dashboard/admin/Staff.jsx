@@ -73,13 +73,16 @@ const Staff = () => {
   };
 
   const filteredStaff = useMemo(() => {
-    return staffMembers.map(m => ({
-      ...m,
-      name: m.full_name,
-      role: m.role_name,
-      avatar: m.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || '?'
-    })).filter(m => {
-      const matchesTab = activeTab === 'All' || m.role === activeTab;
+    return staffMembers.map(m => {
+      const roleName = m.role_name || '';
+      return {
+        ...m,
+        name: m.full_name,
+        role: roleName.charAt(0).toUpperCase() + roleName.slice(1),
+        avatar: m.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || '?'
+      };
+    }).filter(m => {
+      const matchesTab = activeTab === 'All' || m.role.toLowerCase() === activeTab.toLowerCase();
       const query = searchQuery.toLowerCase();
       const matchesSearch = m.name?.toLowerCase().includes(query) || 
                            m.email?.toLowerCase().includes(query) || 

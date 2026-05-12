@@ -500,7 +500,7 @@ const Reservations = () => {
                        <CheckCircle className="w-4 h-4" /> Approve Booking
                      </button>
                      <button 
-                       onClick={() => { /* reject logic */ setSelectedRes(null); }}
+                       onClick={() => { rejectReservation(selectedRes.id); setSelectedRes(null); }}
                        className="flex-1 py-4 bg-rose-500 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] shadow-xl shadow-rose-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
                      >
                        <XCircle className="w-4 h-4" /> Reject
@@ -517,7 +517,7 @@ const Reservations = () => {
                        <LogIn className="w-4 h-4" /> Check In Guest
                      </button>
                      <button 
-                       onClick={() => { /* cancel logic */ setSelectedRes(null); }}
+                       onClick={() => { cancelReservation(selectedRes.id); setSelectedRes(null); }}
                        className="w-full sm:w-auto px-6 py-4 bg-rose-50 text-rose-500 rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] hover:bg-rose-500 hover:text-white transition-all active:scale-95"
                      >
                        Cancel
@@ -527,7 +527,7 @@ const Reservations = () => {
 
                  {selectedRes.reservation_status === 'checked_in' && (
                    <button 
-                     onClick={() => { /* complete logic */ setSelectedRes(null); }}
+                     onClick={() => { completeReservation(selectedRes.id); setSelectedRes(null); }}
                      className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] shadow-xl shadow-slate-900/20 active:scale-95 transition-all flex items-center justify-center gap-2"
                    >
                      <Sparkles className="w-4 h-4 text-amber-400" /> Mark Stay Completed

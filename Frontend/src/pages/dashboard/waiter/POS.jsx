@@ -33,11 +33,35 @@ import printContent from '../../../utils/printUtil';
 
 const POS = () => {
   const { user } = useAuth();
-  const { items, categoriesList } = useMenu();
+  const { items, categoriesList, loading: menuLoading } = useMenu();
   const { rooms, reservations, addToFolio } = useHospitality();
   const { orders, addOrder } = useOrders();
-  const [cart, setCart] = useState([]);
-  const [activeCategory, setActiveCategory] = useState('All');
+
+  if (menuLoading && items.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Syncing Menu...</p>
+        </div>
+      </div>
+    );
+  }
+  const [cart, setCart] = useState(() => {
+    try {
+      const saved = localStorage.getItem('pos-cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error('Failed to load cart', e);
+      return [];
+    }
+  });
+
+  // Persist cart changes
+  React.useEffect(() => {
+    localStorage.setItem('pos-cart', JSON.stringify(cart));
+  }, [cart]);
+  const [activeCategory, setActiveCategory] = useState('All Items');
   const [searchQuery, setSearchQuery] = useState('');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [toast, setToast] = useState(null);
@@ -196,7 +220,9 @@ const POS = () => {
   };
 
   const filteredItems = items.filter(item => {
-    const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
+    const isAll = ['all', 'all items'].includes(activeCategory?.trim().toLowerCase());
+    const itemCategory = (item.category_name || item.category || '').trim().toLowerCase();
+    const matchesCategory = isAll || itemCategory === activeCategory?.trim().toLowerCase();
     const itemName = item.item_name || item.name;
     const matchesSearch = itemName?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -260,52 +286,77 @@ const POS = () => {
 
         {/* Dynamic Menu Grid */}
         <div className="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 lg:gap-6 items-start pr-1 pb-32 lg:pb-12 scrollbar-hide">
-          {filteredItems.map(item => (
-            <div 
-              key={item.id} 
-              onClick={() => addToCart(item)}
-              className="card group cursor-pointer border-2 border-transparent hover:border-primary/20 p-3 lg:p-5 flex flex-col relative overflow-hidden bg-gradient-to-br from-white to-slate-50/30 aspect-[1/1.3] lg:aspect-[3/4] transition-all hover:shadow-xl hover:-translate-y-1 active:scale-95"
-            >
-              <div className="flex justify-between items-start mb-2 lg:mb-4 relative z-10">
-                 <div className="w-10 h-10 lg:w-14 lg:h-14 bg-white rounded-lg lg:rounded-2xl flex items-center justify-center overflow-hidden text-xl lg:text-3xl shadow-xl shadow-slate-200 shrink-0">
+          {filteredItems.length > 0 ? (
+            filteredItems.map(item => (
+              <div 
+                key={item.id} 
+                onClick={() => addToCart(item)}
+                className="card group cursor-pointer border-2 border-transparent hover:border-primary/20 p-3 lg:p-5 flex flex-col relative overflow-hidden bg-gradient-to-br from-white to-slate-50/30 aspect-[1/1.3] lg:aspect-[3/4] transition-all hover:shadow-xl hover:-translate-y-1 active:scale-95"
+              >
+                {/* Image Section */}
+                <div className="relative -mx-3 -mt-3 lg:-mx-5 lg:-mt-5 mb-4 aspect-square overflow-hidden bg-white border-b border-slate-50 group-hover:border-primary/10 transition-colors">
                     {getImageUrl(item.image).length > 2 ? (
-                      <img src={getImageUrl(item.image)} alt={item.item_name || item.name} className="w-full h-full object-cover" />
+                      <img 
+                        src={getImageUrl(item.image)} 
+                        alt={item.item_name || item.name} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                      />
                     ) : (
-                      getImageUrl(item.image)
+                      <div className="w-full h-full flex items-center justify-center text-4xl lg:text-5xl bg-slate-50 text-slate-200">
+                         {getImageUrl(item.image)}
+                      </div>
                     )}
-                 </div>
-                 <div className="flex flex-col items-end gap-1">
-                    <span className="badge bg-emerald-50 text-emerald-600 border border-emerald-100 text-[7px] lg:text-[9px] py-0.5 px-1.5 lg:px-2 font-black uppercase tracking-widest">
-                       READY
-                    </span>
-                    <p className="hidden lg:block text-[9px] font-black text-slate-300 uppercase tracking-widest">{item.category}</p>
-                 </div>
-              </div>
-
-              <div className="relative z-10 mb-2 flex-1 flex flex-col min-h-0">
-                <h4 className="font-black text-text-primary text-[11px] lg:text-base leading-tight group-hover:text-primary uppercase tracking-tight line-clamp-2 mb-1">
-                  {item.item_name || item.name}
-                </h4>
-                <p className="line-clamp-2 text-text-secondary text-[9px] lg:text-[11px] font-medium opacity-60 leading-relaxed">
-                  {item.description}
-                </p>
-              </div>
-
-              <div className="mt-auto pt-2 lg:pt-3 border-t border-slate-50 flex items-center justify-between relative z-10 shrink-0">
-                <div className="flex flex-col">
-                   <span className="text-[8px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Price</span>
-                   <p className="text-sm lg:text-xl font-black text-text-primary tracking-tighter leading-none">₹{item.price}</p>
+                    <div className="absolute top-3 left-3 lg:top-4 lg:left-4">
+                       <span className="badge bg-white/90 backdrop-blur-md text-slate-400 border-none shadow-sm text-[7px] lg:text-[8px] py-1 px-2 font-black uppercase tracking-widest">
+                          {item.category_name || item.category}
+                       </span>
+                    </div>
+                    <div className="absolute top-3 right-3 lg:top-4 lg:right-4 flex flex-col items-end gap-1">
+                      <span className="badge bg-emerald-500/90 backdrop-blur-md text-white border-none shadow-lg text-[7px] lg:text-[9px] py-1 px-2 font-black uppercase tracking-widest">
+                         READY
+                      </span>
+                   </div>
                 </div>
-                <div 
-                  className="w-7 h-7 lg:w-10 lg:h-10 bg-primary text-white rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg shadow-primary/30 group-hover:bg-primary-dark transition-colors"
-                >
-                  <Plus className="w-4 h-4 lg:w-5 lg:h-5 lg:stroke-[3]" />
+
+                <div className="relative z-10 mb-2 flex-1 flex flex-col min-h-0">
+                  <h4 className="font-black text-text-primary text-[11px] lg:text-base leading-tight group-hover:text-primary uppercase tracking-tight line-clamp-2 mb-1">
+                    {item.item_name || item.name}
+                  </h4>
+                  <p className="line-clamp-2 text-text-secondary text-[9px] lg:text-[11px] font-medium opacity-60 leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
+
+                <div className="mt-auto pt-2 lg:pt-3 border-t border-slate-50 flex items-center justify-between relative z-10 shrink-0">
+                  <div className="flex flex-col">
+                     <span className="text-[8px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Price</span>
+                     <p className="text-sm lg:text-xl font-black text-text-primary tracking-tighter leading-none">₹{item.price}</p>
+                  </div>
+                  <div 
+                    className="w-7 h-7 lg:w-10 lg:h-10 bg-primary text-white rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg shadow-primary/30 group-hover:bg-primary-dark transition-colors"
+                  >
+                    <Plus className="w-4 h-4 lg:w-5 lg:h-5 lg:stroke-[3]" />
+                  </div>
+                </div>
+                
+                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              
-              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            ))
+          ) : (
+            <div className="col-span-full py-20 flex flex-col items-center justify-center text-center">
+               <div className="w-20 h-20 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mb-6 shadow-inner">
+                  <Search className="w-8 h-8 text-slate-200" />
+               </div>
+               <h4 className="text-xl font-black text-text-primary uppercase tracking-tight">No Items Found</h4>
+               <p className="text-text-secondary text-[10px] font-black uppercase tracking-widest mt-2">No products available in this category</p>
+               <button 
+                 onClick={() => { setActiveCategory('All Items'); setSearchQuery(''); }}
+                 className="mt-6 text-primary font-black uppercase tracking-[0.2em] text-[8px] hover:underline transition-all"
+               >
+                 Show All Products
+               </button>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
@@ -754,7 +805,7 @@ const POS = () => {
           <div className="space-y-1.5 text-[11px] font-bold uppercase">
             <div className="flex justify-between">
               <span>Bill No:</span>
-              <span className="font-black">{orderForReceipt.id?.split('-').pop() || `INV${Math.floor(Math.random()*1000)}`}</span>
+              <span className="font-black">{orderForReceipt.id ? String(orderForReceipt.id).split('-').pop() : `INV${Math.floor(Math.random()*1000)}`}</span>
             </div>
             <div className="flex justify-between">
               <span>Date:</span>

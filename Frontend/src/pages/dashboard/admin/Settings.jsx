@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Settings as SettingsIcon, 
   Store, 
@@ -23,6 +23,7 @@ import {
   Layout
 } from 'lucide-react';
 import { cn } from "../../../utils/cn";
+import api from "../../../services/api";
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('General');
@@ -61,22 +62,53 @@ const Settings = () => {
     }
   });
 
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await api.get('/settings');
+      if (response.data.success) {
+        const data = response.data.data;
+        setSettings(prev => ({
+          ...prev,
+          ...data
+        }));
+        if (data.themeColor) {
+          applyTheme(data.themeColor);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch settings:', err);
+      showToast('Failed to load settings', 'error');
+    }
+  };
+
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    setTimeout(() => {
+    try {
+      const response = await api.patch('/settings', settings);
+      if (response.data.success) {
+        setLastSaved(`Last saved: Today at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
+        showToast('Settings updated successfully');
+      }
+    } catch (err) {
+      console.error('Failed to save settings:', err);
+      showToast('Failed to save settings', 'error');
+    } finally {
       setIsSaving(false);
-      setLastSaved(`Last saved: Today at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
-      showToast('Settings updated successfully');
-    }, 1200);
+    }
   };
 
   const handleDiscard = () => {
     if (window.confirm('Are you sure you want to discard all changes?')) {
+      fetchSettings();
       showToast('Changes discarded', 'info');
     }
   };
@@ -117,7 +149,7 @@ const Settings = () => {
     showToast(`${day} service ${newState ? 'enabled' : 'disabled'}`);
   };
 
-  const handleColorSelect = (colorId) => {
+  const applyTheme = (colorId) => {
     const themes = {
       indigo: { primary: '#6366F1', dark: '#4F46E5', light: '#EEF2FF' },
       rose: { primary: '#F43F5E', dark: '#E11D48', light: '#FFF1F2' },
@@ -131,11 +163,14 @@ const Settings = () => {
       document.documentElement.style.setProperty('--color-primary', theme.primary);
       document.documentElement.style.setProperty('--color-primary-dark', theme.dark);
       document.documentElement.style.setProperty('--color-primary-light', theme.light);
-      
       localStorage.setItem('pos-theme', colorId);
-      setSettings(prev => ({ ...prev, themeColor: colorId }));
-      showToast(`${colorId.charAt(0).toUpperCase() + colorId.slice(1)} theme applied`);
     }
+  };
+
+  const handleColorSelect = (colorId) => {
+    applyTheme(colorId);
+    setSettings(prev => ({ ...prev, themeColor: colorId }));
+    showToast(`${colorId.charAt(0).toUpperCase() + colorId.slice(1)} theme applied`);
   };
 
   const simulateLogoUpload = () => {

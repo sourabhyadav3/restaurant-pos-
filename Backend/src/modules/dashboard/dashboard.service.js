@@ -1,20 +1,27 @@
 const pool = require('../../database/connection');
 
 class DashboardService {
-  getDateFilter(range) {
+  getDateFilter(range, tableAlias = '') {
+    const field = tableAlias ? `${tableAlias}.createdAt` : 'createdAt';
     let filter = '';
     switch (range?.toLowerCase()) {
       case 'today':
-        filter = 'AND DATE(createdAt) = CURDATE()';
+        filter = `AND DATE(${field}) = CURDATE()`;
         break;
       case 'this week':
-        filter = 'AND YEARWEEK(createdAt, 1) = YEARWEEK(CURDATE(), 1)';
+        filter = `AND YEARWEEK(${field}, 1) = YEARWEEK(CURDATE(), 1)`;
         break;
       case 'this month':
-        filter = 'AND MONTH(createdAt) = MONTH(CURDATE()) AND YEAR(createdAt) = YEAR(CURDATE())';
+        filter = `AND MONTH(${field}) = MONTH(CURDATE()) AND YEAR(${field}) = YEAR(CURDATE())`;
         break;
       case 'last month':
-        filter = 'AND MONTH(createdAt) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND YEAR(createdAt) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))';
+        filter = `AND MONTH(${field}) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AND YEAR(${field}) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))`;
+        break;
+      case 'last 90 days':
+        filter = `AND ${field} >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)`;
+        break;
+      case 'financial year':
+        filter = `AND ${field} >= DATE(CONCAT(IF(MONTH(CURDATE()) < 4, YEAR(CURDATE()) - 1, YEAR(CURDATE())), "-04-01"))`;
         break;
       default:
         filter = '';
@@ -67,11 +74,11 @@ class DashboardService {
   }
 
   async getReports(filters = {}) {
-    const dateFilter = this.getDateFilter(filters.range);
+    const dateFilter = this.getDateFilter(filters.range, 'o');
 
     // Top selling items
     const [topDishes] = await pool.execute(`
-      SELECT mi.name as name, COUNT(oi.id) as orders, SUM(oi.subtotal) as revenue 
+      SELECT mi.item_name as name, COUNT(oi.id) as orders, SUM(oi.total_price) as revenue 
       FROM order_items oi 
       JOIN menu_items mi ON oi.menu_item_id = mi.id 
       JOIN orders o ON oi.order_id = o.id
@@ -83,9 +90,10 @@ class DashboardService {
 
     // Staff performance
     const [staffPerformance] = await pool.execute(`
-      SELECT u.full_name as name, u.role_name as role, COUNT(o.id) as orders, SUM(o.grand_total) as revenue 
+      SELECT u.full_name as name, r.role_name as role, COUNT(o.id) as orders, SUM(o.grand_total) as revenue 
       FROM orders o 
-      JOIN users u ON o.created_by = u.id 
+      JOIN users u ON o.user_id = u.id 
+      JOIN roles r ON u.role_id = r.id
       WHERE 1=1 ${dateFilter}
       GROUP BY u.id 
       ORDER BY revenue DESC
@@ -93,13 +101,13 @@ class DashboardService {
 
     // Category split
     const [categorySplit] = await pool.execute(`
-      SELECT c.name as name, SUM(oi.subtotal) as revenue 
+      SELECT mc.category_name as name, SUM(oi.total_price) as revenue 
       FROM order_items oi 
       JOIN menu_items mi ON oi.menu_item_id = mi.id 
-      JOIN categories c ON mi.category_id = c.id 
+      JOIN menu_categories mc ON mi.category_id = mc.id 
       JOIN orders o ON oi.order_id = o.id
       WHERE 1=1 ${dateFilter}
-      GROUP BY c.id
+      GROUP BY mc.id
     `);
 
     return {

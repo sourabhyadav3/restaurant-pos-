@@ -41,6 +41,14 @@ const Orders = () => {
   const [isPrinting, setIsPrinting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Sync selectedOrder with orders context to reflect status updates
+  React.useEffect(() => {
+    if (selectedOrder) {
+      const updated = orders.find(o => o.id === selectedOrder.id);
+      if (updated) setSelectedOrder(updated);
+    }
+  }, [orders]);
+
   const handlePrint = (order) => {
     setSelectedOrder(order);
     setTimeout(() => {
@@ -338,7 +346,7 @@ const Orders = () => {
                 className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
               />
                <div 
-                className="relative w-full max-w-[95%] md:max-w-[520px] max-h-[90vh] bg-white shadow-2xl z-[201] flex flex-col rounded-[2rem] md:rounded-[2.5rem] overflow-hidden self-center"
+                className="relative w-full max-w-[95%] md:max-w-[520px] max-h-[90vh] bg-white shadow-2xl z-[501] flex flex-col rounded-[2rem] md:rounded-[2.5rem] overflow-hidden self-center"
               >
                  <div className="px-5 py-4 md:px-6 md:py-5 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
                   <div className="flex items-center gap-3 md:gap-4">
@@ -349,7 +357,7 @@ const Orders = () => {
                     <div>
                       <h3 className="text-lg md:text-xl font-black tracking-tight uppercase leading-none">Order Audit</h3>
                       <p className="text-text-secondary font-black uppercase tracking-widest text-[8px] md:text-[9px] mt-1 flex items-center gap-2">
-                          {selectedOrder.id} <span className="w-1 h-1 rounded-full bg-slate-200" /> {selectedOrder.time}
+                          {selectedOrder.order_number || selectedOrder.id} <span className="w-1 h-1 rounded-full bg-slate-200" /> {selectedOrder.createdAt ? new Date(selectedOrder.createdAt).toLocaleTimeString() : (selectedOrder.time || 'Recent')}
                       </p>
                     </div>
                   </div>
@@ -366,28 +374,28 @@ const Orders = () => {
                       <div className="flex items-center justify-between relative z-10">
                           <div className="flex items-center gap-4">
                             <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl border border-slate-50 text-primary uppercase">
-                                {(order.customer_name || order.guest_name || order.full_name || order.customer || 'G').charAt(0)}
+                                {(selectedOrder.customer_name || selectedOrder.guest_name || selectedOrder.full_name || selectedOrder.customer || 'G').charAt(0)}
                             </div>
                             <div>
                                 <h4 className="text-xl font-black tracking-tight leading-none">
-                                  {order.customer_name || order.guest_name || order.full_name || order.customer || 'Guest'}
+                                  {selectedOrder.customer_name || selectedOrder.guest_name || selectedOrder.full_name || selectedOrder.customer || 'Guest'}
                                 </h4>
                                 <p className="text-[10px] font-black text-text-secondary flex items-center gap-2 mt-2 uppercase tracking-widest">
-                                  <MapPin className="w-3 h-3 text-primary" /> {order.order_type || order.type || 'N/A'}
+                                  <MapPin className="w-3 h-3 text-primary" /> {selectedOrder.order_type || selectedOrder.type || 'N/A'}
                                 </p>
                             </div>
                           </div>
                           <div className="flex flex-col gap-2">
                             <select 
-                              value={selectedOrder.status}
+                              value={(selectedOrder.order_status || selectedOrder.status || 'New').toLowerCase()}
                               onChange={(e) => updateOrderStatus(selectedOrder.id, e.target.value)}
                               className={cn(
-                                "badge px-4 py-1.5 font-black uppercase tracking-widest border-2 text-[8px] rounded-xl shadow-sm outline-none cursor-pointer appearance-none text-center", 
-                                getStatusStyle(selectedOrder.status)
+                                "badge px-4 py-1.5 font-black uppercase tracking-widest border-2 text-[8px] rounded-xl shadow-sm outline-none cursor-pointer appearance-none text-center relative z-[300]", 
+                                getStatusStyle(selectedOrder.order_status || selectedOrder.status)
                               )}
                             >
-                                {['New', 'Pending', 'Cooking', 'Ready', 'Delivered', 'Cancelled'].map(s => (
-                                  <option key={s} value={s}>{s}</option>
+                                {['new', 'pending', 'cooking', 'ready', 'delivered', 'cancelled'].map(s => (
+                                  <option key={s} value={s} className="bg-white text-text-primary capitalize">{s}</option>
                                 ))}
                             </select>
                           </div>
@@ -494,7 +502,7 @@ const Orders = () => {
       )}
       {/* Audit Log Modal */}
       {showAuditLog && selectedOrder && createPortal(
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[600] flex items-center justify-center p-4">
           <div 
             onClick={() => setShowAuditLog(false)}
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
@@ -564,8 +572,8 @@ const Orders = () => {
           
           <div className="flex justify-between text-[10px] font-bold mb-4">
             <div>
-              <p>ORDER: {selectedOrder.id}</p>
-              <p>TABLE: {selectedOrder.table}</p>
+              <p>ORDER: {selectedOrder.order_number || selectedOrder.id}</p>
+              <p>TABLE: {selectedOrder.table_code || selectedOrder.table || 'WALK-IN'}</p>
               <p>DATE: {new Date().toLocaleDateString()}</p>
             </div>
             <div className="text-right">
@@ -593,8 +601,8 @@ const Orders = () => {
             </tbody>
             <tfoot>
               <tr>
-                <td colSpan="2" className="py-4 font-black uppercase text-right pr-4">Total Amount</td>
-                <td className="py-4 text-right font-black text-sm">{selectedOrder.amount}</td>
+                <td className="py-4 font-black uppercase text-right pr-4">Total Amount</td>
+                <td className="py-4 text-right font-black text-sm">₹{(selectedOrder.grand_total || selectedOrder.amount || 0).toString().replace(/[₹,]/g, '')}</td>
               </tr>
             </tfoot>
           </table>

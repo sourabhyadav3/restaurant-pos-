@@ -20,6 +20,7 @@ class RoomsService {
       room_type: data.type || data.room_type,
       capacity: data.capacity || 2,
       room_status: (data.status || data.room_status || 'available').toLowerCase(),
+      base_rate: data.base_rate || data.rate || 0.00,
       notes: data.notes || ''
     };
     return await roomsModel.create(payload);
@@ -31,6 +32,7 @@ class RoomsService {
     if (data.type || data.room_type) payload.room_type = data.type || data.room_type;
     if (data.capacity) payload.capacity = data.capacity;
     if (data.status || data.room_status) payload.room_status = (data.status || data.room_status).toLowerCase();
+    if (data.base_rate !== undefined || data.rate !== undefined) payload.base_rate = data.base_rate || data.rate;
     if (data.notes !== undefined) payload.notes = data.notes;
     if (data.room_code) payload.room_code = data.room_code;
 

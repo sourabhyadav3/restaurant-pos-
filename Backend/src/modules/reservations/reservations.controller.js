@@ -20,11 +20,11 @@ class ReservationsController {
 
   async createReservation(req, res) {
     try {
-      const reservationId = await reservationsService.createReservation(req.body);
+      const result = await reservationsService.createReservation(req.body);
       res.status(201).json({
         success: true,
         message: 'Reservation created successfully',
-        data: { id: reservationId }
+        data: { id: result.reservationId, guestId: result.guestId }
       });
     } catch (err) {
       res.status(500).json({

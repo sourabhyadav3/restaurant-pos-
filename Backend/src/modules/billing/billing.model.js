@@ -8,13 +8,37 @@ class BillingModel extends BaseModel {
 
   async findWithGuestDetails() {
     const sql = `
-      SELECT b.*, g.full_name, g.phone 
+      SELECT b.*, g.full_name as guestName, g.phone, 
+             COALESCE(rm.room_name, rm.room_code, 'N/A') as roomName
       FROM guest_billing b 
       JOIN guests g ON b.guest_id = g.id 
+      LEFT JOIN room_bookings rb ON b.reservation_id = rb.reservation_id
+      LEFT JOIN rooms rm ON rb.room_id = rm.id
       WHERE b.deletedAt IS NULL
     `;
     const [rows] = await pool.execute(sql);
-    return rows;
+    
+    // Fetch items for each bill
+    const billsWithItems = await Promise.all(rows.map(async (row) => {
+      const [charges] = await pool.execute(
+        'SELECT id, description, amount, type, DATE_FORMAT(charge_date, "%Y-%m-%d") as date FROM billing_charges WHERE billing_id = ?',
+        [row.id]
+      );
+      
+      return {
+        ...row,
+        guestName: row.guestName,
+        roomName: row.roomName,
+        total: parseFloat(row.total_charges),
+        status: row.billing_status === 'settled' ? 'Settled' : 'Open',
+        items: charges.map(c => ({
+          ...c,
+          amount: parseFloat(c.amount)
+        }))
+      };
+    }));
+
+    return billsWithItems;
   }
 
   async createSettlement(data) {
@@ -25,6 +49,39 @@ class BillingModel extends BaseModel {
     `;
     const [result] = await pool.execute(sql, [billing_id, payment_method, settled_amount, settled_by]);
     return result.insertId;
+  }
+
+  async findByReservationId(reservationId) {
+    const sql = `
+      SELECT b.*, g.full_name as guestName, g.phone, 
+             COALESCE(rm.room_name, rm.room_code, 'N/A') as roomName
+      FROM guest_billing b 
+      JOIN guests g ON b.guest_id = g.id 
+      LEFT JOIN room_bookings rb ON b.reservation_id = rb.reservation_id
+      LEFT JOIN rooms rm ON rb.room_id = rm.id
+      WHERE b.reservation_id = ? AND b.deletedAt IS NULL
+      LIMIT 1
+    `;
+    const [rows] = await pool.execute(sql, [reservationId]);
+    if (rows.length === 0) return null;
+    
+    const row = rows[0];
+    const [charges] = await pool.execute(
+      'SELECT id, description, amount, type, DATE_FORMAT(charge_date, "%Y-%m-%d") as date FROM billing_charges WHERE billing_id = ?',
+      [row.id]
+    );
+
+    return {
+      ...row,
+      guestName: row.guestName,
+      roomName: row.roomName,
+      total: parseFloat(row.total_charges),
+      status: row.billing_status === 'settled' ? 'Settled' : 'Open',
+      items: charges.map(c => ({
+        ...c,
+        amount: parseFloat(c.amount)
+      }))
+    };
   }
 }
 

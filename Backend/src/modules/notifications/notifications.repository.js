@@ -5,7 +5,10 @@ class NotificationRepository {
     let sql = 'SELECT * FROM notifications WHERE deletedAt IS NULL';
     const params = [];
 
-    if (filters.userId) {
+    if (filters.userId && filters.role) {
+      sql += ' AND (user_id = ? OR targetRole = ? OR targetRole = "ALL")';
+      params.push(filters.userId, filters.role);
+    } else if (filters.userId) {
       sql += ' AND (user_id = ? OR targetRole = "ALL")';
       params.push(filters.userId);
     } else if (filters.role) {

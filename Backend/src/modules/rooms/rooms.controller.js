@@ -17,6 +17,22 @@ class RoomsController {
     }
   }
 
+  async getAvailableRooms(req, res) {
+    try {
+      const rooms = await roomsService.getAvailableRooms();
+      res.json({
+        success: true,
+        message: 'Available rooms fetched successfully',
+        data: rooms
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: err.message
+      });
+    }
+  }
+
   async updateStatus(req, res) {
     try {
       const { status } = req.body;

@@ -32,6 +32,39 @@ class BillingController {
       });
     }
   }
+
+  async addCharge(req, res) {
+    try {
+      const result = await billingService.addCharge(req.params.id, req.body);
+      res.json({
+        success: true,
+        message: 'Charge added successfully',
+        data: result
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: err.message
+      });
+    }
+  }
+
+  async getGuestBill(req, res) {
+    try {
+      const { reservationId } = req.query;
+      const bill = await billingService.getGuestBill(reservationId);
+      res.json({
+        success: true,
+        message: 'Bill fetched successfully',
+        data: bill
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: err.message
+      });
+    }
+  }
 }
 
 module.exports = new BillingController();

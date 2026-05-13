@@ -97,6 +97,9 @@ const MainLayout = ({ children }) => {
     { name: 'Reports', icon: BarChart3, path: getRoleModulePath('reports'), roles: [roles.ADMIN, roles.MANAGER] },
     { name: 'Rooms', icon: Bed, path: getRoleModulePath('rooms'), roles: [roles.ADMIN, roles.MANAGER] },
     { name: 'Reservations', icon: CalendarCheck, path: getRoleModulePath('reservations'), roles: [roles.ADMIN, roles.MANAGER, roles.WAITER] },
+    { name: 'Guest Bills', icon: Receipt, path: getRoleModulePath('guest-bills'), roles: [roles.ADMIN, roles.MANAGER, roles.CASHIER] },
+    { name: 'Settlements', icon: CreditCard, path: getRoleModulePath('settlements'), roles: [roles.ADMIN, roles.MANAGER, roles.CASHIER] },
+    { name: 'Transactions', icon: History, path: getRoleModulePath('transactions'), roles: [roles.ADMIN, roles.MANAGER, roles.CASHIER] },
     { name: 'Settings', icon: Settings, path: getRoleModulePath('settings'), roles: [roles.ADMIN] },
 
     // Customer Specific Items

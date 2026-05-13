@@ -31,6 +31,7 @@ const Rooms = () => {
     type: 'Deluxe', 
     capacity: 2, 
     status: 'Available',
+    price: 0,
     notes: '' 
   });
 
@@ -64,9 +65,10 @@ const Rooms = () => {
       room_type: newRoomData.type,
       capacity: parseInt(newRoomData.capacity),
       room_status: newRoomData.status.toLowerCase(),
+      base_rate: parseFloat(newRoomData.price || 0),
       notes: newRoomData.notes
     });
-    setNewRoomData({ name: '', type: 'Deluxe', capacity: 2, status: 'Available', notes: '' });
+    setNewRoomData({ name: '', type: 'Deluxe', capacity: 2, status: 'Available', price: 0, notes: '' });
     setShowAddRoom(false);
   };
 
@@ -152,6 +154,8 @@ const Rooms = () => {
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{room.room_type}</span>
                     <span className="w-1 h-1 bg-slate-300 rounded-full" />
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cap: {room.capacity}</span>
+                    <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">₹{parseFloat(room.base_rate || 0).toLocaleString()}</span>
                   </div>
                 </div>
 
@@ -195,11 +199,10 @@ const Rooms = () => {
                   type: newRoomData.type,
                   capacity: parseInt(newRoomData.capacity),
                   status: newRoomData.status,
-                  price: newRoomData.type === 'Suite' ? 12000 : newRoomData.type === 'Deluxe' ? 4500 : 2500,
-                  assignedGuest: null,
+                  base_rate: parseFloat(newRoomData.price || 0),
                   notes: newRoomData.notes
                 });
-                setNewRoomData({ name: '', type: 'Deluxe', capacity: 2, status: 'Available', notes: '' });
+                setNewRoomData({ name: '', type: 'Deluxe', capacity: 2, status: 'Available', price: 0, notes: '' });
                 setShowAddRoom(false);
               }} 
               className="flex-1 overflow-y-auto scrollbar-hide"
@@ -255,6 +258,16 @@ const Rooms = () => {
                       <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 rotate-90 pointer-events-none" />
                     </div>
                   </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Base Rate (₹)</label>
+                    <input 
+                      type="number"
+                      value={newRoomData.price}
+                      onChange={(e) => setNewRoomData({...newRoomData, price: e.target.value})}
+                      placeholder="e.g. 2500"
+                      className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Notes</label>
@@ -301,6 +314,15 @@ const Rooms = () => {
                   <div className="flex items-center gap-3">
                     <p className="text-base font-black text-text-primary">{selectedRoom.assigned_guest || 'No Guest Active'}</p>
                   </div>
+                </div>
+                <div>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Daily Rate (₹)</p>
+                  <input 
+                    type="number"
+                    defaultValue={selectedRoom.base_rate}
+                    onBlur={(e) => updateRoom(selectedRoom.id, { base_rate: parseFloat(e.target.value) })}
+                    className="w-full px-4 py-2.5 bg-slate-50 rounded-xl text-xs font-bold outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-inner"
+                  />
                 </div>
                 <div className="sm:text-right">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Room State</p>

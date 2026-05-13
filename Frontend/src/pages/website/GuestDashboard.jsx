@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Bell, 
@@ -13,8 +13,38 @@ import {
   GlassWater
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import api from '@/services/api';
 
 const GuestDashboard = () => {
+  const [guestInfo, setGuestInfo] = useState({
+    name: 'GUEST',
+    roomName: '...',
+    roomId: null
+  });
+
+  useEffect(() => {
+    const savedInfo = localStorage.getItem('guest_info');
+    if (savedInfo) {
+      const parsed = JSON.parse(savedInfo);
+      setGuestInfo(prev => ({ ...prev, name: parsed.name.toUpperCase(), roomId: parsed.roomId }));
+      
+      // Fetch room name if we only have ID
+      const fetchRoomDetails = async () => {
+        try {
+          const response = await api.get('/rooms/available'); // We can reuse this or get all rooms
+          const rooms = response.data.data;
+          const room = rooms.find(r => r.id == parsed.roomId);
+          if (room) {
+            setGuestInfo(prev => ({ ...prev, roomName: room.room_name || `Room ${room.room_number || room.room_code}` }));
+          }
+        } catch (error) {
+          console.error('Failed to fetch room details:', error);
+        }
+      };
+      fetchRoomDetails();
+    }
+  }, []);
+
   const services = [
     { icon: Utensils, title: 'Restaurant', desc: 'Breakfast, Lunch & Dinner', color: 'text-orange-500', bg: 'bg-orange-50', link: '/guest-menu' },
     { icon: Wine, title: 'Bar & Drinks', desc: 'Cocktails & Beverages', color: 'text-purple-500', bg: 'bg-purple-50', link: '/guest-menu' },
@@ -23,6 +53,8 @@ const GuestDashboard = () => {
     { icon: MessageSquare, title: 'Reception', desc: 'Ask for anything', color: 'text-teal-500', bg: 'bg-teal-50', link: '/request-chat' },
     { icon: Receipt, title: 'My Bill', desc: 'View & pay charges', color: 'text-amber-600', bg: 'bg-amber-50', link: '/my-bill' },
   ];
+
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
     <div className="min-h-screen bg-[#e0f7f3]/50 font-sans pb-20">
@@ -40,7 +72,7 @@ const GuestDashboard = () => {
           <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-white text-[10px]">
              ✓
           </div>
-          <span className="text-[10px] font-bold text-slate-600 tracking-tight">Welcome, MANUEL! 🎉</span>
+          <span className="text-[10px] font-bold text-slate-600 tracking-tight">Welcome, {guestInfo.name}! 🎉</span>
         </div>
 
         <button className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center text-slate-400 hover:bg-gray-100 transition-colors relative">
@@ -57,28 +89,28 @@ const GuestDashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             className="lg:col-span-2 bg-gradient-to-br from-orange-400 to-orange-500 rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 text-white shadow-xl shadow-orange-100 overflow-hidden relative flex flex-col justify-center"
           >
-            <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] opacity-70 mb-3 md:mb-4">Thursday 7 May</p>
-            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 md:mb-8 tracking-tight leading-none">Good morning, MANUEL!</h2>
+            <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] opacity-70 mb-3 md:mb-4">{today}</p>
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 md:mb-8 tracking-tight leading-none text-white">Good morning, {guestInfo.name}!</h2>
             
             <div className="flex items-center gap-3">
               <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl">
                 <MapPin size={14} />
-                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Asmara</span>
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Gila House</span>
               </div>
               <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl">
-                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Room 204</span>
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">{guestInfo.roomName}</span>
               </div>
             </div>
           </motion.div>
 
           {/* Quick Order Section */}
           <div className="flex flex-col gap-4">
-            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2 px-2">Quick Actions</h3>
+            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2 px-2 text-left">Quick Actions</h3>
             <Link to="/guest-menu" className="flex-1 bg-orange-50/60 hover:bg-orange-50 transition-colors rounded-[2rem] p-6 flex items-center gap-6 border border-orange-100/30 group">
               <div className="w-14 h-14 md:w-16 md:h-16 bg-orange-400 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-200 group-hover:scale-110 transition-transform">
                 <ChefHat size={28} />
               </div>
-              <div>
+              <div className="text-left">
                 <span className="block text-lg font-black text-slate-800 leading-tight">Order to Room</span>
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Full menu</span>
               </div>
@@ -88,7 +120,7 @@ const GuestDashboard = () => {
               <div className="w-14 h-14 md:w-16 md:h-16 bg-purple-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-purple-200 group-hover:scale-110 transition-transform">
                 <GlassWater size={28} />
               </div>
-              <div>
+              <div className="text-left">
                 <span className="block text-lg font-black text-slate-800 leading-tight">Bar Drinks</span>
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Cocktails & more</span>
               </div>
@@ -98,7 +130,7 @@ const GuestDashboard = () => {
 
         {/* Our Services Grid */}
         <section className="mb-20">
-          <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6 px-2">Explore Our Services</h3>
+          <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6 px-2 text-left">Explore Our Services</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
             {services.map((service, i) => (
               <motion.div
@@ -107,7 +139,7 @@ const GuestDashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <Link to={service.link} className="bg-white hover:shadow-2xl hover:shadow-orange-900/5 transition-all rounded-[2rem] p-6 flex flex-col border border-gray-50 h-full group">
+                <Link to={service.link} className="bg-white hover:shadow-2xl hover:shadow-orange-900/5 transition-all rounded-[2rem] p-6 flex flex-col border border-gray-50 h-full group text-left">
                   <div className={`w-12 h-12 md:w-14 md:h-14 ${service.bg} rounded-2xl flex items-center justify-center ${service.color} mb-5 group-hover:scale-110 transition-transform`}>
                     <service.icon size={22} strokeWidth={2.5} />
                   </div>
@@ -123,8 +155,8 @@ const GuestDashboard = () => {
       {/* Mobile Bottom Bar - Consistent */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-xl border border-gray-100 rounded-full py-3 px-8 shadow-2xl z-50 flex items-center gap-10">
          <Link to="/" className="text-gray-400"><Compass size={20} /></Link>
-         <Link to="/menu" className="text-orange-500 font-black text-xs uppercase tracking-widest">App</Link>
-         <Link to="/login" className="text-gray-400"><Receipt size={20} /></Link>
+         <Link to="/guest-app" className="text-orange-500 font-black text-xs uppercase tracking-widest">App</Link>
+         <Link to="/my-bill" className="text-gray-400"><Receipt size={20} /></Link>
       </div>
     </div>
   );

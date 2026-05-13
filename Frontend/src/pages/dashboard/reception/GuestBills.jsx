@@ -384,7 +384,7 @@ const GuestBills = () => {
                          const amount = prompt('Add custom charge amount (₹):');
                          if (amount && !isNaN(amount)) {
                            const desc = prompt('Description:');
-                           if(desc) addToFolio(selectedFolio.guestName, { description: desc, amount: parseFloat(amount), date: new Date().toLocaleDateString(), type: 'Misc' });
+                           if(desc) addToFolio(selectedFolio.id, { description: desc, amount: parseFloat(amount), date: new Date().toLocaleDateString(), type: 'Misc' });
                          }
                        }}
                        className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black uppercase tracking-widest text-[10px]"

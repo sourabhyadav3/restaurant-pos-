@@ -15,18 +15,22 @@ export const CommunicationProvider = ({ children }) => {
   const [activeChats, setActiveChats] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Normalize user role
+  const userRole = (user?.role || user?.role_name || '').toUpperCase();
+  const isStaff = ['ADMIN', 'MANAGER', 'WAITER', 'CASHIER', 'CHEF'].includes(userRole);
+
   const fetchActiveChats = useCallback(async () => {
-    if (!user) return;
+    if (!isStaff) return;
     try {
       const response = await api.get('/concierge/tickets');
       if (response.data.success) {
         const chats = response.data.data.map(ticket => ({
           guestId: ticket.guest_id,
           ticketId: ticket.id,
-          guestName: ticket.guest_name,
-          lastMessage: ticket.last_message || 'New request',
-          lastTimestamp: ticket.updatedAt,
-          unreadCount: 0, // In a real app, track this in DB
+          guestName: ticket.guest_name || 'Guest',
+          lastMessage: ticket.last_message,
+          lastTimestamp: ticket.last_message_at,
+          unreadCount: 0,
           status: ticket.ticket_status
         }));
         setActiveChats(chats);
@@ -34,7 +38,7 @@ export const CommunicationProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching concierge chats:', error);
     }
-  }, [user]);
+  }, [isStaff]);
 
   const fetchMessages = useCallback(async (ticketId) => {
     try {
@@ -44,7 +48,7 @@ export const CommunicationProvider = ({ children }) => {
           id: msg.id,
           ticketId: msg.ticket_id,
           content: msg.message,
-          sender: msg.sender_id === user?.id ? 'Staff' : 'Guest',
+          sender: msg.sender_id ? 'Staff' : 'Guest',
           timestamp: msg.createdAt
         }));
         setMessages(prev => {
@@ -52,13 +56,12 @@ export const CommunicationProvider = ({ children }) => {
           return [...otherMessages, ...formattedMessages];
         });
         
-        // Join the ticket room for real-time updates
-      socketService.emit('join_room', `user_${user?.id}`);
+        socketService.emit('join_room', `ticket_${ticketId}`);
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
-  }, [user]);
+  }, []);
 
   // Handle real-time messages
   useEffect(() => {
@@ -67,8 +70,8 @@ export const CommunicationProvider = ({ children }) => {
         id: msg.id,
         ticketId: msg.ticket_id,
         content: msg.message,
-        sender: msg.sender_id === user?.id ? 'Staff' : 'Guest',
-        timestamp: new Date().toISOString()
+        sender: msg.sender_id ? 'Staff' : 'Guest',
+        timestamp: msg.createdAt || new Date().toISOString()
       };
       
       setMessages(prev => {
@@ -76,25 +79,45 @@ export const CommunicationProvider = ({ children }) => {
         return [...prev, formattedMsg];
       });
 
-      // Update chat summary
-      setActiveChats(prev => prev.map(chat => 
-        chat.ticketId === msg.ticket_id 
-        ? { ...chat, lastMessage: msg.message, lastTimestamp: formattedMsg.timestamp } 
-        : chat
-      ));
+      // Update chat summary OR add new chat if missing
+      setActiveChats(prev => {
+        const exists = prev.some(c => c.ticketId === msg.ticket_id);
+        if (exists) {
+          return prev.map(chat => 
+            chat.ticketId === msg.ticket_id 
+            ? { ...chat, lastMessage: msg.message, lastTimestamp: formattedMsg.timestamp } 
+            : chat
+          ).sort((a, b) => new Date(b.lastTimestamp) - new Date(a.lastTimestamp));
+        } else {
+          // If it's a new ticket that we don't have in list, refetch list
+          fetchActiveChats();
+          return prev;
+        }
+      });
+
+      // Notify if it's from guest and staff is logged in
+      if (!msg.sender_id && isStaff) {
+         addNotification({
+            id: Date.now(),
+            title: 'New Guest Message',
+            message: msg.message,
+            type: 'message'
+         });
+      }
     };
 
     socketService.on('new_message', handleNewMessage);
     return () => socketService.off('new_message', handleNewMessage);
-  }, [user]);
+  }, [isStaff, fetchActiveChats, addNotification]);
 
   useEffect(() => {
-    if (user && (user.role === 'WAITER' || user.role === 'ADMIN' || user.role === 'MANAGER')) {
+    if (isStaff) {
       fetchActiveChats();
-      const interval = setInterval(fetchActiveChats, 15000); // Poll for new tickets
+      socketService.emit('join_room', 'staff');
+      const interval = setInterval(fetchActiveChats, 10000); // 10s poll
       return () => clearInterval(interval);
     }
-  }, [user, fetchActiveChats]);
+  }, [isStaff, fetchActiveChats]);
 
   const sendMessage = async (ticketId, guestName, content, sender = 'Staff') => {
     try {
@@ -113,7 +136,6 @@ export const CommunicationProvider = ({ children }) => {
         };
         setMessages(prev => [...prev, newMessage]);
         
-        // Update local chat summary
         setActiveChats(prev => prev.map(chat => 
           chat.ticketId === ticketId 
           ? { ...chat, lastMessage: content, lastTimestamp: newMessage.timestamp } 
@@ -123,6 +145,45 @@ export const CommunicationProvider = ({ children }) => {
     } catch (error) {
       console.error('Error sending message:', error);
     }
+  };
+
+  const getGuestTicket = async (guestId) => {
+    try {
+      const response = await api.get(`/concierge/guest/ticket/${guestId}`);
+      if (response.data.success) {
+        // Also join the ticket room immediately
+        socketService.emit('join_room', `ticket_${response.data.data.id}`);
+        return response.data.data;
+      }
+    } catch (error) {
+      console.error('Error getting guest ticket:', error);
+    }
+    return null;
+  };
+
+  const sendGuestMessage = async (ticketId, guestId, content) => {
+    try {
+      const response = await api.post('/concierge/guest/messages', {
+        ticket_id: ticketId,
+        guest_id: guestId,
+        message: content
+      });
+
+      if (response.data.success) {
+        const newMessage = {
+          id: response.data.data.id,
+          ticketId,
+          content,
+          sender: 'Guest',
+          timestamp: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, newMessage]);
+        return true;
+      }
+    } catch (error) {
+      console.error('Error sending guest message:', error);
+    }
+    return false;
   };
 
   const markAsRead = (ticketId) => {
@@ -136,6 +197,8 @@ export const CommunicationProvider = ({ children }) => {
       messages,
       activeChats,
       sendMessage,
+      sendGuestMessage,
+      getGuestTicket,
       markAsRead,
       fetchMessages,
       loading

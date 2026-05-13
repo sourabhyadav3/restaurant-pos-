@@ -56,7 +56,8 @@ export const HospitalityProvider = ({ children }) => {
         { key: 'tasks', url: '/tasks' },
         { key: 'inventory', url: '/inventory' },
         { key: 'services', url: '/services' },
-        { key: 'bookings', url: '/services/bookings' }
+        { key: 'bookings', url: '/services/bookings' },
+        { key: 'billing', url: '/billing' }
       ];
 
       const results = await Promise.allSettled(
@@ -76,6 +77,7 @@ export const HospitalityProvider = ({ children }) => {
             case 'inventory': setInventory(data || []); break;
             case 'services': setServices(data || []); break;
             case 'bookings': setServiceBookings(data || []); break;
+            case 'billing': setFolios(data || []); break;
             default: break;
           }
         } else if (result.reason.name !== 'CanceledError') {
@@ -249,10 +251,21 @@ export const HospitalityProvider = ({ children }) => {
     try {
       await api.post(`/billing/${guestId}/charges`, transaction);
       addActivity(`Charge added to folio: ${transaction.description}`, 'info');
+      await fetchData(true);
     } catch (error) {
       console.error('Error adding to folio:', error);
     }
-  }, [addActivity]);
+  }, [addActivity, fetchData]);
+
+  const settleFolio = useCallback(async (id) => {
+    try {
+      await api.post(`/billing/${id}/settle`);
+      await fetchData(true);
+      addActivity(`Folio settled and closed`, 'success');
+    } catch (error) {
+      console.error('Error settling folio:', error);
+    }
+  }, [fetchData, addActivity]);
 
   const addTask = useCallback(async (task) => {
     try {
@@ -375,7 +388,7 @@ export const HospitalityProvider = ({ children }) => {
     rooms, updateRoomStatus, updateRoom, addRoom, deleteRoom,
     tables, addTable, updateTableStatus, deleteTable,
     reservations, addReservation, approveReservation, rejectReservation, checkInReservation, completeReservation, cancelReservation, deleteReservation,
-    folios, addToFolio,
+    folios, addToFolio, settleFolio,
     staff, addStaff, updateStaff, deleteStaff,
     tasks, addTask, updateTaskStatus, deleteTask,
     inventory, updateStock, addInventoryItem, deleteInventoryItem,
@@ -386,7 +399,7 @@ export const HospitalityProvider = ({ children }) => {
     rooms, updateRoomStatus, updateRoom, addRoom, deleteRoom,
     tables, addTable, updateTableStatus, deleteTable,
     reservations, addReservation, approveReservation, rejectReservation, checkInReservation, completeReservation, cancelReservation, deleteReservation,
-    folios, addToFolio,
+    folios, addToFolio, settleFolio,
     staff, addStaff, updateStaff, deleteStaff,
     tasks, addTask, updateTaskStatus, deleteTask,
     inventory, updateStock, addInventoryItem, deleteInventoryItem,

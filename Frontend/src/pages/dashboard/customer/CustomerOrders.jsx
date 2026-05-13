@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { 
   History, 
   ChevronRight, 
@@ -26,7 +26,13 @@ const CustomerOrders = () => {
   const { orders, cancelOrder } = useOrders();
   const { profile, addToCart } = useCustomer();
   const [activeTab, setActiveTab] = useState('Active');
-  const [selectedTrackOrder, setSelectedTrackOrder] = useState(null);
+  const [selectedTrackOrderId, setSelectedTrackOrderId] = useState(null);
+
+  // Get the most up-to-date version of the selected order from the context
+  const selectedTrackOrder = useMemo(() => 
+    orders.find(o => String(o.id) === String(selectedTrackOrderId)),
+    [orders, selectedTrackOrderId]
+  );
 
   const filteredOrders = orders.filter(order => {
     const status = (order.order_status || order.status || '').toLowerCase();
@@ -53,10 +59,10 @@ const CustomerOrders = () => {
   };
 
   const trackingSteps = [
-    { label: 'Order Placed', status: 'Pending', icon: ClipboardList, color: 'bg-orange-500' },
-    { label: 'In Kitchen', status: 'Cooking', icon: UtensilsCrossed, color: 'bg-indigo-500' },
-    { label: 'Quality Check', status: 'Cooking', icon: Search, color: 'bg-indigo-500' },
-    { label: 'Ready', status: 'Ready', icon: CheckCircle2, color: 'bg-emerald-500' }
+    { label: 'Order Placed', status: 'new', icon: ClipboardList, color: 'bg-orange-500' },
+    { label: 'In Kitchen', status: 'cooking', icon: UtensilsCrossed, color: 'bg-indigo-500' },
+    { label: 'Quality Check', status: 'cooking', icon: Search, color: 'bg-indigo-500' },
+    { label: 'Ready', status: 'ready', icon: CheckCircle2, color: 'bg-emerald-500' }
   ];
 
   return (
@@ -93,112 +99,115 @@ const CustomerOrders = () => {
              <p className="text-sm font-black uppercase tracking-widest text-slate-400">No {activeTab.toLowerCase()} orders found</p>
           </div>
         ) : (
-          filteredOrders.map((order) => (
-            <div key={order.id} className="card p-5 lg:p-6 bg-white border-none shadow-xl shadow-slate-100/50 hover:bg-slate-50 transition-all group">
-               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div className="flex items-start gap-4 lg:gap-6">
-                      <div className="w-14 h-14 lg:w-16 lg:h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner group-hover:scale-105 transition-transform">
-                        {['Cooking', 'Ready'].includes(order.status) ? '🍳' : order.status === 'Delivered' ? '✅' : order.status === 'Cancelled' ? '❌' : '⏳'}
-                      </div>
-                      <div className="space-y-1.5 flex-1 min-w-0">
-                         <div className="flex flex-wrap items-center gap-2">
-                            <span className={cn("px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border shrink-0", getStatusColor(order.order_status || order.status))}>
-                               {order.order_status || order.status}
-                            </span>
-                            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest truncate">• {order.order_number || order.id}</span>
-                         </div>
-                         <h4 className="text-base lg:text-lg font-black text-text-primary uppercase tracking-tight leading-tight pt-0.5 break-words line-clamp-2">
-                            {order.items && order.items.length > 0 
-                              ? order.items.map(i => i.item_name || i.name).join(', ') 
-                              : order.itemsList 
-                                ? order.itemsList.map(i => i.name).join(', ') 
-                                : 'Food Order'}
-                         </h4>
-                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-0.5">
-                            <span className="flex items-center gap-1 shrink-0">
-                               <Clock className="w-3 h-3" /> 
-                               {order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (order.time || 'Recent')}
-                            </span>
-                            <span className="flex items-center gap-1 shrink-0">
-                               <MapPin className="w-3 h-3" /> 
-                               {order.table_code || order.table || 'N/A'}
-                            </span>
-                         </div>
-                      </div>
-                  </div>
-
-                  <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 border-t md:border-t-0 pt-4 md:pt-0 border-slate-50">
-                     <div className="text-right">
-                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-0.5">Order Total</p>
-                        <p className="text-lg lg:text-xl font-black text-text-primary tracking-tighter">
-                           ₹{(order.grand_total || order.amount || 0).toString().replace('₹', '')}
-                        </p>
-                     </div>
-                     <div className="flex items-center gap-2">
-                        {activeTab === 'History' ? (
-                             <button 
-                               onClick={() => handleReorder(order)}
-                               className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm flex-1 md:flex-none"
-                             >
-                                <RotateCcw className="w-3.5 h-3.5" /> Reorder
-                             </button>
-                        ) : (
-                          <div className="flex items-center gap-2 w-full md:w-auto">
-                             {(order.order_status || order.status || '').toLowerCase() === 'new' && (
-                               <button 
-                                 onClick={() => cancelOrder(order.id)}
-                                 className="px-4 py-2.5 bg-rose-50 text-rose-500 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all shadow-sm flex-1 md:flex-none"
-                               >
-                                  Cancel
-                               </button>
-                             )}
-                              <button 
-                               onClick={() => { setSelectedTrackOrder(order); setTimeout(() => printContent('printable-area'), 200); }}
-                               className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:text-primary transition-all shadow-sm border border-slate-100 shrink-0"
-                              >
-                                 <Printer className="w-4 h-4" />
-                              </button>
-                              <button 
-                               onClick={() => setSelectedTrackOrder(order)}
-                               className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all flex-1 md:flex-none whitespace-nowrap"
-                              >
-                                 Track Order <ChevronRight className="w-3.5 h-3.5" />
-                              </button>
-                          </div>
-                        )}
-                     </div>
-                  </div>
-               </div>
-
-               {/* Mini Tracking Summary (Only for Active) */}
-               {activeTab === 'Active' && (order.order_status || order.status || '').toLowerCase() !== 'cancelled' && (
-                 <div className="mt-6 pt-6 border-t border-slate-50">
-                    <div className="flex items-center justify-between mb-3 text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">
-                       <span>Preparation Progress</span>
-                        <span className="text-primary uppercase">
-                           {(order.order_status || order.status || '').toLowerCase() === 'new' ? '20%' : 
-                            (order.order_status || order.status || '').toLowerCase() === 'pending' ? '40%' :
-                            (order.order_status || order.status || '').toLowerCase() === 'cooking' ? '75%' : 
-                            (order.order_status || order.status || '').toLowerCase() === 'ready' ? '95%' : '100%'} Completed
-                        </span>
+          filteredOrders.map((order) => {
+            const currentStatus = (order.order_status || order.status || '').toLowerCase();
+            return (
+              <div key={order.id} className="card p-5 lg:p-6 bg-white border-none shadow-xl shadow-slate-100/50 hover:bg-slate-50 transition-all group">
+                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-start gap-4 lg:gap-6">
+                        <div className="w-14 h-14 lg:w-16 lg:h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner group-hover:scale-105 transition-transform">
+                          {['cooking', 'ready'].includes(currentStatus) ? '🍳' : currentStatus === 'delivered' ? '✅' : currentStatus === 'cancelled' ? '❌' : '⏳'}
+                        </div>
+                        <div className="space-y-1.5 flex-1 min-w-0">
+                           <div className="flex flex-wrap items-center gap-2">
+                              <span className={cn("px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border shrink-0", getStatusColor(currentStatus))}>
+                                 {currentStatus}
+                              </span>
+                              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest truncate">• {order.order_number || order.id}</span>
+                           </div>
+                           <h4 className="text-base lg:text-lg font-black text-text-primary uppercase tracking-tight leading-tight pt-0.5 break-words line-clamp-2">
+                              {order.items && order.items.length > 0 
+                                ? order.items.map(i => i.item_name || i.name).join(', ') 
+                                : order.itemsList 
+                                  ? order.itemsList.map(i => i.name).join(', ') 
+                                  : 'Food Order'}
+                           </h4>
+                           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-0.5">
+                              <span className="flex items-center gap-1 shrink-0">
+                                 <Clock className="w-3 h-3" /> 
+                                 {order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (order.time || 'Recent')}
+                              </span>
+                              <span className="flex items-center gap-1 shrink-0">
+                                 <MapPin className="w-3 h-3" /> 
+                                 {order.table_code || order.table || 'N/A'}
+                              </span>
+                           </div>
+                        </div>
                     </div>
-                    <div className="flex gap-1.5 h-2">
-                       <div className={cn("flex-1 rounded-full", ['new', 'pending', 'cooking', 'ready'].includes((order.order_status || order.status || '').toLowerCase()) ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
-                       <div className={cn("flex-1 rounded-full", ['pending', 'cooking', 'ready'].includes((order.order_status || order.status || '').toLowerCase()) ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
-                       <div className={cn("flex-1 rounded-full", ['cooking', 'ready'].includes((order.order_status || order.status || '').toLowerCase()) ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
-                       <div className={cn("flex-1 rounded-full", ['ready'].includes((order.order_status || order.status || '').toLowerCase()) ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
+
+                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 border-t md:border-t-0 pt-4 md:pt-0 border-slate-50">
+                       <div className="text-right">
+                          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-0.5">Order Total</p>
+                          <p className="text-lg lg:text-xl font-black text-text-primary tracking-tighter">
+                             ₹{(order.grand_total || order.amount || 0).toString().replace('₹', '')}
+                          </p>
+                       </div>
+                       <div className="flex items-center gap-2">
+                          {activeTab === 'History' ? (
+                               <button 
+                                 onClick={() => handleReorder(order)}
+                                 className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm flex-1 md:flex-none"
+                               >
+                                  <RotateCcw className="w-3.5 h-3.5" /> Reorder
+                               </button>
+                          ) : (
+                            <div className="flex items-center gap-2 w-full md:w-auto">
+                               {currentStatus === 'new' && (
+                                 <button 
+                                   onClick={() => cancelOrder(order.id)}
+                                   className="px-4 py-2.5 bg-rose-50 text-rose-500 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all shadow-sm flex-1 md:flex-none"
+                                 >
+                                    Cancel
+                                 </button>
+                               )}
+                                <button 
+                                 onClick={() => { setSelectedTrackOrderId(order.id); setTimeout(() => printContent('printable-area'), 200); }}
+                                 className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:text-primary transition-all shadow-sm border border-slate-100 shrink-0"
+                                >
+                                   <Printer className="w-4 h-4" />
+                                </button>
+                                <button 
+                                 onClick={() => setSelectedTrackOrderId(order.id)}
+                                 className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all flex-1 md:flex-none whitespace-nowrap"
+                                >
+                                   Track Order <ChevronRight className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
+                          )}
+                       </div>
                     </div>
                  </div>
-               )}
-            </div>
-          ))
+
+                 {/* Mini Tracking Summary (Only for Active) */}
+                 {activeTab === 'Active' && currentStatus !== 'cancelled' && (
+                   <div className="mt-6 pt-6 border-t border-slate-50">
+                      <div className="flex items-center justify-between mb-3 text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">
+                         <span>Preparation Progress</span>
+                          <span className="text-primary uppercase">
+                             {currentStatus === 'new' ? '20%' : 
+                              currentStatus === 'pending' ? '40%' :
+                              currentStatus === 'cooking' ? '75%' : 
+                              currentStatus === 'ready' ? '95%' : '100%'} Completed
+                          </span>
+                      </div>
+                      <div className="flex gap-1.5 h-2">
+                         <div className={cn("flex-1 rounded-full", ['new', 'pending', 'cooking', 'ready', 'delivered'].includes(currentStatus) ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
+                         <div className={cn("flex-1 rounded-full", ['pending', 'cooking', 'ready', 'delivered'].includes(currentStatus) ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
+                         <div className={cn("flex-1 rounded-full", ['cooking', 'ready', 'delivered'].includes(currentStatus) ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
+                         <div className={cn("flex-1 rounded-full", ['ready', 'delivered'].includes(currentStatus) ? "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.3)]" : "bg-slate-100")} />
+                      </div>
+                   </div>
+                 )}
+              </div>
+            );
+          })
         )}
       </div>
 
       {/* Tracking Modal */}
       {selectedTrackOrder && createPortal(
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-0 sm:p-4">
-          <div onClick={() => setSelectedTrackOrder(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+          <div onClick={() => setSelectedTrackOrderId(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
           <div className="relative w-full max-w-lg bg-white rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 sm:zoom-in-95 duration-300 self-end sm:self-center max-h-[90vh] flex flex-col">
              <div className="p-5 sm:p-8 bg-slate-50 flex justify-between items-center border-b border-slate-100 shrink-0">
                 <div className="flex items-center gap-3 sm:gap-4">
@@ -210,7 +219,7 @@ const CustomerOrders = () => {
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Ticket #{selectedTrackOrder.order_number || selectedTrackOrder.id}</p>
                    </div>
                 </div>
-                <button onClick={() => setSelectedTrackOrder(null)} className="p-2 bg-white rounded-xl text-slate-300 hover:text-text-primary transition-all">
+                <button onClick={() => setSelectedTrackOrderId(null)} className="p-2 bg-white rounded-xl text-slate-300 hover:text-text-primary transition-all">
                    <X className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
              </div>
@@ -220,8 +229,15 @@ const CustomerOrders = () => {
                 <div className="relative flex justify-between items-start px-0 sm:px-2">
                    <div className="absolute left-6 right-6 top-6 h-0.5 bg-slate-100 -z-10" />
                    {trackingSteps.map((step, idx) => {
-                     const isPast = ['Pending', 'Cooking', 'Ready'].indexOf(selectedTrackOrder.status) >= ['Pending', 'Cooking', 'Cooking', 'Ready'].indexOf(step.status);
-                     const isCurrent = selectedTrackOrder.status === step.status && (step.label !== 'Quality Check' || selectedTrackOrder.status === 'Cooking');
+                     const orderStatus = (selectedTrackOrder.order_status || selectedTrackOrder.status || '').toLowerCase();
+                     const stepStatus = step.status.toLowerCase();
+                     
+                     const statusPriority = { 'new': 0, 'pending': 1, 'cooking': 2, 'ready': 3, 'delivered': 4 };
+                     const currentPriority = statusPriority[orderStatus] || 0;
+                     const stepPriority = statusPriority[stepStatus] || 0;
+                     
+                     const isPast = currentPriority >= stepPriority;
+                     const isCurrent = orderStatus === stepStatus && (step.label !== 'Quality Check' || orderStatus === 'cooking');
 
                      return (
                        <div key={idx} className="flex flex-col items-center gap-2 sm:gap-3 flex-1">
@@ -247,10 +263,10 @@ const CustomerOrders = () => {
                    </div>
                    <div className="space-y-2.5 sm:space-y-3">
                       {(selectedTrackOrder.items || selectedTrackOrder.itemsList || []).map((item, i) => (
-                        <div key={i} className="flex justify-between items-center gap-4">
-                           <p className="text-xs sm:text-sm font-black text-text-primary uppercase truncate flex-1">{item.item_name || item.name}</p>
-                           <p className="text-[10px] sm:text-xs font-bold text-slate-400 shrink-0">x{item.quantity || 1}</p>
-                        </div>
+                         <div key={i} className="flex justify-between items-center gap-4">
+                            <p className="text-xs sm:text-sm font-black text-text-primary uppercase truncate flex-1">{item.item_name || item.name}</p>
+                            <p className="text-[10px] sm:text-xs font-bold text-slate-400 shrink-0">x{item.quantity || 1}</p>
+                         </div>
                       ))}
                    </div>
                 </div>
@@ -261,7 +277,7 @@ const CustomerOrders = () => {
                 </div>
 
                 <button 
-                  onClick={() => setSelectedTrackOrder(null)}
+                  onClick={() => setSelectedTrackOrderId(null)}
                   className="w-full py-4 sm:py-5 bg-primary text-white rounded-2xl sm:rounded-3xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] shadow-2xl shadow-primary/30 active:scale-95 transition-all mt-4"
                 >
                    Continue Shopping
@@ -299,7 +315,7 @@ const CustomerOrders = () => {
           <div className="flex justify-between text-[11px] font-black mb-4 uppercase">
             <div>
               <p>ORDER ID: {selectedTrackOrder.id}</p>
-              <p>TABLE: {selectedTrackOrder.table}</p>
+              <p>TABLE: {selectedTrackOrder.table_code || selectedTrackOrder.table}</p>
             </div>
             <div className="text-right">
               <p>DATE: {new Date().toLocaleDateString()}</p>
@@ -317,11 +333,11 @@ const CustomerOrders = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {selectedTrackOrder.itemsList?.map((item, i) => (
+                {(selectedTrackOrder.items || selectedTrackOrder.itemsList || []).map((item, i) => (
                   <tr key={i}>
                     <td className="py-2 font-black">{item.quantity || 1}x</td>
-                    <td className="py-2 uppercase font-black">{item.name}</td>
-                    <td className="py-2 text-right font-black">₹{item.price || (parseFloat(selectedTrackOrder.amount?.replace('₹', '') || 0) / (selectedTrackOrder.itemsList?.length || 1)).toFixed(0)}</td>
+                    <td className="py-2 uppercase font-black">{item.item_name || item.name}</td>
+                    <td className="py-2 text-right font-black">₹{item.unit_price || item.price || 0}</td>
                   </tr>
                 ))}
               </tbody>
@@ -331,11 +347,11 @@ const CustomerOrders = () => {
           <div className="space-y-1 mb-6">
             <div className="flex justify-between text-sm font-black uppercase">
               <span>Total Amount</span>
-              <span>{selectedTrackOrder.amount?.startsWith('₹') ? selectedTrackOrder.amount : `₹${selectedTrackOrder.amount || 0}`}</span>
+              <span>₹{selectedTrackOrder.grand_total || selectedTrackOrder.amount || 0}</span>
             </div>
             <div className="flex justify-between text-[10px] font-bold uppercase text-slate-500">
               <span>Payment Status</span>
-              <span>{selectedTrackOrder.status === 'Delivered' ? 'PAID' : 'PENDING'}</span>
+              <span>{(selectedTrackOrder.payment_status || '').toUpperCase()}</span>
             </div>
           </div>
 

@@ -59,7 +59,7 @@ export const HospitalityProvider = ({ children }) => {
         { key: 'tasks', url: '/tasks' },
         { key: 'inventory', url: '/inventory' },
         { key: 'services', url: '/services' },
-        { key: 'bookings', url: '/services/bookings' }
+        { key: 'bookings', url: '/service-bookings' }
       ];
 
       if (isStaff) {
@@ -380,9 +380,21 @@ export const HospitalityProvider = ({ children }) => {
     }
   }, [fetchData, addActivity]);
 
+  const addService = useCallback(async (serviceData) => {
+    try {
+      await api.post('/services', serviceData);
+      await fetchData(true);
+      addActivity(`New service added: ${serviceData.name}`, 'success');
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding service:', error);
+      return { success: false, error: error.response?.data?.message || 'Failed to add service' };
+    }
+  }, [fetchData, addActivity]);
+
   const updateServiceBookingStatus = useCallback(async (id, status) => {
     try {
-      await api.patch(`/services/bookings/${id}/status`, { status });
+      await api.patch(`/service-bookings/${id}/status`, { status });
       await fetchData(true);
       addActivity(`Service booking status updated to ${status}`, 'info');
     } catch (error) {
@@ -394,18 +406,24 @@ export const HospitalityProvider = ({ children }) => {
     try {
       const payload = {
         service_id: bookingData.serviceId,
-        guest_name: bookingData.guestName,
+        guest_id: bookingData.guestId || null,
+        customer_name: bookingData.guestName,
+        customer_email: bookingData.guestEmail || '',
+        customer_phone: bookingData.guestPhone || '',
         booking_date: bookingData.date,
         booking_time: bookingData.time,
         total_guests: bookingData.guests,
         total_amount: bookingData.total,
+        notes: bookingData.notes || '',
         booking_status: 'pending'
       };
-      await api.post('/services/bookings', payload);
+      await api.post('/service-bookings', payload);
       await fetchData(true);
       addActivity(`Service booking requested: ${bookingData.serviceName}`, 'success');
+      return { success: true };
     } catch (error) {
       console.error('Error adding service booking:', error);
+      return { success: false, error: error.response?.data?.message || 'Failed to book service' };
     }
   }, [fetchData, addActivity]);
 
@@ -417,7 +435,7 @@ export const HospitalityProvider = ({ children }) => {
     staff, addStaff, updateStaff, deleteStaff,
     tasks, addTask, updateTaskStatus, deleteTask,
     inventory, updateStock, addInventoryItem, deleteInventoryItem,
-    services, serviceBookings, updateServiceBookingStatus, addServiceBooking,
+    services, addService, serviceBookings, updateServiceBookingStatus, addServiceBooking,
     activityLog, addActivity,
     loading, error, refreshData: () => fetchData(true)
   }), [

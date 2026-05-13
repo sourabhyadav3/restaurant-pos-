@@ -33,7 +33,7 @@ class ReservationsService {
 
     try {
       const payload = {
-        reservation_code: data.reservation_code || `RES-${Date.now().toString().slice(-6)}`,
+        reservation_code: data.id || data.reservation_code || `RES-${Date.now().toString().slice(-6)}`,
         guest_id: guest_id,
         booking_type: (data.type || data.booking_type || 'table').toLowerCase(),
         booking_date: data.date || data.booking_date || new Date().toISOString().split('T')[0],

@@ -202,7 +202,7 @@ CREATE TABLE IF NOT EXISTS reservations (
     id INT AUTO_INCREMENT PRIMARY KEY,
     reservation_code VARCHAR(50) NOT NULL UNIQUE,
     guest_id INT,
-    booking_type ENUM('table', 'room', 'event') DEFAULT 'table',
+    booking_type ENUM('table', 'room', 'event', 'transport') DEFAULT 'table',
     booking_date DATE NOT NULL,
     booking_time TIME NOT NULL,
     guests_count INT DEFAULT 1,

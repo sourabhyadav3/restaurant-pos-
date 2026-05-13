@@ -17,6 +17,7 @@ const conciergeRoutes = require('../modules/concierge/concierge.routes');
 const customerRoutes = require('../modules/customer/customer.routes');
 const notificationRoutes = require('../modules/notifications/notifications.routes');
 const serviceRoutes = require('../modules/services/services.routes');
+const serviceBookingRoutes = require('../modules/services/service-bookings.routes');
 const settingsRoutes = require('../modules/settings/settings.routes');
 
 // Use routes
@@ -35,6 +36,7 @@ router.use('/concierge', conciergeRoutes);
 router.use('/customer', customerRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/services', serviceRoutes);
+router.use('/service-bookings', serviceBookingRoutes);
 router.use('/settings', settingsRoutes);
 
 module.exports = router;

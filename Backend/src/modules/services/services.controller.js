@@ -4,9 +4,47 @@ class ServiceController {
   async getAllServices(req, res) {
     try {
       const services = await serviceRepository.getAllServices();
-      res.json({ success: true, data: services });
+      const mappedServices = services.map(s => ({
+        id: s.id,
+        name: s.service_name || s.name,
+        transport: s.service_type || s.transport,
+        category: s.service_type || s.transport,
+        price: parseFloat(s.price_per_person || s.price || 0),
+        notes: s.description || s.notes,
+        description: s.description || s.notes,
+        icon: s.service_type?.toLowerCase().includes('shuttle') ? '🚐' : 
+              s.service_type?.toLowerCase().includes('tour') ? '🗺️' :
+              s.service_type?.toLowerCase().includes('cruise') ? '🚤' :
+              s.service_type?.toLowerCase().includes('hike') ? '🥾' : '🧭'
+      }));
+      res.json({ success: true, data: mappedServices });
     } catch (error) {
       console.error('Error fetching services:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  }
+
+  async createService(req, res) {
+    try {
+      const { name, transport, price, notes } = req.body;
+      
+      if (!name || !transport || !price) {
+        return res.status(400).json({ success: false, message: 'Name, Transport and Price are required' });
+      }
+
+      const id = await serviceRepository.createService({
+        service_name: name,
+        service_type: transport,
+        price_per_person: price,
+        description: notes
+      });
+
+      res.status(201).json({ 
+        success: true, 
+        data: { id, name, transport, price, notes } 
+      });
+    } catch (error) {
+      console.error('Error creating service:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
   }
@@ -21,10 +59,13 @@ class ServiceController {
         serviceName: b.service_name,
         category: b.service_type,
         guestName: b.guest_name,
+        guestEmail: b.guest_email,
+        guestPhone: b.guest_phone,
         date: b.booking_date,
         time: b.booking_time,
         guests: b.total_guests,
         total: b.total_amount,
+        notes: b.notes,
         status: b.booking_status?.charAt(0).toUpperCase() + b.booking_status?.slice(1) || 'Pending'
       }));
       res.json({ success: true, data: mappedBookings });

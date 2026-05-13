@@ -20,7 +20,7 @@ class BaseModel {
 
   async create(data) {
     const keys = Object.keys(data);
-    const values = Object.values(data);
+    const values = Object.values(data).map(v => v === undefined ? null : v);
     const placeholders = keys.map(() => '?').join(', ');
     const sql = `INSERT INTO ${this.tableName} (${keys.join(', ')}) VALUES (${placeholders})`;
     const [result] = await pool.execute(sql, values);
@@ -29,7 +29,7 @@ class BaseModel {
 
   async update(id, data) {
     const keys = Object.keys(data);
-    const values = Object.values(data);
+    const values = Object.values(data).map(v => v === undefined ? null : v);
     const setClause = keys.map(key => `${key} = ?`).join(', ');
     const sql = `UPDATE ${this.tableName} SET ${setClause} WHERE id = ?`;
     const [result] = await pool.execute(sql, [...values, id]);

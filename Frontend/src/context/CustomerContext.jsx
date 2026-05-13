@@ -43,7 +43,7 @@ export const CustomerProvider = ({ children }) => {
       const favsRes = await api.get('/customer/favorites').catch(() => ({ data: { data: [] } }));
       const supportRes = await api.get('/concierge/tickets').catch(() => ({ data: { data: [] } }));
       
-      setFavorites(favsRes.data.data.map(f => f.item_id));
+      setFavorites(favsRes.data.data.map(f => f.menu_item_id));
       setSupportRequests(supportRes.data.data);
     } catch (error) {
       console.error('Error fetching customer data:', error);
@@ -95,13 +95,16 @@ export const CustomerProvider = ({ children }) => {
 
   const toggleFavorite = async (itemId) => {
     try {
-      if (favorites.includes(itemId)) {
-        await api.delete(`/customer/favorites/${itemId}`);
-        setFavorites(prev => prev.filter(id => id !== itemId));
-      } else {
-        await api.post('/customer/favorites', { item_id: itemId });
-        setFavorites(prev => [...prev, itemId]);
-      }
+      // Backend uses a single POST /favorites route to toggle
+      await api.post('/customer/favorites', { itemId });
+      
+      setFavorites(prev => {
+        if (prev.includes(itemId)) {
+          return prev.filter(id => id !== itemId);
+        } else {
+          return [...prev, itemId];
+        }
+      });
     } catch (error) {
       console.error('Error toggling favorite:', error);
     }

@@ -309,17 +309,8 @@ const CustomerOrderNow = () => {
                        ) : (
                           <span className="text-5xl sm:text-6xl">{getImageUrl(item.image)}</span>
                        )}
-                      <button 
-                        onClick={(e) => handleToggleFavorite(item.id, e)}
-                        className={cn(
-                          "absolute top-4 right-4 p-2.5 rounded-xl shadow-lg transition-all active:scale-90",
-                          favorites.includes(item.id) ? "bg-rose-500 text-white shadow-rose-200" : "bg-white/90 text-slate-300 hover:text-rose-500"
-                        )}
-                      >
-                         <Heart className={cn("w-4 h-4", favorites.includes(item.id) && "fill-current")} />
-                      </button>
-                   </div>
-                   <div className="space-y-1 mb-2">
+                    </div>
+                    <div className="space-y-1 mb-2">
                       <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-1">
                              <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
@@ -332,11 +323,25 @@ const CustomerOrderNow = () => {
                        <p className="text-[10px] font-medium text-slate-400 line-clamp-2 leading-relaxed h-8">{item.description}</p>
                    </div>
                    <div className="mt-auto pt-3 border-t border-slate-50 flex items-center justify-between shrink-0">
-                      <p className="text-lg lg:text-xl font-black text-text-primary tracking-tighter">₹{item.price}</p>
-                      <button className="w-9 h-9 lg:w-10 lg:h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
-                         <Plus className="w-5 h-5" />
-                      </button>
-                   </div>
+                       <p className="text-lg lg:text-xl font-black text-text-primary tracking-tighter">₹{item.price}</p>
+                       <div className="flex items-center gap-2">
+                          <button 
+                            onClick={(e) => handleToggleFavorite(item.id, e)}
+                            className={cn(
+                              "w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center transition-all active:scale-95",
+                              favorites.includes(item.id) ? "bg-rose-500 text-white shadow-lg shadow-rose-200" : "bg-slate-100 text-slate-400 hover:text-rose-500"
+                            )}
+                          >
+                             <Heart className={cn("w-4 h-4", favorites.includes(item.id) && "fill-current")} />
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); openItemModal(item); }}
+                            className="w-9 h-9 lg:w-10 lg:h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                          >
+                             <Plus className="w-5 h-5" />
+                          </button>
+                       </div>
+                    </div>
                 </div>
               ))}
             </div>

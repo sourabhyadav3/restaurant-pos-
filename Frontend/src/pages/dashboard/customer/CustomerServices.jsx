@@ -33,32 +33,39 @@ const CustomerServices = () => {
 
   const filteredServices = activeTab === 'All' ? services : services.filter(s => s.category === activeTab);
 
-  const handleBook = (e) => {
+  const handleBook = async (e) => {
     e.preventDefault();
     if (!bookingDate || !bookingTime || !selectedService) return;
 
-    addServiceBooking({
-      guestName: profile.name,
+    const result = await addServiceBooking({
+      guestName: profile?.full_name || profile?.name,
+      guestEmail: profile?.email || '',
+      guestPhone: profile?.phone || '',
+      guestId: profile?.id,
       serviceId: selectedService.id,
       serviceName: selectedService.name,
       category: selectedService.category,
       date: bookingDate,
       time: bookingTime,
       guests,
-      total: selectedService.price * guests
+      total: selectedService.price * guests,
+      notes: '' // Could add a notes field in the form later if needed
     });
 
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-      setSelectedService(null);
-      setBookingDate('');
-      setBookingTime('');
-      setGuests(1);
-    }, 3000);
+    if (result?.success) {
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setSelectedService(null);
+        setBookingDate('');
+        setBookingTime('');
+        setGuests(1);
+      }, 3000);
+    }
   };
 
-  const myBookings = serviceBookings.filter(b => b.guestName === profile.name);
+  const currentGuestName = profile?.full_name || profile?.name;
+  const myBookings = serviceBookings.filter(b => b.guestName === currentGuestName);
 
   return (
     <div className="space-y-8 pb-20">
@@ -118,33 +125,68 @@ const CustomerServices = () => {
         ))}
       </div>
 
-      {/* My Bookings Section */}
+      {/* My Bookings Section - Table */}
       {myBookings.length > 0 && (
         <div className="space-y-4">
-           <h3 className="text-lg font-black uppercase tracking-tight">Your Bookings</h3>
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {myBookings.map(booking => (
-                <div key={booking.id} className="card p-5 bg-white border-none shadow-lg shadow-slate-100/50 flex items-center justify-between gap-4">
-                   <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center text-primary text-2xl shadow-inner">
-                         {services.find(s => s.id === booking.serviceId)?.icon || '📅'}
-                      </div>
-                      <div>
-                         <h4 className="text-sm font-black text-text-primary uppercase leading-tight">{booking.serviceName}</h4>
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{booking.date} • {booking.time}</p>
-                      </div>
-                   </div>
-                   <div className="text-right">
-                      <span className={cn(
-                        "badge px-2.5 py-1 text-[8px] font-black uppercase tracking-widest",
-                        booking.status === 'Confirmed' ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
-                      )}>
-                         {booking.status}
-                      </span>
-                      <p className="text-xs font-black text-text-primary mt-2">₹{booking.total}</p>
-                   </div>
-                </div>
-              ))}
+           <h3 className="text-lg font-black uppercase tracking-tight">Your Booking History</h3>
+           <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-100/50 border-none overflow-hidden">
+              <div className="overflow-x-auto">
+                 <table className="w-full text-left border-collapse">
+                    <thead>
+                       <tr className="bg-slate-50/50">
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">Service</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">Date & Time</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50 text-center">Guests</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50 text-right">Total</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50 text-center">Status</th>
+                       </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                       {myBookings.map(booking => (
+                          <tr key={booking.id} className="group hover:bg-slate-50/50 transition-all">
+                             <td className="px-6 py-5">
+                                <div className="flex items-center gap-3">
+                                   <div className="w-10 h-10 bg-primary/5 rounded-xl flex items-center justify-center text-primary text-xl shadow-inner">
+                                      {services.find(s => s.id === booking.serviceId)?.icon || '📅'}
+                                   </div>
+                                   <div>
+                                      <p className="text-sm font-black text-text-primary uppercase leading-tight">{booking.serviceName}</p>
+                                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">#{booking.id}</p>
+                                   </div>
+                                </div>
+                             </td>
+                             <td className="px-6 py-5">
+                                <p className="text-sm font-bold text-text-primary uppercase tracking-tight">
+                                  {(() => {
+                                    const d = new Date(booking.date);
+                                    if (isNaN(d.getTime())) return booking.date;
+                                    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+                                  })()}
+                                </p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{booking.time?.substring(0, 5)}</p>
+                             </td>
+                             <td className="px-6 py-5 text-center">
+                                <span className="text-sm font-black text-text-primary">{booking.guests}</span>
+                             </td>
+                             <td className="px-6 py-5 text-right">
+                                <p className="text-sm font-black text-primary">₹{booking.total}</p>
+                             </td>
+                             <td className="px-6 py-5 text-center">
+                                <span className={cn(
+                                   "inline-flex px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest",
+                                   booking.status === 'Confirmed' ? "bg-emerald-50 text-emerald-600 border border-emerald-100" :
+                                   booking.status === 'Cancelled' ? "bg-rose-50 text-rose-600 border border-rose-100" :
+                                   booking.status === 'Completed' ? "bg-blue-50 text-blue-600 border border-blue-100" :
+                                   "bg-amber-50 text-amber-600 border border-amber-100"
+                                )}>
+                                   {booking.status}
+                                </span>
+                             </td>
+                          </tr>
+                       ))}
+                    </tbody>
+                 </table>
+              </div>
            </div>
         </div>
       )}

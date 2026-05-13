@@ -8,10 +8,13 @@ class ServiceRepository {
 
   async getAllBookings() {
     const sql = `
-      SELECT b.*, s.service_name, s.service_type, g.full_name as guest_name
+      SELECT b.*, s.service_name, s.service_type, 
+             COALESCE(b.customer_name, g.full_name) as guest_name,
+             COALESCE(b.customer_email, g.email) as guest_email,
+             COALESCE(b.customer_phone, g.phone) as guest_phone
       FROM service_bookings b
       JOIN services s ON b.service_id = s.id
-      JOIN guests g ON b.guest_id = g.id
+      LEFT JOIN guests g ON b.guest_id = g.id
       WHERE b.deletedAt IS NULL
       ORDER BY b.createdAt DESC
     `;
@@ -37,10 +40,20 @@ class ServiceRepository {
   }
 
   async createBooking(data) {
-    const { service_id, guest_id, booking_date, booking_time, total_guests, total_amount } = data;
+    const { 
+      service_id, guest_id, customer_name, customer_email, customer_phone, 
+      booking_date, booking_time, total_guests, total_amount, notes 
+    } = data;
+    
     const [result] = await pool.query(
-      'INSERT INTO service_bookings (service_id, guest_id, booking_date, booking_time, total_guests, total_amount) VALUES (?, ?, ?, ?, ?, ?)',
-      [service_id, guest_id, booking_date, booking_time, total_guests, total_amount]
+      `INSERT INTO service_bookings 
+      (service_id, guest_id, customer_name, customer_email, customer_phone, 
+       booking_date, booking_time, total_guests, total_amount, notes) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        service_id, guest_id || null, customer_name, customer_email, customer_phone, 
+        booking_date, booking_time, total_guests || 1, total_amount, notes
+      ]
     );
     return result.insertId;
   }

@@ -44,7 +44,8 @@ const MainLayout = ({ children }) => {
   const { user, login, logout } = useAuth();
   const userRole = (user?.role || user?.role_name || '').toUpperCase();
   const { notifications, getUnreadCount, markAsRead, markAllAsRead } = useNotifications();
-  const { cartItems } = useCustomer();
+  const customer = useCustomer();
+  const cartItems = customer?.cartItems || [];
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

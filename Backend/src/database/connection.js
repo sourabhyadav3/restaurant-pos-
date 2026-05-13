@@ -18,6 +18,24 @@ const pool = mysql.createPool({
   ssl: process.env.MYSQL_URL || process.env.DATABASE_URL ? { rejectUnauthorized: false } : undefined
 });
 
+// Wrapper to prevent "undefined" in bind parameters
+const originalExecute = pool.execute.bind(pool);
+const originalQuery = pool.query.bind(pool);
+
+pool.execute = async (sql, params) => {
+  const processedParams = Array.isArray(params) 
+    ? params.map(p => p === undefined ? null : p) 
+    : params;
+  return originalExecute(sql, processedParams);
+};
+
+pool.query = async (sql, params) => {
+  const processedParams = Array.isArray(params) 
+    ? params.map(p => p === undefined ? null : p) 
+    : params;
+  return originalQuery(sql, processedParams);
+};
+
 // Test connection
 (async () => {
   try {

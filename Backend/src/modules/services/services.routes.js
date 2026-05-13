@@ -5,9 +5,13 @@ const { authenticate } = require('../../middleware/auth.middleware');
 
 router.use(authenticate);
 
+// Service Routes
 router.get('/', serviceController.getAllServices);
+router.post('/', serviceController.createService);
+
+// Booking Routes (Compatibility with existing frontend calls)
 router.get('/bookings', serviceController.getAllBookings);
-router.patch('/bookings/:id/status', serviceController.updateBookingStatus);
 router.post('/bookings', serviceController.createBooking);
+router.patch('/bookings/:id/status', serviceController.updateBookingStatus);
 
 module.exports = router;

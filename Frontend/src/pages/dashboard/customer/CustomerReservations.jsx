@@ -42,8 +42,11 @@ const CustomerReservations = () => {
     notes: ''
   });
 
-  // Filter reservations for current customer
-  const myReservations = reservations.filter(res => res.guestName === profile.name);
+  // Filter reservations for current customer and remove 'Transport' type
+  const myReservations = reservations.filter(res => {
+    const userName = profile.full_name || profile.name;
+    return res.guestName === userName && res.type !== 'Transport';
+  });
   
   const filteredRes = myReservations.filter(res => {
     if (activeTab === 'All') return true;
@@ -71,11 +74,21 @@ const CustomerReservations = () => {
     }
   };
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr;
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   const handleCreateRes = (e) => {
     e.preventDefault();
     addReservation({
       ...newResData,
-      guestName: profile.name,
+      guestName: profile.full_name || profile.name,
       status: 'Pending',
       id: `RES-${Math.floor(1000 + Math.random() * 9000)}`
     });
@@ -177,7 +190,7 @@ const CustomerReservations = () => {
                          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
                             <Calendar className="w-4 h-4" />
                          </div>
-                         <p className="text-[10px] font-black text-text-primary uppercase tracking-tight leading-none">{res.date}</p>
+                         <p className="text-[10px] font-black text-text-primary uppercase tracking-tight leading-none">{formatDate(res.date)}</p>
                       </div>
                       <div className="flex items-center gap-3">
                          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
@@ -223,7 +236,7 @@ const CustomerReservations = () => {
                   <div className="space-y-1.5">
                     <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Booking Type</label>
                     <div className="flex gap-2">
-                       {['Table', 'Room', 'Transport'].map(type => (
+                       {['Table', 'Room'].map(type => (
                          <button
                            key={type}
                            type="button"
@@ -330,7 +343,7 @@ const CustomerReservations = () => {
              <div className="flex justify-between items-center py-2">
                 <div>
                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Date</p>
-                   <p className="text-xs font-black uppercase">{selectedResForPrint.date}</p>
+                   <p className="text-xs font-black uppercase">{formatDate(selectedResForPrint.date)}</p>
                 </div>
                 <div className="text-right">
                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Time</p>

@@ -4,6 +4,7 @@ import { cn } from "../../../utils/cn";
 import { useNavigate } from 'react-router-dom';
 import { useMenu } from "../../../context/MenuContext";
 import { useCustomer } from "../../../context/CustomerContext";
+import { getImageUrl } from "../../../utils/imageUtils";
 
 const CustomerFavorites = () => {
   const navigate = useNavigate();
@@ -29,8 +30,15 @@ const CustomerFavorites = () => {
              >
                 <Heart className="w-4 h-4 fill-current" />
              </button>
-             <div className="h-40 bg-slate-50 rounded-2xl flex items-center justify-center text-5xl mb-4 shadow-inner group-hover:scale-105 transition-transform">
-                {item.image}
+             <div className="h-40 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 shadow-inner group-hover:scale-105 transition-transform relative overflow-hidden">
+                {item.image && item.image.length > 2 ? (
+                   <>
+                      <img src={getImageUrl(item.image)} alt="" className="absolute inset-0 w-full h-full object-cover blur-xl opacity-20 scale-150" />
+                      <img src={getImageUrl(item.image)} alt={item.name} className="relative z-10 w-full h-full object-contain p-4 lg:p-6" />
+                   </>
+                ) : (
+                   <span className="text-5xl sm:text-6xl">{getImageUrl(item.image)}</span>
+                )}
              </div>
              <div className="flex-1 space-y-1">
                 <h4 className="font-black text-text-primary text-sm uppercase tracking-tight leading-tight group-hover:text-primary transition-colors">{item.name}</h4>

@@ -8,6 +8,7 @@ class SocketService {
     this.userId = null;
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 5;
+    this.buffer = [];
   }
 
   connect(userId) {
@@ -31,8 +32,16 @@ class SocketService {
     this.socket.on('connect', () => {
       console.log('✅ Connected to socket server');
       this.reconnectAttempts = 0;
+      
       if (this.userId) {
         this.socket.emit('join_room', `user_${this.userId}`);
+      }
+
+      // Process buffered messages
+      while (this.buffer.length > 0) {
+        const { event, data } = this.buffer.shift();
+        console.log(`📤 Sending buffered event: ${event}`);
+        this.socket.emit(event, data);
       }
     });
 
@@ -82,7 +91,8 @@ class SocketService {
     if (this.socket?.connected) {
       this.socket.emit(event, data);
     } else {
-      console.warn(`Cannot emit ${event}: Socket not connected`);
+      console.log(`🔌 Socket not connected, buffering ${event}`);
+      this.buffer.push({ event, data });
     }
   }
 }

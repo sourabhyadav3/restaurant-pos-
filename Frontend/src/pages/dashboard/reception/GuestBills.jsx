@@ -18,8 +18,10 @@ import {
   Download,
   Wallet,
   ArrowUpRight,
-  UtensilsCrossed
+  UtensilsCrossed,
+  Plus
 } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { cn } from "../../../utils/cn";
 import { useHospitality } from "../../../context/HospitalityContext";
 import printContent from '../../../utils/printUtil';
@@ -268,104 +270,138 @@ const GuestBills = () => {
                  </tbody>
               </table>
 
-              {/* Mobile Card View */}
-              <div className="lg:hidden space-y-4 pb-20">
-                {filteredFolios.map((folio) => (
+              {/* Mobile Card View - Premium Design */}
+              <div className="lg:hidden space-y-4 pb-24">
+                {filteredFolios.length > 0 ? filteredFolios.map((folio) => (
                   <div 
                     key={folio.id} 
                     onClick={() => setSelectedFolio(folio)}
-                    className="card bg-white p-5 rounded-[2rem] shadow-lg shadow-slate-200/40 border-none space-y-4"
+                    className="group bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/30 border border-slate-50 active:scale-[0.98] transition-all relative overflow-hidden"
                   >
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-text-primary">
-                          <Bed className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-black text-text-primary uppercase tracking-tight">{folio.guestName}</p>
-                          <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest mt-0.5">Room {folio.roomName}</p>
-                        </div>
-                      </div>
+                    {/* Status Badge - Top Right */}
+                    <div className="absolute top-6 right-6">
                       <span className={cn(
-                        "px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border",
+                        "px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border shadow-sm",
                         folio.status === 'Open' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
                       )}>
                          {folio.status}
                       </span>
                     </div>
+
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-primary shadow-inner">
+                        <Bed className="w-6 h-6" />
+                      </div>
+                      <div className="min-w-0 pr-16">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Guest Account</p>
+                        <h4 className="text-base font-black text-text-primary uppercase tracking-tight truncate">{folio.guestName}</h4>
+                      </div>
+                    </div>
                     
-                    <div className="flex items-center justify-between py-3 border-y border-slate-50">
-                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{folio.items.length} Charges</span>
-                       <span className="text-lg font-black text-primary tracking-tighter">₹{folio.total}</span>
+                    <div className="grid grid-cols-2 gap-4 py-4 border-y border-slate-50">
+                       <div className="space-y-1">
+                          <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Room</p>
+                          <p className="text-xs font-black text-text-primary uppercase">{folio.roomName}</p>
+                       </div>
+                       <div className="text-right space-y-1">
+                          <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Total Charges</p>
+                          <p className="text-xs font-black text-text-primary">{folio.items.length} Items</p>
+                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                       <span>{folio.id}</span>
-                       <ChevronRight className="w-4 h-4 text-primary" />
+                    <div className="mt-6 flex items-center justify-between">
+                       <div>
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Balance Due</p>
+                          <p className="text-2xl font-black text-primary tracking-tighter">₹{folio.total.toLocaleString()}</p>
+                       </div>
+                       <div className="w-12 h-12 bg-primary/5 text-primary rounded-2xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                          <ChevronRight className="w-5 h-5" />
+                       </div>
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="py-20 text-center bg-white rounded-[3rem] border border-slate-50 shadow-sm">
+                    <Receipt className="w-12 h-12 text-slate-100 mx-auto mb-4" />
+                    <p className="text-xs font-black text-slate-300 uppercase tracking-widest">No folios found</p>
+                  </div>
+                )}
               </div>
            </div>
         </div>
       </div>
 
-      {/* Detail Modal */}
-      {selectedFolio && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 print:hidden">
-          <div onClick={() => setSelectedFolio(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-2xl bg-white rounded-[2rem] lg:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in slide-in-from-bottom-10 duration-300">
+      {/* Detail Modal - Improved Z-Index and Mobile Positioning */}
+      {selectedFolio && createPortal(
+        <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden">
+          <div onClick={() => setSelectedFolio(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" />
+          <div className="relative w-full sm:max-w-2xl bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col h-[92vh] sm:max-h-[85vh] animate-in slide-in-from-bottom-full sm:zoom-in-95 duration-500 self-end sm:self-center border-x border-t sm:border border-slate-100">
             <div className="p-6 lg:p-8 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-4">
                 <div className="w-12 lg:w-14 h-12 lg:h-14 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/20">
                    <Receipt className="w-6 lg:w-7 h-6 lg:h-7" />
                 </div>
                 <div>
-                  <h3 className="text-xl lg:text-2xl font-black text-text-primary uppercase tracking-tight">{selectedFolio.guestName}</h3>
+                  <h3 className="text-lg sm:text-2xl font-black text-text-primary uppercase tracking-tight">{selectedFolio.guestName}</h3>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Room {selectedFolio.roomName} • {selectedFolio.id}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 lg:gap-3">
+              <div className="flex items-center gap-2">
                  <button 
                   onClick={() => printContent('print-section')}
-                  className="p-2 lg:p-3 hover:bg-white rounded-2xl transition-all text-slate-400 hover:text-primary"
+                  className="p-3 hover:bg-white rounded-2xl transition-all text-slate-400 hover:text-primary hidden sm:flex"
                  >
                     <Printer className="w-5 h-5" />
                  </button>
-                 <button onClick={() => setSelectedFolio(null)} className="p-2 lg:p-3 hover:bg-white rounded-2xl transition-all text-slate-400"><X className="w-6 h-6" /></button>
+                 <button onClick={() => setSelectedFolio(null)} className="p-3 hover:bg-white rounded-2xl transition-all text-slate-400"><X className="w-6 h-6" /></button>
               </div>
             </div>
             
-            <div className="p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 overflow-hidden">
-              <div className="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-hide">
-                 <div className="flex justify-between items-center mb-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Account Transactions</p>
+            <div className="flex-1 flex flex-col min-h-0">
+              <div className="flex-1 overflow-y-auto p-6 lg:p-10 space-y-6 scrollbar-hide">
+                 <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Account History</p>
+                      <p className="text-[8px] font-bold text-slate-300 uppercase tracking-[0.2em] ml-1 mt-0.5">Real-time hospitality ledger</p>
+                    </div>
+                    <span className="px-3 py-1 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest rounded-lg border border-primary/10">{selectedFolio.items.length} Entries</span>
                  </div>
-                 {selectedFolio.items.map((item) => (
-                   <div key={item.id} className="flex items-center justify-between p-4 lg:p-5 bg-slate-50 rounded-2xl group hover:bg-primary/5 transition-all">
-                      <div className="flex items-center gap-4">
-                         <div className={cn(
-                           "w-9 lg:w-10 h-9 lg:h-10 rounded-xl flex items-center justify-center",
-                           item.type === 'Room' ? 'bg-indigo-100 text-primary' : 'bg-amber-100 text-amber-600'
-                         )}>
-                            {item.type === 'Room' ? <Bed className="w-4 h-4 lg:w-5 lg:h-5" /> : <UtensilsCrossed className="w-4 h-4 lg:w-5 lg:h-5" />}
-                         </div>
-                         <div>
-                            <p className="text-[11px] lg:text-xs font-black text-text-primary uppercase tracking-tight">{item.description}</p>
-                            <p className="text-[8px] lg:text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{item.date}</p>
-                         </div>
-                      </div>
-                      <p className="text-xs lg:text-sm font-black text-text-primary">₹{item.amount}</p>
+                 
+                 {selectedFolio.items.length > 0 ? (
+                   <div className="space-y-3">
+                     {selectedFolio.items.map((item) => (
+                       <div key={item.id} className="flex items-center justify-between p-4 lg:p-5 bg-slate-50 rounded-2xl group hover:bg-primary/5 transition-all border border-transparent hover:border-primary/10">
+                          <div className="flex items-center gap-4">
+                             <div className={cn(
+                               "w-9 lg:w-10 h-9 lg:h-10 rounded-xl flex items-center justify-center shadow-inner",
+                               item.type === 'Room' ? 'bg-indigo-100 text-primary' : 'bg-amber-100 text-amber-600'
+                             )}>
+                                {item.type === 'Room' ? <Bed className="w-4 h-4 lg:w-5 lg:h-5" /> : <UtensilsCrossed className="w-4 h-4 lg:w-5 lg:h-5" />}
+                             </div>
+                             <div>
+                                <p className="text-[11px] lg:text-xs font-black text-text-primary uppercase tracking-tight">{item.description}</p>
+                                <p className="text-[8px] lg:text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{item.date}</p>
+                             </div>
+                          </div>
+                          <p className="text-xs lg:text-sm font-black text-text-primary">₹{item.amount.toLocaleString()}</p>
+                       </div>
+                     ))}
                    </div>
-                 ))}
+                 ) : (
+                   <div className="flex flex-col items-center justify-center py-12 text-center">
+                     <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-4">
+                       <Receipt className="w-8 h-8" />
+                     </div>
+                     <p className="text-xs font-black text-slate-300 uppercase tracking-widest">No transactions recorded yet</p>
+                   </div>
+                 )}
               </div>
 
-              <div className="pt-6 border-t border-slate-100 space-y-6 shrink-0">
-                 <div className="flex justify-between items-end px-2 sm:px-4">
+              <div className="p-6 lg:p-8 bg-white border-t border-slate-50 space-y-6 shrink-0 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
+                 <div className="flex justify-between items-end px-2">
                     <div>
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Account Status</p>
                        <span className={cn(
-                         "px-3 lg:px-4 py-1.5 rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest border",
+                         "px-3 lg:px-4 py-1.5 rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest border shadow-sm",
                          selectedFolio.status === 'Open' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
                        )}>
                           {selectedFolio.status} Account
@@ -373,12 +409,12 @@ const GuestBills = () => {
                     </div>
                     <div className="text-right">
                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Outstanding</p>
-                       <p className="text-3xl lg:text-4xl font-black text-primary tracking-tighter">₹{selectedFolio.total}</p>
+                       <p className="text-3xl lg:text-4xl font-black text-primary tracking-tighter">₹{selectedFolio.total.toLocaleString()}</p>
                     </div>
                  </div>
 
                  {selectedFolio.status === 'Open' ? (
-                   <div className="flex flex-col sm:flex-row gap-3">
+                   <div className="flex gap-3">
                      <button 
                        onClick={() => {
                          const amount = prompt('Add custom charge amount (₹):');
@@ -387,13 +423,15 @@ const GuestBills = () => {
                            if(desc) addToFolio(selectedFolio.id, { description: desc, amount: parseFloat(amount), date: new Date().toLocaleDateString(), type: 'Misc' });
                          }
                        }}
-                       className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black uppercase tracking-widest text-[10px]"
+                       className="w-14 sm:flex-1 h-14 sm:h-auto bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center transition-all hover:bg-slate-200 active:scale-95"
+                       title="Post Charge"
                      >
-                       Post Charge
+                       <span className="hidden sm:inline font-black uppercase tracking-widest text-[10px]">Post Charge</span>
+                       <Plus className="w-5 h-5 sm:hidden" />
                      </button>
                      <button 
                        onClick={() => { settleFolio(selectedFolio.id); setSelectedFolio(null); }}
-                       className="flex-[2] py-4 lg:py-5 bg-primary text-white rounded-2xl lg:rounded-3xl font-black uppercase tracking-widest text-[10px] lg:text-xs shadow-2xl shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-3"
+                       className="flex-1 py-4 lg:py-5 bg-primary text-white rounded-2xl lg:rounded-3xl font-black uppercase tracking-widest text-[10px] lg:text-xs shadow-2xl shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-3"
                      >
                        <CreditCard className="w-5 h-5" /> Settle & Close
                      </button>
@@ -408,7 +446,8 @@ const GuestBills = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

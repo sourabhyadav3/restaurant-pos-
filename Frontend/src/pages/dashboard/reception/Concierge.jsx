@@ -63,9 +63,12 @@ const Concierge = () => {
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Manage guest conversations and requests.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[380px_1fr] gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[380px_1fr] gap-6 overflow-hidden">
         {/* Guest List Panel */}
-        <section className="rounded-3xl bg-white border border-slate-100 shadow-sm p-4 min-w-0 flex flex-col gap-4 h-[calc(100vh-14rem)] min-h-[500px]">
+        <section className={cn(
+          "rounded-3xl bg-white border border-slate-100 shadow-sm p-4 min-w-0 flex flex-col gap-4 h-[calc(100vh-14rem)] min-h-[500px] transition-all duration-300",
+          selectedTicketId ? "hidden md:flex" : "flex"
+        )}>
           <div className="relative group shrink-0">
              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-primary transition-colors" />
              <input 
@@ -112,7 +115,10 @@ const Concierge = () => {
         </section>
 
         {/* Chat Panel */}
-        <section className="rounded-3xl bg-white border border-slate-100 shadow-sm min-w-0 overflow-hidden flex flex-col h-[calc(100vh-14rem)] min-h-[500px]">
+        <section className={cn(
+          "rounded-3xl bg-white border border-slate-100 shadow-sm min-w-0 overflow-hidden flex flex-col h-[calc(100vh-14rem)] min-h-[500px] transition-all duration-300",
+          !selectedTicketId ? "hidden md:flex" : "flex"
+        )}>
           {!selectedChat ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-6 opacity-30">
                <MessageSquare className="w-12 h-12 mb-4" />

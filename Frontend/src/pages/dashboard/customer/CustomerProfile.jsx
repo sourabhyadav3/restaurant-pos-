@@ -50,11 +50,15 @@ const CustomerProfile = () => {
   const [toast, setToast] = useState(null);
 
   // Form States
-  const [profileForm, setProfileForm] = useState(profile);
+  const [profileForm, setProfileForm] = useState(profile || {});
   const [newCard, setNewCard] = useState({ type: 'Visa', last4: '', expiry: '' });
   const [newAddress, setNewAddress] = useState({ label: '', address: '' });
   const [passwordForm, setPasswordForm] = useState({ current: '', new: '', confirm: '' });
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (profile) setProfileForm(profile);
+  }, [profile]);
 
   // Handlers
   const showToast = (message, type = 'success') => {
@@ -108,20 +112,22 @@ const CustomerProfile = () => {
          
          <div className="relative shrink-0">
             <div className="w-24 h-24 lg:w-32 lg:h-32 bg-primary/10 rounded-[2rem] lg:rounded-[3rem] flex items-center justify-center text-primary text-4xl lg:text-5xl font-black shadow-inner border-4 border-white">
-               {profile.name.charAt(0)}
+               {(profile?.name || profile?.full_name || 'G')[0]}
             </div>
          </div>
-
+ 
           <div className="flex-1 space-y-4 text-center md:text-left w-full relative z-10">
              <div>
-                <h3 className="text-2xl lg:text-3xl font-black text-text-primary uppercase tracking-tight leading-none">{profile.name}</h3>
+                <h3 className="text-2xl lg:text-3xl font-black text-text-primary uppercase tracking-tight leading-none">
+                  {profile?.name || profile?.full_name || 'Guest'}
+                </h3>
                 <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mt-2 leading-none flex items-center justify-center md:justify-start gap-2">
-                   <Star className="w-3 h-3 fill-current" /> Gold Member • Table {profile.tableId}
+                   <Star className="w-3 h-3 fill-current" /> Gold Member • Table {profile?.tableId || 'N/A'}
                 </p>
              </div>
              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-2">
-                <span className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-100"><Mail className="w-3.5 h-3.5 text-primary" /> {profile.email}</span>
-                <span className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-100"><Phone className="w-3.5 h-3.5 text-primary" /> {profile.phone}</span>
+                <span className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-100"><Mail className="w-3.5 h-3.5 text-primary" /> {profile?.email || 'N/A'}</span>
+                <span className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-100"><Phone className="w-3.5 h-3.5 text-primary" /> {profile?.phone || 'N/A'}</span>
              </div>
              <div className="pt-4 flex justify-center md:justify-start">
                 <button 
@@ -208,7 +214,7 @@ const CustomerProfile = () => {
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
                     <input 
                       type="text" required
-                      value={profileForm.name}
+                      value={profileForm?.name || profileForm?.full_name || ''}
                       onChange={(e) => setProfileForm({...profileForm, name: e.target.value})}
                       className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-xs"
                     />
@@ -217,7 +223,7 @@ const CustomerProfile = () => {
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
                     <input 
                       type="email" required
-                      value={profileForm.email}
+                      value={profileForm?.email || ''}
                       onChange={(e) => setProfileForm({...profileForm, email: e.target.value})}
                       className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-xs"
                     />
@@ -227,7 +233,7 @@ const CustomerProfile = () => {
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
                       <input 
                         type="tel" required
-                        value={profileForm.phone}
+                        value={profileForm?.phone || ''}
                         onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})}
                         className="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl outline-none font-bold text-xs"
                       />

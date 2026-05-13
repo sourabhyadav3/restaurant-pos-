@@ -45,6 +45,28 @@ class CustomerController {
       return sendError(res, err.message);
     }
   }
+  async updateProfile(req, res) {
+    try {
+      const { name, email, phone } = req.body;
+      const userId = req.user.id;
+
+      // Update users table. Note: we map 'name' from frontend to 'full_name' in DB
+      await pool.execute(
+        'UPDATE users SET full_name = ?, email = ?, phone = ? WHERE id = ?',
+        [name, email, phone, userId]
+      );
+
+      // Fetch updated user data
+      const [updatedUser] = await pool.execute(
+        'SELECT id, full_name as name, email, phone, role_id FROM users WHERE id = ?',
+        [userId]
+      );
+
+      return sendSuccess(res, 'Profile updated successfully', updatedUser[0]);
+    } catch (err) {
+      return sendError(res, err.message);
+    }
+  }
 }
 
 module.exports = new CustomerController();

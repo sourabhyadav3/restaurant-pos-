@@ -48,6 +48,9 @@ export const HospitalityProvider = ({ children }) => {
     setError(null);
 
     try {
+      const userRole = (user.role || user.role_name || '').toUpperCase();
+      const isStaff = ['ADMIN', 'MANAGER', 'CASHIER', 'WAITER'].includes(userRole);
+
       const endpoints = [
         { key: 'rooms', url: '/rooms' },
         { key: 'tables', url: '/tables' },
@@ -56,9 +59,12 @@ export const HospitalityProvider = ({ children }) => {
         { key: 'tasks', url: '/tasks' },
         { key: 'inventory', url: '/inventory' },
         { key: 'services', url: '/services' },
-        { key: 'bookings', url: '/services/bookings' },
-        { key: 'billing', url: '/billing' }
+        { key: 'bookings', url: '/services/bookings' }
       ];
+
+      if (isStaff) {
+        endpoints.push({ key: 'billing', url: '/billing' });
+      }
 
       const results = await Promise.allSettled(
         endpoints.map(endpoint => api.get(endpoint.url, { signal: abortControllerRef.current.signal }))
@@ -384,6 +390,25 @@ export const HospitalityProvider = ({ children }) => {
     }
   }, [fetchData, addActivity]);
 
+  const addServiceBooking = useCallback(async (bookingData) => {
+    try {
+      const payload = {
+        service_id: bookingData.serviceId,
+        guest_name: bookingData.guestName,
+        booking_date: bookingData.date,
+        booking_time: bookingData.time,
+        total_guests: bookingData.guests,
+        total_amount: bookingData.total,
+        booking_status: 'pending'
+      };
+      await api.post('/services/bookings', payload);
+      await fetchData(true);
+      addActivity(`Service booking requested: ${bookingData.serviceName}`, 'success');
+    } catch (error) {
+      console.error('Error adding service booking:', error);
+    }
+  }, [fetchData, addActivity]);
+
   const value = React.useMemo(() => ({
     rooms, updateRoomStatus, updateRoom, addRoom, deleteRoom,
     tables, addTable, updateTableStatus, deleteTable,
@@ -392,7 +417,7 @@ export const HospitalityProvider = ({ children }) => {
     staff, addStaff, updateStaff, deleteStaff,
     tasks, addTask, updateTaskStatus, deleteTask,
     inventory, updateStock, addInventoryItem, deleteInventoryItem,
-    services, serviceBookings, updateServiceBookingStatus,
+    services, serviceBookings, updateServiceBookingStatus, addServiceBooking,
     activityLog, addActivity,
     loading, error, refreshData: () => fetchData(true)
   }), [

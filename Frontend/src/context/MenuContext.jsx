@@ -46,7 +46,13 @@ export const MenuProvider = ({ children }) => {
         api.get('/menu/categories')
       ]);
       
-      setItems(itemsRes.data.data);
+      const mappedItems = itemsRes.data.data.map(item => ({
+        ...item,
+        name: item.item_name || item.name,
+        category: item.category_name || item.category
+      }));
+      
+      setItems(mappedItems);
       setCategories(catsRes.data.data);
       
       // Update categories names list for UI filters

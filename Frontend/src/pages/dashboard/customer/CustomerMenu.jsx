@@ -25,7 +25,7 @@ const CustomerMenu = () => {
   const navigate = useNavigate();
   
   const queryParams = new URLSearchParams(location.search);
-  const initialCategory = queryParams.get('category') || 'All';
+  const initialCategory = queryParams.get('category') || 'All Items';
 
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [searchQuery, setSearchQuery] = useState('');

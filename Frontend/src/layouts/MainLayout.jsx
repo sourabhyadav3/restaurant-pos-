@@ -109,6 +109,9 @@ const MainLayout = ({ children }) => {
     { name: 'Reservations', icon: CalendarCheck, path: '/customer/reservations', roles: [roles.CUSTOMER] },
     { name: 'Favorites', icon: Heart, path: '/customer/favorites', roles: [roles.CUSTOMER] },
     { name: 'Cart', icon: ShoppingCart, path: '/customer/cart', roles: [roles.CUSTOMER] },
+    { name: 'Excursions', icon: Compass, path: '/customer/services', roles: [roles.CUSTOMER] },
+    { name: 'Profile', icon: UserIcon, path: '/customer/profile', roles: [roles.CUSTOMER] },
+    { name: 'Support', icon: HelpCircle, path: '/customer/support', roles: [roles.CUSTOMER] },
   ];
 
   const filteredMenu = menuItems.filter(item => item.roles.includes(userRole));

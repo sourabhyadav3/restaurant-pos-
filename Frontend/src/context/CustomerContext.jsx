@@ -7,7 +7,7 @@ const CustomerContext = createContext();
 export const useCustomer = () => useContext(CustomerContext);
 
 export const CustomerProvider = ({ children }) => {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const [cartItems, setCartItems] = useState(() => {
     const saved = localStorage.getItem('resto-customer-cart');
     return saved ? JSON.parse(saved) : [];
@@ -16,6 +16,18 @@ export const CustomerProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
   const [profile, setProfile] = useState(user || null);
   const [supportRequests, setSupportRequests] = useState([]);
+  const [paymentMethods, setPaymentMethods] = useState([
+    { id: 1, type: 'Visa', last4: '4242', expiry: '12/24', isDefault: true }
+  ]);
+  const [addresses, setAddresses] = useState([
+    { id: 1, label: 'Home', address: '123 Luxury Suite, Gila House', isDefault: true }
+  ]);
+  const [notificationPrefs, setNotificationPrefs] = useState({
+    orders: true, reservations: true, roomService: true, offers: false
+  });
+  const [systemSettings, setSystemSettings] = useState({
+    theme: 'light', language: 'English', currency: 'USD'
+  });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -107,11 +119,36 @@ export const CustomerProvider = ({ children }) => {
     }
   };
 
+
+  const updateProfile = async (newData) => {
+    try {
+      const response = await api.put('/customer/profile', newData);
+      const updatedUser = response.data.data;
+      
+      // Update local context
+      setProfile(updatedUser);
+      
+      // Sync with AuthContext and LocalStorage
+      const fullUserData = { ...user, ...updatedUser };
+      setUser(fullUserData);
+      localStorage.setItem('user', JSON.stringify(fullUserData));
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      return { success: false, message: error.response?.data?.message || 'Update failed' };
+    }
+  };
+
   return (
     <CustomerContext.Provider value={{ 
       cartItems, addToCart, removeFromCart, updateCartQuantity, clearCart,
       favorites, toggleFavorite,
-      profile,
+      profile, updateProfile,
+      paymentMethods, setPaymentMethods,
+      addresses, setAddresses,
+      notificationPrefs, setNotificationPrefs,
+      systemSettings, setSystemSettings,
       supportRequests, createSupportRequest,
       loading
     }}>

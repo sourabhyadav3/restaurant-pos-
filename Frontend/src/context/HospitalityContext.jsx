@@ -29,7 +29,7 @@ export const HospitalityProvider = ({ children }) => {
 
   const { user } = useAuth();
   const { addNotification } = useNotifications();
-  
+
   // Ref to track active fetch to prevent duplicate concurrent requests
   const isFetching = useRef(false);
   const abortControllerRef = useRef(null);

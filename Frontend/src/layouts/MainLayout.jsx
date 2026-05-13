@@ -53,7 +53,10 @@ const MainLayout = ({ children }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const unreadCount = getUnreadCount(userRole);
-  const myNotifications = notifications.filter(n => n.targetRole === userRole.toUpperCase() || n.targetRole === 'ALL');
+  const myNotifications = notifications.filter(n => 
+    (n.targetRole === userRole.toUpperCase() || n.targetRole === 'ALL') &&
+    (!n.read && !n.is_read)
+  );
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);

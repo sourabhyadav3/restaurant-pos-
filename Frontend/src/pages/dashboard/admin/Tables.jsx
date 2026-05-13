@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { 
-  Users, 
-  Clock, 
-  Plus, 
-  ChefHat, 
+import {
+  Users,
+  Clock,
+  Plus,
+  ChefHat,
   Receipt,
   Search,
   Filter,
@@ -38,7 +38,7 @@ const Tables = () => {
   const [activeFloor, setActiveFloor] = useState('Ground Floor');
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [isProcessing, setIsProcessing] = useState(false);
-  
+
   const [newTableData, setNewTableData] = useState({ name: '', capacity: 4, floor: 'Ground Floor' });
   const [guestCount, setGuestCount] = useState(2);
 
@@ -61,7 +61,7 @@ const Tables = () => {
 
   const getTableData = (table) => ({
     ...table,
-    name: table.table_number,
+    name: table.table_code || table.table_number || table.name || `T-${table.id}`,
     floor: table.zone_name || 'Ground Floor',
     orders: table.orders || [],
     total: table.total || 0,
@@ -87,7 +87,7 @@ const Tables = () => {
     setIsProcessing(true);
     // Trigger print
     printContent('bill-printable-area');
-    
+
     setTimeout(() => {
       updateTableStatus(selectedTable.id, 'available', { orders: [], total: 0 });
       setIsProcessing(false);
@@ -104,7 +104,7 @@ const Tables = () => {
       showToast("Please add items to the table first!", "warning");
       return;
     }
-    
+
     const pendingItems = currentTable.orders.filter(item => item.status === 'pending');
     if (pendingItems.length === 0) {
       showToast("All items already sent to kitchen!", "info");
@@ -130,12 +130,12 @@ const Tables = () => {
     };
 
     addOrder(orderData);
-    
+
     // Update table items status
     const updatedOrders = currentTable.orders.map(i => ({ ...i, status: 'kitchen' }));
     const currentTotal = currentTable.total || 0;
     updateTableStatus(currentTable.id, 'occupied', { orders: updatedOrders, total: currentTotal });
-    
+
     showToast(`Sent ${pendingItems.length} items to Kitchen!`, "success");
     setSelectedTable(null);
   };
@@ -175,45 +175,45 @@ const Tables = () => {
 
         {/* Floor Selection & Actions */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-           <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide -mx-1 px-1">
-              {floors.map(floor => (
-                <button 
-                  key={floor}
-                  onClick={() => setActiveFloor(floor)}
-                  className={cn(
-                    "px-4 lg:px-6 py-2 rounded-lg lg:rounded-xl text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.15em] border-2 whitespace-nowrap transition-all",
-                    activeFloor === floor 
-                    ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" 
+          <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide -mx-1 px-1">
+            {floors.map(floor => (
+              <button
+                key={floor}
+                onClick={() => setActiveFloor(floor)}
+                className={cn(
+                  "px-4 lg:px-6 py-2 rounded-lg lg:rounded-xl text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.15em] border-2 whitespace-nowrap transition-all",
+                  activeFloor === floor
+                    ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
                     : "bg-white text-text-secondary border-transparent hover:border-primary/20 hover:bg-indigo-50/30"
-                  )}
-                >
-                  {floor}
-                </button>
-              ))}
-           </div>
-           <div className="flex gap-2">
-              <button 
-                onClick={() => setShowHistory(true)}
-                className="p-3 lg:p-2.5 bg-white border border-border rounded-xl shadow-sm text-text-secondary hover:text-primary flex-1 sm:flex-none flex justify-center items-center"
+                )}
               >
-                 <History className="w-5 h-5" />
+                {floor}
               </button>
-              <button 
-                onClick={() => setShowAddTable(true)}
-                className="btn-primary py-3 px-5 lg:px-6 text-[10px] lg:text-xs flex-[3] sm:flex-none whitespace-nowrap uppercase tracking-widest font-black"
-              >
-                 Add New Table
-              </button>
-           </div>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowHistory(true)}
+              className="p-3 lg:p-2.5 bg-white border border-border rounded-xl shadow-sm text-text-secondary hover:text-primary flex-1 sm:flex-none flex justify-center items-center"
+            >
+              <History className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setShowAddTable(true)}
+              className="btn-primary py-3 px-5 lg:px-6 text-[10px] lg:text-xs flex-[3] sm:flex-none whitespace-nowrap uppercase tracking-widest font-black"
+            >
+              Add New Table
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-5 pb-20 lg:pb-0">
           {processedTables.filter(t => t.floor === activeFloor).map((table) => {
             const config = getStatusConfig(table.status);
             const isSelected = selectedTable?.id === table.id;
-            
+
             return (
-              <div 
+              <div
                 key={table.id}
                 onClick={() => setSelectedTable(table)}
                 className={cn(
@@ -228,11 +228,11 @@ const Tables = () => {
                     <Users className="w-2.5 h-2.5 lg:w-3 lg:h-3" /> {table.capacity}
                   </div>
                 </div>
-                
+
                 {table.status === 'occupied' ? (
                   <div className="space-y-3 lg:space-y-4">
                     <div className="flex items-center gap-1.5 text-[8px] lg:text-[9px] font-bold text-rose-500 uppercase tracking-widest bg-rose-50 w-fit px-1.5 py-0.5 rounded-md">
-                      <Clock className="w-3 h-3" /> 
+                      <Clock className="w-3 h-3" />
                       {table.time}
                     </div>
                     <div className="space-y-1">
@@ -263,7 +263,7 @@ const Tables = () => {
                 ) : (
                   <div className="mt-4 lg:mt-8 flex flex-col items-center justify-center py-2 lg:py-4 text-slate-200 group-hover:text-primary relative">
                     <div className="w-10 lg:w-12 h-10 lg:h-12 bg-slate-50 rounded-full flex items-center justify-center border-2 border-dashed border-slate-200 group-hover:border-primary/30 group-hover:bg-white">
-                       <Plus className="w-5 lg:w-6 h-5 lg:h-6 opacity-40 group-hover:opacity-100" />
+                      <Plus className="w-5 lg:w-6 h-5 lg:h-6 opacity-40 group-hover:opacity-100" />
                     </div>
                     <span className="text-[7px] lg:text-[8px] font-bold uppercase tracking-[0.2em] lg:tracking-[0.3em] mt-2 lg:mt-3 opacity-40 group-hover:opacity-100">Open Session</span>
                   </div>
@@ -276,246 +276,246 @@ const Tables = () => {
           })}
         </div>
       </div>
-        {/* Table Side Drawer */}
+      {/* Table Side Drawer */}
       {selectedTable && (() => {
         const liveTable = processedTables.find(t => t.id === selectedTable.id) || selectedTable;
         return (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6">
-          <div 
-            onClick={() => setSelectedTable(null)}
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-          />
-          <div 
-            className="relative w-full max-w-[95%] md:max-w-[500px] bg-white shadow-2xl z-[201] flex flex-col rounded-[2rem] md:rounded-[2.5rem] overflow-hidden self-end sm:self-center max-h-[90vh]"
-          >
-             <div className="px-5 py-4 md:px-6 md:py-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/30 shrink-0">
-              <div className="flex items-center gap-3 lg:gap-4">
-                <div className={cn("w-10 lg:w-12 h-10 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center font-black text-base lg:text-lg text-white shadow-xl", getStatusConfig(liveTable.status).color)}>
-                  {liveTable.name}
-                </div>
-                <div>
-                  <h3 className="text-sm lg:text-lg font-black tracking-tight uppercase leading-none">Active Session</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                     <span className={cn("badge px-1.5 py-0.5 text-[7px] lg:text-[9px]", getStatusConfig(liveTable.status).bg, getStatusConfig(liveTable.status).text)}>
-                      {liveTable.status}
-                     </span>
-                     <span className="hidden sm:inline text-[8px] lg:text-[9px] font-bold text-slate-300 uppercase tracking-widest">ID: #TBL-{liveTable.id}04</span>
+          <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6">
+            <div
+              onClick={() => setSelectedTable(null)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <div
+              className="relative w-full max-w-[95%] md:max-w-[500px] bg-white shadow-2xl z-[201] flex flex-col rounded-[2rem] md:rounded-[2.5rem] overflow-hidden self-end sm:self-center max-h-[90vh]"
+            >
+              <div className="px-5 py-4 md:px-6 md:py-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/30 shrink-0">
+                <div className="flex items-center gap-3 lg:gap-4">
+                  <div className={cn("w-10 lg:w-12 h-10 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center font-black text-base lg:text-lg text-white shadow-xl", getStatusConfig(liveTable.status).color)}>
+                    {liveTable.name}
+                  </div>
+                  <div>
+                    <h3 className="text-sm lg:text-lg font-black tracking-tight uppercase leading-none">Active Session</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={cn("badge px-1.5 py-0.5 text-[7px] lg:text-[9px]", getStatusConfig(liveTable.status).bg, getStatusConfig(liveTable.status).text)}>
+                        {liveTable.status}
+                      </span>
+                      <span className="hidden sm:inline text-[8px] lg:text-[9px] font-bold text-slate-300 uppercase tracking-widest">ID: #TBL-{liveTable.id}04</span>
+                    </div>
                   </div>
                 </div>
+                <button
+                  onClick={() => setSelectedTable(null)}
+                  className="p-2 lg:p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-border transition-all shadow-sm"
+                >
+                  <X className="w-5 lg:w-6 h-5 lg:h-6 text-text-secondary" />
+                </button>
               </div>
-              <button 
-                onClick={() => setSelectedTable(null)}
-                className="p-2 lg:p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-border transition-all shadow-sm"
-              >
-                <X className="w-5 lg:w-6 h-5 lg:h-6 text-text-secondary" />
-              </button>
-            </div>
 
-            <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 lg:space-y-8 scrollbar-hide">
-              {liveTable.status === 'occupied' ? (
-                <>
-                  <div className="space-y-4 lg:space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-[9px] lg:text-[10px] font-black text-text-secondary uppercase tracking-[0.3em]">Items Ordered</h4>
-                      <div 
-                        className="flex items-center gap-2 text-primary font-black text-[10px] lg:text-[11px] uppercase tracking-widest px-2.5 py-1 bg-indigo-50 rounded-full cursor-pointer hover:bg-indigo-100"
-                      >
-                         <History className="w-3 h-3 lg:w-3.5 lg:h-3.5" /> Log
+              <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 lg:space-y-8 scrollbar-hide">
+                {liveTable.status === 'occupied' ? (
+                  <>
+                    <div className="space-y-4 lg:space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-[9px] lg:text-[10px] font-black text-text-secondary uppercase tracking-[0.3em]">Items Ordered</h4>
+                        <div
+                          className="flex items-center gap-2 text-primary font-black text-[10px] lg:text-[11px] uppercase tracking-widest px-2.5 py-1 bg-indigo-50 rounded-full cursor-pointer hover:bg-indigo-100"
+                        >
+                          <History className="w-3 h-3 lg:w-3.5 lg:h-3.5" /> Log
+                        </div>
                       </div>
-                    </div>
-                    <div className="space-y-3 lg:space-y-4">
-                      {liveTable.orders.length > 0 ? (
-                        liveTable.orders.map((item, i) => (
-                          <div 
-                            key={i} 
-                            className="flex items-center justify-between p-3 lg:p-4 bg-slate-50 rounded-xl lg:rounded-2xl group hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-slate-100"
-                          >
-                            <div className="flex items-center gap-3 lg:gap-4">
-                              <div className="w-8 lg:w-10 h-8 lg:h-10 bg-white rounded-lg lg:rounded-xl flex items-center justify-center font-bold text-[10px] lg:text-xs border border-slate-100 group-hover:border-primary/20">
-                                {item.quantity || 1}x
+                      <div className="space-y-3 lg:space-y-4">
+                        {liveTable.orders.length > 0 ? (
+                          liveTable.orders.map((item, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center justify-between p-3 lg:p-4 bg-slate-50 rounded-xl lg:rounded-2xl group hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-slate-100"
+                            >
+                              <div className="flex items-center gap-3 lg:gap-4">
+                                <div className="w-8 lg:w-10 h-8 lg:h-10 bg-white rounded-lg lg:rounded-xl flex items-center justify-center font-bold text-[10px] lg:text-xs border border-slate-100 group-hover:border-primary/20">
+                                  {item.quantity || 1}x
+                                </div>
+                                <div>
+                                  <p className="text-xs lg:text-sm font-bold text-text-primary leading-tight">{item.name}</p>
+                                  <p className={cn(
+                                    "text-[8px] lg:text-[9px] font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5",
+                                    item.status === 'kitchen' || item.status === 'ready' || item.status === 'delivered' ? "text-emerald-500" : "text-amber-500"
+                                  )}>
+                                    <UtensilsCrossed className="w-2.5 h-2.5 lg:w-3 lg:h-3" />
+                                    {item.status === 'kitchen' || item.status === 'ready' || item.status === 'delivered' ? 'Kitchen Confirmed' : 'Pending Send'}
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <p className="text-xs lg:text-sm font-bold text-text-primary leading-tight">{item.name}</p>
-                                <p className={cn(
-                                  "text-[8px] lg:text-[9px] font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5",
-                                  item.status === 'kitchen' || item.status === 'ready' || item.status === 'delivered' ? "text-emerald-500" : "text-amber-500"
-                                )}>
-                                   <UtensilsCrossed className="w-2.5 h-2.5 lg:w-3 lg:h-3" /> 
-                                   {item.status === 'kitchen' || item.status === 'ready' || item.status === 'delivered' ? 'Kitchen Confirmed' : 'Pending Send'}
-                                </p>
-                              </div>
+                              <span className="text-xs lg:text-sm font-bold text-text-primary tracking-tight">₹{item.price}</span>
                             </div>
-                            <span className="text-xs lg:text-sm font-bold text-text-primary tracking-tight">₹{item.price}</span>
+                          ))
+                        ) : (
+                          <div className="text-center py-6 lg:py-10 bg-slate-50 rounded-[1.5rem] lg:rounded-[2rem] border-2 border-dashed border-slate-200">
+                            <UtensilsCrossed className="w-8 lg:w-10 h-8 lg:h-10 text-slate-200 mx-auto mb-2 lg:mb-3" />
+                            <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest">No items ordered yet</p>
                           </div>
-                        ))
-                      ) : (
-                        <div className="text-center py-6 lg:py-10 bg-slate-50 rounded-[1.5rem] lg:rounded-[2rem] border-2 border-dashed border-slate-200">
-                           <UtensilsCrossed className="w-8 lg:w-10 h-8 lg:h-10 text-slate-200 mx-auto mb-2 lg:mb-3" />
-                           <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest">No items ordered yet</p>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="p-6 lg:p-8 bg-primary text-white rounded-[1.5rem] lg:rounded-[2rem] shadow-2xl relative overflow-hidden group">
-                    <div className="space-y-3 lg:space-y-4 relative z-10">
-                      <div className="flex justify-between text-indigo-100 text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.2em]">
-                        <span>Net Subtotal</span>
-                        <span className="text-white">₹{liveTable.total}</span>
-                      </div>
-                      <div className="flex justify-between text-indigo-100 text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.2em]">
-                        <span>Tax (5%)</span>
-                        <span className="text-white">₹{Math.round(liveTable.total * 0.05)}</span>
-                      </div>
-                      <div className="pt-4 lg:pt-6 border-t border-indigo-500/30 flex justify-between items-end">
-                        <div>
-                           <p className="text-indigo-200 text-[7px] lg:text-[8px] font-bold uppercase tracking-[0.2em] mb-1">Total Due</p>
-                           <h4 className="text-2xl lg:text-3xl font-black text-white tracking-tighter">₹{Math.round(liveTable.total * 1.05)}</h4>
+                    <div className="p-6 lg:p-8 bg-primary text-white rounded-[1.5rem] lg:rounded-[2rem] shadow-2xl relative overflow-hidden group">
+                      <div className="space-y-3 lg:space-y-4 relative z-10">
+                        <div className="flex justify-between text-indigo-100 text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.2em]">
+                          <span>Net Subtotal</span>
+                          <span className="text-white">₹{liveTable.total}</span>
                         </div>
-                        <div className="p-2.5 lg:p-3 bg-white/10 rounded-xl lg:rounded-2xl border border-white/20">
-                           <Receipt className="w-4 lg:w-5 h-4 lg:h-5 text-white" />
+                        <div className="flex justify-between text-indigo-100 text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.2em]">
+                          <span>Tax (5%)</span>
+                          <span className="text-white">₹{Math.round(liveTable.total * 0.05)}</span>
+                        </div>
+                        <div className="pt-4 lg:pt-6 border-t border-indigo-500/30 flex justify-between items-end">
+                          <div>
+                            <p className="text-indigo-200 text-[7px] lg:text-[8px] font-bold uppercase tracking-[0.2em] mb-1">Total Due</p>
+                            <h4 className="text-2xl lg:text-3xl font-black text-white tracking-tighter">₹{Math.round(liveTable.total * 1.05)}</h4>
+                          </div>
+                          <div className="p-2.5 lg:p-3 bg-white/10 rounded-xl lg:rounded-2xl border border-white/20">
+                            <Receipt className="w-4 lg:w-5 h-4 lg:h-5 text-white" />
+                          </div>
                         </div>
                       </div>
+                      <Sparkles className="absolute -bottom-4 -right-4 w-24 lg:w-32 h-24 lg:h-32 text-white/10 rotate-12" />
                     </div>
-                    <Sparkles className="absolute -bottom-4 -right-4 w-24 lg:w-32 h-24 lg:h-32 text-white/10 rotate-12" />
+                  </>
+                ) : liveTable.status === 'reserved' ? (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center p-6 lg:p-12 bg-indigo-50/50 rounded-[2rem] lg:rounded-[3rem] border-4 border-dashed border-primary/20">
+                    <div className="w-16 lg:w-24 h-16 lg:h-24 bg-white rounded-2xl lg:rounded-[2rem] shadow-2xl flex items-center justify-center mb-6 lg:mb-8">
+                      <Clock className="w-8 lg:w-10 h-8 lg:h-10 text-primary" />
+                    </div>
+                    <h4 className="text-2xl lg:text-3xl font-black text-text-primary tracking-tight">Table Reserved</h4>
+                    <p className="text-text-secondary text-xs lg:text-sm font-medium mt-3 lg:mt-4 max-w-[240px] lg:max-w-[280px] leading-relaxed italic">
+                      Reserved for <span className="font-black text-primary">{liveTable.reservedBy}</span> at <span className="font-black text-primary uppercase tracking-widest">{liveTable.time}</span>
+                    </p>
+                    <div className="mt-8 lg:mt-12 w-full space-y-3 lg:space-y-4">
+                      <button
+                        onClick={() => handleMarkArrived(liveTable)}
+                        className="w-full btn-primary py-4 lg:py-5 text-sm lg:text-base font-black tracking-widest uppercase"
+                      >
+                        Mark as Arrived
+                      </button>
+                      <button
+                        onClick={() => handleCancelBooking(liveTable)}
+                        className="w-full btn-secondary py-4 lg:py-5 text-sm lg:text-base font-black tracking-widest uppercase text-danger border-none hover:bg-red-50"
+                      >
+                        Cancel Booking
+                      </button>
+                    </div>
                   </div>
-                </>
-              ) : liveTable.status === 'reserved' ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 lg:p-12 bg-indigo-50/50 rounded-[2rem] lg:rounded-[3rem] border-4 border-dashed border-primary/20">
-                  <div className="w-16 lg:w-24 h-16 lg:h-24 bg-white rounded-2xl lg:rounded-[2rem] shadow-2xl flex items-center justify-center mb-6 lg:mb-8">
-                    <Clock className="w-8 lg:w-10 h-8 lg:h-10 text-primary" />
-                  </div>
-                  <h4 className="text-2xl lg:text-3xl font-black text-text-primary tracking-tight">Table Reserved</h4>
-                  <p className="text-text-secondary text-xs lg:text-sm font-medium mt-3 lg:mt-4 max-w-[240px] lg:max-w-[280px] leading-relaxed italic">
-                     Reserved for <span className="font-black text-primary">{liveTable.reservedBy}</span> at <span className="font-black text-primary uppercase tracking-widest">{liveTable.time}</span>
-                  </p>
-                  <div className="mt-8 lg:mt-12 w-full space-y-3 lg:space-y-4">
-                     <button 
-                      onClick={() => handleMarkArrived(liveTable)}
-                      className="w-full btn-primary py-4 lg:py-5 text-sm lg:text-base font-black tracking-widest uppercase"
-                     >
-                       Mark as Arrived
-                     </button>
-                     <button 
-                      onClick={() => handleCancelBooking(liveTable)}
-                      className="w-full btn-secondary py-4 lg:py-5 text-sm lg:text-base font-black tracking-widest uppercase text-danger border-none hover:bg-red-50"
-                     >
-                       Cancel Booking
-                     </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 lg:p-8 bg-slate-50 rounded-[2rem] lg:rounded-[3rem] border-4 border-dashed border-slate-200">
-                  <div className="w-16 lg:w-20 h-16 lg:h-20 bg-white rounded-xl lg:rounded-[1.5rem] shadow-xl flex items-center justify-center mb-4 lg:mb-6">
-                    <Users className="w-6 lg:w-8 h-6 lg:h-8 text-slate-300" />
-                  </div>
-                  <h4 className="text-xl lg:text-2xl font-black text-text-primary">Table Available</h4>
-                  <p className="text-text-secondary text-[10px] lg:text-xs font-medium mt-1.5 lg:mt-2">Ready for up to {liveTable.capacity} guests.</p>
-                  
-                  <div className="mt-6 lg:mt-8 w-full space-y-4 lg:space-y-6">
-                    <div className="space-y-2 lg:space-y-3">
-                       <label className="text-[9px] lg:text-[10px] font-black text-text-secondary uppercase tracking-widest block text-left ml-4">Guest Count</label>
-                       <div className="flex items-center gap-2 lg:gap-4 bg-white p-1.5 lg:p-2 rounded-xl lg:rounded-2xl border-2 border-slate-100">
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center p-6 lg:p-8 bg-slate-50 rounded-[2rem] lg:rounded-[3rem] border-4 border-dashed border-slate-200">
+                    <div className="w-16 lg:w-20 h-16 lg:h-20 bg-white rounded-xl lg:rounded-[1.5rem] shadow-xl flex items-center justify-center mb-4 lg:mb-6">
+                      <Users className="w-6 lg:w-8 h-6 lg:h-8 text-slate-300" />
+                    </div>
+                    <h4 className="text-xl lg:text-2xl font-black text-text-primary">Table Available</h4>
+                    <p className="text-text-secondary text-[10px] lg:text-xs font-medium mt-1.5 lg:mt-2">Ready for up to {liveTable.capacity} guests.</p>
+
+                    <div className="mt-6 lg:mt-8 w-full space-y-4 lg:space-y-6">
+                      <div className="space-y-2 lg:space-y-3">
+                        <label className="text-[9px] lg:text-[10px] font-black text-text-secondary uppercase tracking-widest block text-left ml-4">Guest Count</label>
+                        <div className="flex items-center gap-2 lg:gap-4 bg-white p-1.5 lg:p-2 rounded-xl lg:rounded-2xl border-2 border-slate-100">
                           {[1, 2, 4, 6].map(num => (
-                             <button 
+                            <button
                               key={num}
                               onClick={() => setGuestCount(num)}
                               className={cn(
                                 "flex-1 py-2 lg:py-3 rounded-lg lg:rounded-xl text-xs lg:text-sm font-black transition-all",
                                 guestCount === num ? "bg-primary text-white shadow-lg" : "hover:bg-slate-50 text-text-secondary"
                               )}
-                             >
-                               {num}
-                             </button>
+                            >
+                              {num}
+                            </button>
                           ))}
-                       </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleOpenSession(liveTable)}
+                        className="w-full btn-primary py-4 lg:py-5 text-sm lg:text-base font-black tracking-widest uppercase shadow-2xl shadow-primary/30"
+                      >
+                        Start Session
+                      </button>
                     </div>
-                    <button 
-                      onClick={() => handleOpenSession(liveTable)}
-                      className="w-full btn-primary py-4 lg:py-5 text-sm lg:text-base font-black tracking-widest uppercase shadow-2xl shadow-primary/30"
+                  </div>
+                )}
+              </div>
+
+              {liveTable.status === 'occupied' && (
+                <div className="px-6 py-6 bg-white border-t border-slate-50 space-y-2 lg:space-y-3">
+                  <button
+                    onClick={() => setShowAddItems(true)}
+                    className="w-full btn-primary flex items-center justify-center gap-2 py-3 lg:py-4 text-sm lg:text-base shadow-xl shadow-primary/30"
+                  >
+                    <Plus className="w-4 lg:w-5 h-4 lg:h-5 stroke-[3]" /> Quick Add
+                  </button>
+                  <div className="grid grid-cols-2 gap-2 lg:gap-3">
+                    <button
+                      onClick={handleSendToKitchen}
+                      className="btn-secondary flex flex-col items-center justify-center gap-1 py-2.5 lg:py-3 rounded-xl lg:rounded-2xl border transition-all group hover:border-primary/50"
                     >
-                      Start Session
+                      <ChefHat className="w-4 lg:w-5 h-4 lg:h-5 text-slate-400 group-hover:text-primary transition-colors" />
+                      <span className="text-[8px] lg:text-[9px] font-bold uppercase tracking-widest text-slate-500">To Kitchen</span>
+                    </button>
+                    <button
+                      onClick={() => setShowBilling(true)}
+                      className="btn-secondary flex flex-col items-center justify-center gap-1 py-2.5 lg:py-3 rounded-xl lg:rounded-2xl border bg-indigo-50 border-primary/20 text-primary group"
+                    >
+                      <Receipt className="w-4 lg:w-5 h-4 lg:h-5" />
+                      <span className="text-[8px] lg:text-[9px] font-bold uppercase tracking-widest">Final Bill</span>
                     </button>
                   </div>
                 </div>
               )}
             </div>
-
-            {liveTable.status === 'occupied' && (
-              <div className="px-6 py-6 bg-white border-t border-slate-50 space-y-2 lg:space-y-3">
-                <button 
-                  onClick={() => setShowAddItems(true)}
-                  className="w-full btn-primary flex items-center justify-center gap-2 py-3 lg:py-4 text-sm lg:text-base shadow-xl shadow-primary/30"
-                >
-                  <Plus className="w-4 lg:w-5 h-4 lg:h-5 stroke-[3]" /> Quick Add
-                </button>
-                <div className="grid grid-cols-2 gap-2 lg:gap-3">
-                  <button 
-                    onClick={handleSendToKitchen}
-                    className="btn-secondary flex flex-col items-center justify-center gap-1 py-2.5 lg:py-3 rounded-xl lg:rounded-2xl border transition-all group hover:border-primary/50"
-                  >
-                    <ChefHat className="w-4 lg:w-5 h-4 lg:h-5 text-slate-400 group-hover:text-primary transition-colors" /> 
-                    <span className="text-[8px] lg:text-[9px] font-bold uppercase tracking-widest text-slate-500">To Kitchen</span>
-                  </button>
-                  <button 
-                    onClick={() => setShowBilling(true)}
-                    className="btn-secondary flex flex-col items-center justify-center gap-1 py-2.5 lg:py-3 rounded-xl lg:rounded-2xl border bg-indigo-50 border-primary/20 text-primary group"
-                  >
-                    <Receipt className="w-4 lg:w-5 h-4 lg:h-5" /> 
-                    <span className="text-[8px] lg:text-[9px] font-bold uppercase tracking-widest">Final Bill</span>
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
-        </div>
         );
       })()}
 
       {/* Modern Compact Add Table Modal */}
       {showAddTable && createPortal(
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
-          <div 
+          <div
             onClick={() => setShowAddTable(false)}
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
           />
-          <div 
+          <div
             className="relative w-full max-w-[95%] md:max-w-md bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20 self-center"
           >
             <form onSubmit={handleCreateTable}>
               <div className="px-5 py-4 md:px-8 md:py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/20 shrink-0">
                 <div className="flex items-center gap-3 md:gap-4">
-                   <div className="w-10 h-10 md:w-14 md:h-14 bg-primary rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl relative group shrink-0">
-                      <Users className="w-5 h-5 md:w-6 md:h-6" />
-                   </div>
-                   <div>
-                      <h3 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none">New Table</h3>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1">Assign to {activeFloor}</p>
-                   </div>
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-primary rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-xl relative group shrink-0">
+                    <Users className="w-5 h-5 md:w-6 md:h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg md:text-xl font-black uppercase tracking-tight leading-none">New Table</h3>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1.5 md:mt-1">Assign to {activeFloor}</p>
+                  </div>
                 </div>
                 <button type="button" onClick={() => setShowAddTable(false)} className="p-2 md:p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 shadow-sm group">
                   <X className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
- 
+
               <div className="p-6 md:p-8 space-y-6">
-              <div className="space-y-1.5">
-                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Asset Identifier</label>
-                 <input 
-                  required
-                  value={newTableData.name}
-                  onChange={e => setNewTableData({...newTableData, name: e.target.value})}
-                  type="text" placeholder="e.g. T-15" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none font-bold text-sm" 
-                 />
-              </div>
-              <div className="space-y-1.5">
-                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Guest Capacity</label>
-                 <div className="grid grid-cols-4 gap-2">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Asset Identifier</label>
+                  <input
+                    required
+                    value={newTableData.name}
+                    onChange={e => setNewTableData({ ...newTableData, name: e.target.value })}
+                    type="text" placeholder="e.g. T-15" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none font-bold text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Guest Capacity</label>
+                  <div className="grid grid-cols-4 gap-2">
                     {['2', '4', '6', '8'].map(cap => (
-                      <button 
+                      <button
                         key={cap}
                         type="button"
-                        onClick={() => setNewTableData({...newTableData, capacity: cap})}
+                        onClick={() => setNewTableData({ ...newTableData, capacity: cap })}
                         className={cn(
                           "py-2.5 rounded-xl border-2 text-[10px] font-black uppercase transition-all",
                           newTableData.capacity === cap ? "bg-primary border-primary text-white shadow-lg" : "bg-white border-slate-50 text-slate-400 hover:border-primary/20"
@@ -524,32 +524,32 @@ const Tables = () => {
                         {cap}P
                       </button>
                     ))}
-                 </div>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Zone Assignment</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {floors.map(f => (
+                      <button
+                        key={f}
+                        type="button"
+                        onClick={() => setNewTableData({ ...newTableData, floor: f })}
+                        className={cn(
+                          "py-2.5 rounded-xl border-2 text-[8px] font-black uppercase tracking-widest transition-all",
+                          newTableData.floor === f ? "bg-primary border-primary text-white shadow-lg" : "bg-white border-slate-50 text-slate-400 hover:border-primary/20"
+                        )}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="space-y-1.5">
-                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Zone Assignment</label>
-                 <div className="grid grid-cols-3 gap-2">
-                   {floors.map(f => (
-                     <button 
-                      key={f}
-                      type="button"
-                      onClick={() => setNewTableData({...newTableData, floor: f})}
-                      className={cn(
-                        "py-2.5 rounded-xl border-2 text-[8px] font-black uppercase tracking-widest transition-all",
-                        newTableData.floor === f ? "bg-primary border-primary text-white shadow-lg" : "bg-white border-slate-50 text-slate-400 hover:border-primary/20"
-                      )}
-                     >
-                       {f}
-                     </button>
-                   ))}
-                 </div>
-              </div>
-            </div>
 
-            <div className="p-6 lg:p-8 border-t border-slate-50 flex gap-3 bg-white">
-               <button type="button" onClick={() => setShowAddTable(false)} className="flex-1 py-3.5 lg:py-4 border-2 border-slate-100 rounded-xl lg:rounded-2xl font-black uppercase tracking-widest text-[9px] lg:text-[10px] hover:bg-slate-50">Cancel</button>
-               <button type="submit" className="flex-1 btn-primary py-3.5 lg:py-4 rounded-xl lg:rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 text-[9px] lg:text-[10px]">Create Entry</button>
-            </div>
+              <div className="p-6 lg:p-8 border-t border-slate-50 flex gap-3 bg-white">
+                <button type="button" onClick={() => setShowAddTable(false)} className="flex-1 py-3.5 lg:py-4 border-2 border-slate-100 rounded-xl lg:rounded-2xl font-black uppercase tracking-widest text-[9px] lg:text-[10px] hover:bg-slate-50">Cancel</button>
+                <button type="submit" className="flex-1 btn-primary py-3.5 lg:py-4 rounded-xl lg:rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 text-[9px] lg:text-[10px]">Create Entry</button>
+              </div>
             </form>
           </div>
         </div>,
@@ -559,40 +559,40 @@ const Tables = () => {
       {/* History Modal */}
       {showHistory && (
         <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 lg:p-6">
-          <div 
+          <div
             onClick={() => setShowHistory(false)}
             className="absolute inset-0 bg-slate-900/60"
           />
-          <div 
+          <div
             className="relative w-full max-w-[95%] md:max-w-[620px] max-h-[90vh] bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col self-center"
           >
             <div className="px-6 py-6 lg:px-8 lg:py-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 shrink-0">
-               <div>
-                  <h3 className="text-xl lg:text-2xl font-black tracking-tight">Session History</h3>
-                  <p className="text-text-secondary text-xs lg:text-sm font-medium">Recent table settlements</p>
-               </div>
-               <button onClick={() => setShowHistory(false)} className="p-2 lg:p-3 bg-slate-50 rounded-xl lg:rounded-2xl hover:bg-slate-100 transition-all">
-                  <X className="w-5 lg:w-6 h-5 lg:h-6" />
-               </button>
+              <div>
+                <h3 className="text-xl lg:text-2xl font-black tracking-tight">Session History</h3>
+                <p className="text-text-secondary text-xs lg:text-sm font-medium">Recent table settlements</p>
+              </div>
+              <button onClick={() => setShowHistory(false)} className="p-2 lg:p-3 bg-slate-50 rounded-xl lg:rounded-2xl hover:bg-slate-100 transition-all">
+                <X className="w-5 lg:w-6 h-5 lg:h-6" />
+              </button>
             </div>
             <div className="flex-1 overflow-y-auto px-6 py-6 lg:px-8 lg:py-10 space-y-3 lg:space-y-4 scrollbar-hide">
-               {historyData.map(item => (
-                 <div key={item.id} className="flex items-center justify-between p-4 lg:p-6 bg-slate-50 rounded-2xl lg:rounded-3xl group hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-slate-100">
-                    <div className="flex items-center gap-3 lg:gap-4">
-                       <div className="w-10 lg:w-12 h-10 lg:h-12 bg-white rounded-xl lg:rounded-2xl flex items-center justify-center font-black text-sm lg:text-primary shadow-sm">
-                          {item.table}
-                       </div>
-                       <div>
-                          <p className="text-sm lg:text-base font-black text-text-primary">{item.customer}</p>
-                          <p className="text-[9px] lg:text-[10px] font-bold text-text-secondary uppercase tracking-widest mt-0.5 lg:mt-1">{item.time}</p>
-                       </div>
+              {historyData.map(item => (
+                <div key={item.id} className="flex items-center justify-between p-4 lg:p-6 bg-slate-50 rounded-2xl lg:rounded-3xl group hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-slate-100">
+                  <div className="flex items-center gap-3 lg:gap-4">
+                    <div className="w-10 lg:w-12 h-10 lg:h-12 bg-white rounded-xl lg:rounded-2xl flex items-center justify-center font-black text-sm lg:text-primary shadow-sm">
+                      {item.table}
                     </div>
-                    <div className="text-right">
-                       <p className="text-base lg:text-lg font-black text-text-primary">{item.total}</p>
-                       <span className="text-[8px] lg:text-[9px] font-black text-success uppercase tracking-[0.15em] lg:tracking-[0.2em]">{item.status}</span>
+                    <div>
+                      <p className="text-sm lg:text-base font-black text-text-primary">{item.customer}</p>
+                      <p className="text-[9px] lg:text-[10px] font-bold text-text-secondary uppercase tracking-widest mt-0.5 lg:mt-1">{item.time}</p>
                     </div>
-                 </div>
-               ))}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-base lg:text-lg font-black text-text-primary">{item.total}</p>
+                    <span className="text-[8px] lg:text-[9px] font-black text-success uppercase tracking-[0.15em] lg:tracking-[0.2em]">{item.status}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -601,46 +601,46 @@ const Tables = () => {
       {/* Add Items Quick Modal */}
       {showAddItems && (
         <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 lg:p-6">
-          <div 
+          <div
             onClick={() => setShowAddItems(false)}
             className="absolute inset-0 bg-slate-900/60"
           />
-           <div 
+          <div
             className="relative w-full max-w-[95%] md:max-w-md bg-white rounded-[2rem] md:rounded-[3.5rem] shadow-2xl p-6 md:p-10 self-end sm:self-center max-h-[90vh] overflow-hidden flex flex-col"
           >
-             <div className="shrink-0">
-                <h3 className="text-xl lg:text-2xl font-black tracking-tight mb-6 lg:mb-8 text-text-primary uppercase tracking-wider">Quick Add Items</h3>
-             </div>
-             <div className="flex-1 overflow-y-auto scrollbar-hide pr-1">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
-              {((menuItems && menuItems.length > 0) ? menuItems.slice(0, 6) : [
-                { id: 1, item_name: 'Fresh Lime', price: 90 },
-                { id: 2, item_name: 'Garlic Bread', price: 180 },
-                { id: 3, item_name: 'Brownie Shake', price: 240 },
-                { id: 4, item_name: 'Extra Cheese', price: 60 }
-              ]).map(item => (
-                <button 
-                  key={item.id}
-                  onClick={() => {
-                    updateTableStatus(selectedTable.id, 'occupied', { 
-                      orders: [...selectedTable.orders, { name: item.item_name || item.name, price: item.price, status: 'pending', menu_item_id: item.id }],
-                      total: selectedTable.total + item.price
-                    });
-                    setShowAddItems(false);
-                  }}
-                  className="p-4 lg:p-6 bg-slate-50 rounded-2xl lg:rounded-[2rem] border-2 border-transparent hover:border-primary/20 hover:bg-white transition-all text-left group"
-                >
-                  <p className="text-xs lg:text-sm font-black text-text-primary group-hover:text-primary">{item.item_name || item.name}</p>
-                  <p className="text-[9px] lg:text-[10px] font-bold text-text-secondary mt-0.5 lg:mt-1">₹{item.price}</p>
-                </button>
-              ))}
-                </div>
-             </div>
-             <div className="shrink-0 mt-6 lg:mt-8">
-                <button onClick={() => setShowAddItems(false)} className="w-full py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black uppercase text-[10px] lg:text-xs tracking-widest text-slate-400 hover:bg-slate-100 transition-all">
-                  Cancel
-                </button>
-             </div>
+            <div className="shrink-0">
+              <h3 className="text-xl lg:text-2xl font-black tracking-tight mb-6 lg:mb-8 text-text-primary uppercase tracking-wider">Quick Add Items</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto scrollbar-hide pr-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
+                {((menuItems && menuItems.length > 0) ? menuItems.slice(0, 6) : [
+                  { id: 1, item_name: 'Fresh Lime', price: 90 },
+                  { id: 2, item_name: 'Garlic Bread', price: 180 },
+                  { id: 3, item_name: 'Brownie Shake', price: 240 },
+                  { id: 4, item_name: 'Extra Cheese', price: 60 }
+                ]).map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      updateTableStatus(selectedTable.id, 'occupied', {
+                        orders: [...selectedTable.orders, { name: item.item_name || item.name, price: item.price, status: 'pending', menu_item_id: item.id }],
+                        total: selectedTable.total + item.price
+                      });
+                      setShowAddItems(false);
+                    }}
+                    className="p-4 lg:p-6 bg-slate-50 rounded-2xl lg:rounded-[2rem] border-2 border-transparent hover:border-primary/20 hover:bg-white transition-all text-left group"
+                  >
+                    <p className="text-xs lg:text-sm font-black text-text-primary group-hover:text-primary">{item.item_name || item.name}</p>
+                    <p className="text-[9px] lg:text-[10px] font-bold text-text-secondary mt-0.5 lg:mt-1">₹{item.price}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="shrink-0 mt-6 lg:mt-8">
+              <button onClick={() => setShowAddItems(false)} className="w-full py-4 bg-slate-50 border border-slate-100 rounded-2xl font-black uppercase text-[10px] lg:text-xs tracking-widest text-slate-400 hover:bg-slate-100 transition-all">
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -648,11 +648,11 @@ const Tables = () => {
       {/* Compact & Interactive Billing Modal */}
       {showBilling && (
         <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 overflow-hidden">
-          <div 
+          <div
             onClick={() => !isProcessing && setShowBilling(false)}
             className="absolute inset-0 bg-slate-900/60"
           />
-          <div 
+          <div
             className="relative w-full max-w-[95%] md:max-w-xl bg-white rounded-[2rem] md:rounded-3xl shadow-2xl flex flex-col max-h-[90vh] border border-white/20 self-center"
           >
             {/* Header */}
@@ -668,8 +668,8 @@ const Tables = () => {
                   </p>
                 </div>
               </div>
-              <button 
-                onClick={() => !isProcessing && setShowBilling(false)} 
+              <button
+                onClick={() => !isProcessing && setShowBilling(false)}
                 className="p-2 lg:p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-border transition-all shadow-sm group"
               >
                 <X className="w-5 h-5 text-text-secondary" />
@@ -687,13 +687,13 @@ const Tables = () => {
                     { name: 'Card', icon: CreditCard, color: 'text-blue-600', bg: 'bg-blue-50' },
                     { name: 'UPI', icon: ChevronRight, color: 'text-primary', bg: 'bg-indigo-50' },
                   ].map((method) => (
-                    <button 
+                    <button
                       onClick={() => setPaymentMethod(method.name)}
-                      key={method.name} 
+                      key={method.name}
                       className={cn(
-                        "relative p-4 rounded-2xl border-2 flex flex-col items-center justify-center gap-3 transition-all overflow-hidden", 
-                        paymentMethod === method.name 
-                          ? "border-primary bg-indigo-50/30 shadow-md" 
+                        "relative p-4 rounded-2xl border-2 flex flex-col items-center justify-center gap-3 transition-all overflow-hidden",
+                        paymentMethod === method.name
+                          ? "border-primary bg-indigo-50/30 shadow-md"
                           : "border-slate-50 bg-slate-50/50 hover:border-primary/20 hover:bg-white"
                       )}
                     >
@@ -708,44 +708,44 @@ const Tables = () => {
 
               {/* Amount Summary */}
               <div className="px-6 py-7 bg-slate-50/80 rounded-[1.5rem] border-2 border-white flex items-center justify-between group hover:bg-white shadow-inner">
-                 <div className="flex flex-col">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">Payable Amount</span>
-                    <h4 className="text-4xl font-black text-text-primary tracking-tighter">₹{Math.round(selectedTable?.total * 1.05)}</h4>
-                 </div>
-                 <div className="flex w-12 h-12 bg-white rounded-xl border border-slate-100 items-center justify-center shadow-lg">
-                    <Sparkles className="w-5 h-5 text-primary" />
-                 </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">Payable Amount</span>
+                  <h4 className="text-4xl font-black text-text-primary tracking-tighter">₹{Math.round(selectedTable?.total * 1.05)}</h4>
+                </div>
+                <div className="flex w-12 h-12 bg-white rounded-xl border border-slate-100 items-center justify-center shadow-lg">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
               </div>
 
               {/* Brief Breakdown */}
               <div className="px-4 space-y-2">
-                 <div className="flex justify-between text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60">
-                    <span>Subtotal</span>
-                    <span>₹{selectedTable?.total}</span>
-                 </div>
-                 <div className="flex justify-between text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
-                    <span>Taxes & Service (5%)</span>
-                    <span>+ ₹{Math.round(selectedTable?.total * 0.05)}</span>
-                 </div>
+                <div className="flex justify-between text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60">
+                  <span>Subtotal</span>
+                  <span>₹{selectedTable?.total}</span>
+                </div>
+                <div className="flex justify-between text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
+                  <span>Taxes & Service (5%)</span>
+                  <span>+ ₹{Math.round(selectedTable?.total * 0.05)}</span>
+                </div>
               </div>
             </div>
 
             {/* Actions */}
             <div className="px-6 py-6 border-t border-slate-50 bg-white shrink-0">
-              <button 
+              <button
                 disabled={isProcessing}
                 onClick={handleFinalize}
                 className={cn(
                   "w-full py-4.5 text-lg shadow-xl rounded-2xl font-black tracking-tight",
-                  isProcessing 
-                    ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
+                  isProcessing
+                    ? "bg-slate-100 text-slate-400 cursor-not-allowed"
                     : "btn-primary shadow-primary/20"
                 )}
               >
                 {isProcessing ? (
                   <div className="flex items-center justify-center gap-2">
-                     <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                     <span className="text-sm">Processing...</span>
+                    <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span className="text-sm">Processing...</span>
                   </div>
                 ) : 'Finalize & Print'}
               </button>
@@ -760,7 +760,7 @@ const Tables = () => {
             <h1 className="text-xl font-black uppercase tracking-tighter">The Luxe Grande</h1>
             <p className="text-[10px] font-bold uppercase tracking-widest mt-1">Table Final Bill</p>
           </div>
-          
+
           <div className="flex justify-between text-[10px] font-bold mb-4">
             <div>
               <p>TABLE: {selectedTable.name}</p>

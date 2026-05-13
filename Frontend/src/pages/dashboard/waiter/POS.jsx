@@ -323,12 +323,12 @@ const POS = () => {
                    </div>
                 </div>
 
-                <div className="relative z-10 mb-2 flex-1 flex flex-col min-h-0">
-                  <h4 className="font-black text-text-primary text-[11px] lg:text-base leading-tight group-hover:text-primary uppercase tracking-tight line-clamp-2 mb-1">
-                    {item.item_name || item.name}
+                <div className="relative z-10 mb-3 flex-1 flex flex-col min-h-[40px] lg:min-h-[50px]">
+                  <h4 className="font-black text-slate-900 text-[11px] lg:text-sm leading-tight group-hover:text-primary uppercase tracking-tight mb-1 break-words">
+                    {item.item_name || item.name || "Unnamed Item"}
                   </h4>
-                  <p className="line-clamp-2 text-text-secondary text-[9px] lg:text-[11px] font-medium opacity-60 leading-relaxed">
-                    {item.description}
+                  <p className="text-slate-500 text-[9px] lg:text-[10px] font-medium leading-relaxed line-clamp-3">
+                    {item.description || "Freshly prepared with premium ingredients."}
                   </p>
                 </div>
 

@@ -1,6 +1,7 @@
 const reservationsModel = require('./reservations.model');
 const pool = require('../../database/connection');
 const { getIO } = require('../../sockets/socket.manager');
+const notificationService = require('../notifications/notifications.service');
 
 class ReservationsService {
   async getAllReservations(filters) {
@@ -99,6 +100,18 @@ class ReservationsService {
       // Notify staff
       const io = getIO();
       io.emit('new_reservation', { id: reservationId, date: payload.booking_date, type: payload.booking_type });
+
+      await notificationService.createNotification({
+        notification_type: 'RESERVATION',
+        message: `New ${payload.booking_type} reservation: ${payload.reservation_code}`,
+        targetRole: 'RECEPTION'
+      });
+      
+      await notificationService.createNotification({
+        notification_type: 'RESERVATION',
+        message: `New booking received for ${payload.booking_date}`,
+        targetRole: 'ADMIN'
+      });
       
       return { reservationId, guestId: guest_id };
     } catch (err) {
@@ -115,6 +128,12 @@ class ReservationsService {
     // Notify customer/staff
     const io = getIO();
     io.emit('reservation_update', { id, status });
+
+    await notificationService.createNotification({
+      notification_type: 'RESERVATION_UPDATE',
+      message: `Reservation #${id} status changed to ${status}`,
+      targetRole: 'RECEPTION'
+    });
     
     return result;
   }

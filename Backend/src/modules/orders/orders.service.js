@@ -1,5 +1,6 @@
 const ordersRepository = require('./orders.repository');
 const { getIO } = require('../../sockets/socket.manager');
+const notificationService = require('../notifications/notifications.service');
 const pool = require('../../database/connection');
 
 class OrdersService {
@@ -34,6 +35,19 @@ class OrdersService {
       io.emit('new_order', { id: orderId, order_number: orderData.order_number });
       io.to('chef').emit('new_kitchen_ticket', { orderId });
 
+      // 4. Save Notification
+      await notificationService.createNotification({
+        notification_type: 'ORDER',
+        message: `New Order Received: #${orderData.order_number}`,
+        targetRole: 'CHEF'
+      });
+      
+      await notificationService.createNotification({
+        notification_type: 'ORDER',
+        message: `New Order Placed: #${orderData.order_number}`,
+        targetRole: 'ADMIN'
+      });
+
       return orderId;
     } catch (err) {
       await connection.rollback();
@@ -49,6 +63,13 @@ class OrdersService {
     // Socket Notification
     const io = getIO();
     io.emit('order_update', { id, status });
+
+    // Save Notification
+    await notificationService.createNotification({
+      notification_type: 'ORDER_UPDATE',
+      message: `Order #${id} is now ${status}`,
+      targetRole: status === 'Ready' ? 'WAITER' : 'ADMIN'
+    });
     
     return result;
   }

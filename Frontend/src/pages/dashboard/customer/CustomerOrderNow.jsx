@@ -319,8 +319,12 @@ const CustomerOrderNow = () => {
                           </div>
                           <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{item.category}</span>
                        </div>
-                       <h4 className="font-black text-text-primary text-xs lg:text-sm uppercase tracking-tight leading-tight group-hover:text-primary transition-colors line-clamp-1">{item.name}</h4>
-                       <p className="text-[10px] font-medium text-slate-400 line-clamp-2 leading-relaxed h-8">{item.description}</p>
+                       <h4 className="font-black text-slate-900 text-xs lg:text-sm uppercase tracking-tight leading-tight group-hover:text-primary transition-colors mb-1 break-words">
+                          {item.name || item.item_name || "Unnamed Item"}
+                       </h4>
+                       <p className="text-[10px] font-medium text-slate-500 line-clamp-3 leading-relaxed min-h-[30px]">
+                          {item.description || "Freshly prepared with premium ingredients."}
+                       </p>
                    </div>
                    <div className="mt-auto pt-3 border-t border-slate-50 flex items-center justify-between shrink-0">
                        <p className="text-lg lg:text-xl font-black text-text-primary tracking-tighter">₹{item.price}</p>

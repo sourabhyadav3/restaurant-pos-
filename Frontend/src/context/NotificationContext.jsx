@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 import api from '../services/api';
+import socketService from '../services/socket';
 
 const NotificationContext = createContext();
 
@@ -27,9 +28,30 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       fetchNotifications();
-      // Poll for new notifications every 30 seconds
-      const interval = setInterval(fetchNotifications, 30000);
-      return () => clearInterval(interval);
+      
+      const token = localStorage.getItem('token');
+      const userRole = (user.role || user.role_name || '').toUpperCase();
+      const socket = socketService.connect(token, userRole);
+
+      socketService.on('notification', (newNotif) => {
+        // Only add if it's for this user or their role
+        if (newNotif.targetRole === 'ALL' || newNotif.targetRole === userRole || newNotif.user_id === user.id) {
+          setNotifications(prev => [newNotif, ...prev]);
+          
+          // Optional: Browser Notification
+          if (Notification.permission === 'granted') {
+             new Notification(newNotif.notification_type || 'System Alert', {
+               body: newNotif.message,
+               icon: '/logo.png'
+             });
+          }
+        }
+      });
+
+      return () => {
+        socketService.off('notification');
+        socketService.disconnect();
+      };
     }
   }, [user, fetchNotifications]);
 
@@ -83,7 +105,11 @@ export const NotificationProvider = ({ children }) => {
   }, []);
 
   const getUnreadCount = useCallback((role) => {
-    return notifications.filter(n => !n.is_read && !n.read).length;
+    const userRole = (role || '').toUpperCase();
+    return notifications.filter(n => 
+      (!n.is_read && !n.read) && 
+      (n.targetRole === userRole || n.targetRole === 'ALL')
+    ).length;
   }, [notifications]);
 
   return (

@@ -437,4 +437,18 @@ CREATE TABLE IF NOT EXISTS settings (
     deletedAt TIMESTAMP NULL
 );
 
+-- 31. Billing Charges
+CREATE TABLE IF NOT EXISTS billing_charges (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    billing_id INT,
+    description VARCHAR(255),
+    amount DECIMAL(12, 2) NOT NULL,
+    type VARCHAR(50),
+    charge_date DATE NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deletedAt TIMESTAMP NULL,
+    FOREIGN KEY (billing_id) REFERENCES guest_billing(id)
+);
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -50,11 +50,26 @@ class BillingService {
     try {
       const { description, amount, type, date } = data;
       
+      // Robust date formatting for MySQL DATE type
+      let chargeDate = date;
+      if (chargeDate && typeof chargeDate === 'string' && chargeDate.includes('/')) {
+        const parts = chargeDate.split('/');
+        if (parts.length === 3) {
+          const d = new Date(chargeDate);
+          if (!isNaN(d.getTime())) {
+            chargeDate = d.toISOString().split('T')[0];
+          }
+        }
+      }
+      if (!chargeDate) {
+        chargeDate = new Date().toISOString().split('T')[0];
+      }
+      
       const sql = `
         INSERT INTO billing_charges (billing_id, description, amount, type, charge_date) 
         VALUES (?, ?, ?, ?, ?)
       `;
-      await connection.execute(sql, [id, description, amount, type, date || new Date().toISOString().split('T')[0]]);
+      await connection.execute(sql, [id, description, amount, type, chargeDate]);
 
       // Update total charges and balance in guest_billing
       const updateSql = `

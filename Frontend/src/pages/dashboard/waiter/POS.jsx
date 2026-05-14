@@ -189,7 +189,7 @@ const POS = () => {
         addToFolio(selectedGuestId, {
           description: `Room Service Order`,
           amount: total,
-          date: new Date().toLocaleDateString(),
+          date: new Date().toISOString().split('T')[0],
           type: 'Food'
         });
       }

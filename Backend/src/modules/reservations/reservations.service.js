@@ -10,20 +10,40 @@ class ReservationsService {
 
   async createReservation(data) {
     let guest_id = data.guest_id;
+    const { email, phone, guestName } = data;
 
-    // Resolve Guest if guestName is provided
-    if (data.guestName && !guest_id) {
-      const [guestRows] = await pool.execute(
-        'SELECT id FROM guests WHERE full_name = ? AND deletedAt IS NULL',
-        [data.guestName]
-      );
+    // Resolve Guest if guestName, email or phone is provided
+    if ((guestName || email || phone) && !guest_id) {
+      // Try to find guest by email or phone first
+      let guestRows = [];
+      if (email) {
+        [guestRows] = await pool.execute(
+          'SELECT id FROM guests WHERE email = ? AND deletedAt IS NULL',
+          [email]
+        );
+      }
       
+      if (guestRows.length === 0 && phone) {
+        [guestRows] = await pool.execute(
+          'SELECT id FROM guests WHERE phone = ? AND deletedAt IS NULL',
+          [phone]
+        );
+      }
+
       if (guestRows.length > 0) {
         guest_id = guestRows[0].id;
+        // Optionally update guest info if provided
+        if (guestName || email || phone) {
+          await pool.execute(
+            'UPDATE guests SET full_name = COALESCE(?, full_name), email = COALESCE(?, email), phone = COALESCE(?, phone) WHERE id = ?',
+            [guestName || null, email || null, phone || null, guest_id]
+          );
+        }
       } else {
+        // Create new guest
         const [result] = await pool.execute(
-          'INSERT INTO guests (full_name) VALUES (?)',
-          [data.guestName]
+          'INSERT INTO guests (full_name, email, phone) VALUES (?, ?, ?)',
+          [guestName || 'Walk-in Guest', email || null, phone || null]
         );
         guest_id = result.insertId;
       }
@@ -36,6 +56,8 @@ class ReservationsService {
       const payload = {
         reservation_code: data.id || data.reservation_code || `RES-${Date.now().toString().slice(-6)}`,
         guest_id: guest_id,
+        table_id: data.table_id || data.targetId || null,
+        room_id: data.room_id || null,
         booking_type: (data.type || data.booking_type || 'table').toLowerCase(),
         booking_date: data.date || data.booking_date || new Date().toISOString().split('T')[0],
         booking_time: data.time || data.booking_time || new Date().toTimeString().split(' ')[0],
@@ -44,7 +66,28 @@ class ReservationsService {
         reservation_status: (data.status || data.reservation_status || 'pending').toLowerCase()
       };
 
+      // If table_id is provided as a string (e.g. "T-01"), try to find the actual ID
+      if (payload.table_id && isNaN(payload.table_id)) {
+        const [tableRows] = await connection.execute(
+          'SELECT id FROM restaurant_tables WHERE table_code = ? OR id = ?',
+          [payload.table_id, payload.table_id]
+        );
+        if (tableRows.length > 0) {
+          payload.table_id = tableRows[0].id;
+        } else {
+          payload.table_id = null;
+        }
+      }
+
       const reservationId = await reservationsModel.create(payload);
+
+      // If it's a table booking and table_id is known, update table status
+      if (payload.booking_type === 'table' && payload.table_id) {
+        await connection.execute(
+          'UPDATE restaurant_tables SET status = "reserved" WHERE id = ?',
+          [payload.table_id]
+        );
+      }
 
       // If it's a room booking, handle extra logic
       if (payload.booking_type === 'room' && data.room_id) {
@@ -99,7 +142,10 @@ class ReservationsService {
       
       // Notify staff
       const io = getIO();
-      io.emit('new_reservation', { id: reservationId, date: payload.booking_date, type: payload.booking_type });
+      io.emit('new_reservation', { id: reservationId, date: payload.booking_date, type: payload.booking_type, table_id: payload.table_id });
+      if (payload.table_id) {
+        io.emit('table_status_update', { id: payload.table_id, status: 'reserved' });
+      }
 
       await notificationService.createNotification({
         notification_type: 'RESERVATION',
@@ -109,7 +155,7 @@ class ReservationsService {
       
       await notificationService.createNotification({
         notification_type: 'RESERVATION',
-        message: `New booking received for ${payload.booking_date}`,
+        message: `New booking received for ${payload.booking_date} from ${guestName || 'Guest'}`,
         targetRole: 'ADMIN'
       });
       
@@ -122,20 +168,64 @@ class ReservationsService {
     }
   }
 
-  async updateStatus(id, status) {
-    const result = await reservationsModel.update(id, { reservation_status: status });
-    
-    // Notify customer/staff
-    const io = getIO();
-    io.emit('reservation_update', { id, status });
 
-    await notificationService.createNotification({
-      notification_type: 'RESERVATION_UPDATE',
-      message: `Reservation #${id} status changed to ${status}`,
-      targetRole: 'RECEPTION'
-    });
-    
-    return result;
+  async updateStatus(id, status) {
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      // 1. Fetch reservation to check type and table_id
+      const [resRows] = await connection.execute(
+        'SELECT booking_type, table_id FROM reservations WHERE id = ?',
+        [id]
+      );
+
+      if (resRows.length > 0) {
+        const res = resRows[0];
+        // 2. Update reservation status
+        await connection.execute(
+          'UPDATE reservations SET reservation_status = ? WHERE id = ?',
+          [status.toLowerCase(), id]
+        );
+
+        // 3. If it's a table booking, sync table status
+        if (res.booking_type === 'table' && res.table_id) {
+          let newTableStatus = null;
+          if (status.toLowerCase() === 'checked_in') newTableStatus = 'occupied';
+          if (status.toLowerCase() === 'cancelled') newTableStatus = 'available';
+          if (status.toLowerCase() === 'completed') newTableStatus = 'available';
+
+          if (newTableStatus) {
+            await connection.execute(
+              'UPDATE restaurant_tables SET status = ? WHERE id = ?',
+              [newTableStatus, res.table_id]
+            );
+            
+            const io = getIO();
+            io.emit('table_status_update', { id: res.table_id, status: newTableStatus });
+          }
+        }
+      }
+
+      await connection.commit();
+
+      // Notify customer/staff
+      const io = getIO();
+      io.emit('reservation_update', { id, status });
+
+      await notificationService.createNotification({
+        notification_type: 'RESERVATION_UPDATE',
+        message: `Reservation #${id} status changed to ${status}`,
+        targetRole: 'RECEPTION'
+      });
+      
+      return { success: true };
+    } catch (err) {
+      await connection.rollback();
+      throw err;
+    } finally {
+      connection.release();
+    }
   }
 
   async deleteReservation(id) {

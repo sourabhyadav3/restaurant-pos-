@@ -255,7 +255,29 @@ export const HospitalityProvider = ({ children }) => {
 
   const addToFolio = useCallback(async (guestId, transaction) => {
     try {
-      await api.post(`/billing/${guestId}/charges`, transaction);
+      // Ensure date is in YYYY-MM-DD format for backend compatibility
+      // If date is in M/D/YYYY format (from toLocaleDateString), convert it
+      let formattedDate = transaction.date;
+      if (formattedDate && formattedDate.includes('/')) {
+        const parts = formattedDate.split('/');
+        if (parts.length === 3) {
+          // Assuming M/D/YYYY or D/M/YYYY - Date constructor handles these reasonably well
+          // but let's be explicit to avoid locale issues
+          const dateObj = new Date(formattedDate);
+          if (!isNaN(dateObj.getTime())) {
+            formattedDate = dateObj.toISOString().split('T')[0];
+          }
+        }
+      } else if (!formattedDate) {
+        formattedDate = new Date().toISOString().split('T')[0];
+      }
+
+      const transactionData = {
+        ...transaction,
+        date: formattedDate
+      };
+
+      await api.post(`/billing/${guestId}/charges`, transactionData);
       addActivity(`Charge added to folio: ${transaction.description}`, 'info');
       await fetchData(true);
     } catch (error) {

@@ -90,7 +90,7 @@ const GuestFolio = () => {
               </div>
               <div className="text-right">
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Statement Details</p>
-                <p className="text-sm font-black text-slate-900 uppercase">Date: {new Date().toLocaleDateString()}</p>
+                <p className="text-sm font-black text-slate-900 uppercase">Date: {new Date().toISOString().split('T')[0]}</p>
                 <p className="text-xs font-bold text-slate-500 mt-1 uppercase">Status: {folio.status} Account</p>
               </div>
             </div>
@@ -423,7 +423,7 @@ const GuestFolio = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Statement Details</p>
-                  <p className="text-sm font-black text-slate-900 uppercase">Date: {new Date().toLocaleDateString()}</p>
+                  <p className="text-sm font-black text-slate-900 uppercase">Date: {new Date().toISOString().split('T')[0]}</p>
                   <p className="text-xs font-bold text-slate-500 mt-1 uppercase">Status: {selectedFolio.status} Account</p>
                 </div>
               </div>

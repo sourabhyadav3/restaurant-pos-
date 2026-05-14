@@ -46,7 +46,7 @@ const GuestBills = () => {
   ];
 
   const handlePrintBatch = () => {
-    printContent('print-section');
+    printContent('batch-folios-print');
   };
 
   return (
@@ -80,73 +80,135 @@ const GuestBills = () => {
         }
       `}} />
 
-      {/* Print Template (Visible only during print) */}
-      <div className="print-section">
-        {filteredFolios.map((folio, idx) => (
-          <div key={folio.id} className="folio-page">
-            <div className="flex justify-between items-start border-b-2 border-slate-900 pb-8 mb-8">
-              <div>
-                <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">The Luxe Grande</h1>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mt-1">Premium Hospitality & Resort</p>
+      {/* Hidden Print Container */}
+      <div className="hidden">
+        {/* Single Folio Print Template */}
+        <div id="single-folio-print" className="print-section">
+          {selectedFolio && (
+            <div className="folio-page">
+              <div className="flex justify-between items-start border-b-2 border-slate-900 pb-8 mb-8">
+                <div>
+                  <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">The Luxe Grande</h1>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mt-1">Premium Hospitality & Resort</p>
+                </div>
+                <div className="text-right">
+                  <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Guest Statement</h2>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Invoice #{selectedFolio.id}</p>
+                </div>
               </div>
-              <div className="text-right">
-                <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Guest Statement</h2>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Invoice #{folio.id}</p>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-12 mb-12">
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Guest Information</p>
-                <p className="text-lg font-black text-slate-900 uppercase">{folio.guestName}</p>
-                <p className="text-xs font-bold text-slate-500 mt-1 uppercase">Room: {folio.roomName}</p>
+              <div className="grid grid-cols-2 gap-12 mb-12">
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Guest Information</p>
+                  <p className="text-lg font-black text-slate-900 uppercase">{selectedFolio.guestName}</p>
+                  <p className="text-xs font-bold text-slate-500 mt-1 uppercase">Room: {selectedFolio.roomName}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Statement Details</p>
+                  <p className="text-sm font-black text-slate-900 uppercase">Date: {new Date().toISOString().split('T')[0]}</p>
+                  <p className="text-xs font-bold text-slate-500 mt-1 uppercase">Status: {selectedFolio.status} Account</p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Statement Details</p>
-                <p className="text-sm font-black text-slate-900 uppercase">Date: {new Date().toLocaleDateString()}</p>
-                <p className="text-xs font-bold text-slate-500 mt-1 uppercase">Status: {folio.status} Account</p>
-              </div>
-            </div>
 
-            <table className="w-full mb-12">
-              <thead>
-                <tr className="border-b border-slate-900">
-                  <th className="text-left py-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Date</th>
-                  <th className="text-left py-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Description</th>
-                  <th className="text-left py-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Type</th>
-                  <th className="text-right py-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Amount</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {folio.items.map((item, i) => (
-                  <tr key={i}>
-                    <td className="py-4 text-[10px] font-bold text-slate-500 uppercase">{item.date}</td>
-                    <td className="py-4 text-[10px] font-black text-slate-900 uppercase">{item.description}</td>
-                    <td className="py-4 text-[9px] font-bold text-slate-400 uppercase">{item.type}</td>
-                    <td className="py-4 text-right text-[11px] font-black text-slate-900">₹{item.amount.toLocaleString()}</td>
+              <table className="w-full mb-12">
+                <thead>
+                  <tr className="border-b border-slate-900">
+                    <th className="text-left py-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Date</th>
+                    <th className="text-left py-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Description</th>
+                    <th className="text-left py-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Type</th>
+                    <th className="text-right py-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Amount</th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="border-t-2 border-slate-900">
-                  <td colSpan="3" className="py-6 text-[10px] font-black uppercase tracking-widest text-slate-900 text-right pr-8">Grand Total (INR)</td>
-                  <td className="py-6 text-right text-2xl font-black text-slate-900 tracking-tighter">₹{folio.total.toLocaleString()}</td>
-                </tr>
-              </tfoot>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {selectedFolio.items.map((item, i) => (
+                    <tr key={i}>
+                      <td className="py-4 text-[10px] font-bold text-slate-500 uppercase">{item.date}</td>
+                      <td className="py-4 text-[10px] font-black text-slate-900 uppercase">{item.description}</td>
+                      <td className="py-4 text-[9px] font-bold text-slate-400 uppercase">{item.type}</td>
+                      <td className="py-4 text-right text-[11px] font-black text-slate-900">₹{item.amount.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-slate-900">
+                    <td colSpan="3" className="py-6 text-[10px] font-black uppercase tracking-widest text-slate-900 text-right pr-8">Grand Total (INR)</td>
+                    <td className="py-6 text-right text-2xl font-black text-slate-900 tracking-tighter">₹{selectedFolio.total.toLocaleString()}</td>
+                  </tr>
+                </tfoot>
+              </table>
 
-            <div className="grid grid-cols-2 gap-8 pt-8 border-t border-slate-50">
-               <div className="p-4 bg-slate-50 rounded-xl">
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Notes</p>
-                  <p className="text-[9px] font-medium text-slate-500 leading-relaxed uppercase">Charges are inclusive of all applicable taxes. Please contact the front desk for any discrepancies.</p>
-               </div>
-               <div className="flex flex-col items-end justify-center text-right">
-                  <div className="w-32 h-12 border-b border-slate-300 mb-2" />
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Authorized Signature</p>
-               </div>
+              <div className="grid grid-cols-2 gap-8 pt-8 border-t border-slate-50">
+                 <div className="p-4 bg-slate-50 rounded-xl">
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Notes</p>
+                    <p className="text-[9px] font-medium text-slate-500 leading-relaxed uppercase">Charges are inclusive of all applicable taxes. Please contact the front desk for any discrepancies.</p>
+                 </div>
+                 <div className="flex flex-col items-end justify-center text-right">
+                    <div className="w-32 h-12 border-b border-slate-300 mb-2" />
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Authorized Signature</p>
+                 </div>
+              </div>
             </div>
-          </div>
-        ))}
+          )}
+        </div>
+
+        {/* Batch Folios Print Template */}
+        <div id="batch-folios-print" className="print-section">
+          {filteredFolios.map((folio) => (
+            <div key={folio.id} className="folio-page">
+              <div className="flex justify-between items-start border-b-2 border-slate-900 pb-8 mb-8">
+                <div>
+                  <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">The Luxe Grande</h1>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mt-1">Premium Hospitality & Resort</p>
+                </div>
+                <div className="text-right">
+                  <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">Guest Statement</h2>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Invoice #{folio.id}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-12 mb-12">
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Guest Information</p>
+                  <p className="text-lg font-black text-slate-900 uppercase">{folio.guestName}</p>
+                  <p className="text-xs font-bold text-slate-500 mt-1 uppercase">Room: {folio.roomName}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Statement Details</p>
+                  <p className="text-sm font-black text-slate-900 uppercase">Date: {new Date().toISOString().split('T')[0]}</p>
+                  <p className="text-xs font-bold text-slate-500 mt-1 uppercase">Status: {folio.status} Account</p>
+                </div>
+              </div>
+
+              <table className="w-full mb-12">
+                <thead>
+                  <tr className="border-b border-slate-900">
+                    <th className="text-left py-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Date</th>
+                    <th className="text-left py-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Description</th>
+                    <th className="text-left py-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Type</th>
+                    <th className="text-right py-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {folio.items.map((item, i) => (
+                    <tr key={i}>
+                      <td className="py-4 text-[10px] font-bold text-slate-500 uppercase">{item.date}</td>
+                      <td className="py-4 text-[10px] font-black text-slate-900 uppercase">{item.description}</td>
+                      <td className="py-4 text-[9px] font-bold text-slate-400 uppercase">{item.type}</td>
+                      <td className="py-4 text-right text-[11px] font-black text-slate-900">₹{item.amount.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-slate-900">
+                    <td colSpan="3" className="py-6 text-[10px] font-black uppercase tracking-widest text-slate-900 text-right pr-8">Grand Total (INR)</td>
+                    <td className="py-6 text-right text-2xl font-black text-slate-900 tracking-tighter">₹{folio.total.toLocaleString()}</td>
+                  </tr>
+                </tfoot>
+              </table>
+              <div className="folio-page-break" style={{ pageBreakAfter: 'always' }}></div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Header Area */}
@@ -347,7 +409,7 @@ const GuestBills = () => {
               </div>
               <div className="flex items-center gap-2">
                  <button 
-                  onClick={() => printContent('print-section')}
+                  onClick={() => printContent('single-folio-print')}
                   className="p-3 hover:bg-white rounded-2xl transition-all text-slate-400 hover:text-primary hidden sm:flex"
                  >
                     <Printer className="w-5 h-5" />
